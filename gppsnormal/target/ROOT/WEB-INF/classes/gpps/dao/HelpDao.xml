@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gpps.dao.IHelpDao">
+	<select id="countAll" resultType="int">
+		select count(*) from Help
+	</select>
+	<select id="find" parameterType="Integer" resultType="gpps.model.Help">
+		select *
+		from Help where id=#{id}
+	</select>
+	<insert id="create" parameterType="gpps.model.Help"
+        useGeneratedKeys="true" keyProperty="id">
+        insert into
+        Help(type,publicType,questionerType,questionerId,question,answer,createtime,answertime)
+        values(#{type},#{publicType},#{questionerType},#{questionerId},#{question},#{answer},#{createtime},#{answertime})
+    </insert>
+    <select id="countPublicHelps" parameterType="int" resultType="int">
+        select count(*)
+        from Help where type=0
+        <if test="publicType != -1">
+            and publicType=#{publicType}
+        </if>
+    </select>
+	<select id="findPublicHelps" resultType="gpps.model.Help">
+		select *
+		from Help where type=0
+		<if test="publicType != -1">
+            and publicType=#{publicType}
+        </if>
+		order by createtime desc
+		LIMIT #{offset}, #{recnum}
+	</select>
+	<select id="countPrivateHelps"  resultType="int">
+        select count(*)
+        from Help where 1=1
+        <if test="type != -1">
+        	and type=#{type}
+        </if>
+        <if test="questionerType != -1">
+            and questionerType=#{questionerType}
+            <if test="questionerId != null">
+                and questionerId=#{questionerId}
+            </if>
+        </if>
+    </select>
+    <select id="findPrivateHelps" resultType="gpps.model.Help">
+        select *
+        from Help where 1=1
+        <if test="type != -1">
+        	and type=#{type}
+        </if>
+        <if test="questionerType != -1">
+            and questionerType=#{questionerType}
+            <if test="questionerId != null">
+                and questionerId=#{questionerId}
+            </if>
+        </if>
+        order by createtime desc
+        LIMIT #{offset}, #{recnum}
+    </select>
+    <update id="answer">
+    	update Help set answer=#{answer}, type=2, answertime=#{answertime} where id=#{id}
+    </update>
+</mapper>

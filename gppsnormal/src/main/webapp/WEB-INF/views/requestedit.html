@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1 user-scalable=no">
+<title>订单编辑</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="js/uploadify2/uploadify.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" id="spi-render-css-css"
+	href="css/image/render.css" type="text/css" media="all" />
+<link rel="stylesheet" type="text/css"
+	href="css/image/default.include.b2676e.css" media="all" />
+	<link type="text/css" href="css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet" />
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+	<div class="container-fluid" style="width:1200px;">
+		<div class="row" style="margin-bottom:20px; margin-top:20px;padding:10px 5px 20px 5px; border: solid green 1px;">
+		<div class="row" style="margin-bottom:20px;">
+		<div class="col-md-10" style="text-align:center;">
+			<span style="font-size:24px; font-weight:bold;">融资申请资料编辑
+		</div>
+		<div class="col-md-2"><button id="save">保存</button></div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">融资产品名称</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="title"></input>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">融资起始时间</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" name='modifyStartTime',readonly='readonly', id="financingStarttime"></input>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">融资终止时间</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="financingEndtime"></input>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">收益起始时间</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="incomeStarttime">
+			</div>
+		</div>
+		
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">中标订单名称</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="formalName"></input>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">中标订单级别</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="formalLevel"></input>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">中标订单金额</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="formalAmount"></input>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">招标单位</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="tenderUnits"></input>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">订单公示链接</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="formalLink"></input>
+			</div>
+		</div>
+		
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">描述</label>
+			<div class="col-sm-9">
+				<textarea class="form-control" id="description" style="min-height:100px;"></textarea>
+			</div>
+		</div>
+		</div>
+		
+		<div class="row" style="margin-bottom:20px; margin-top:20px; padding:10px 5px 20px 5px; border: solid green 1px;">
+		<div class="col-md-10" style="text-align:center; margin-bottom:20px;">
+			<span style="font-size:24px; font-weight:bold;">产品编辑
+		</div><div class="col-md-2"></div>
+		<div class="col-md-4">
+			<div class="panel panel-default" style="margin-bottom:5px;">
+				<div class="panel-heading">
+					<span class="glyphicon glyphicon-pencil"></span>稳健型
+					<div style="clear:both;"></div>
+				</div>
+				<div class="panel-body" id="0" style="width:100%; height:80%;">
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">金额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="amount"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">利率</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="rate"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">还款期限</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="incomeendtime0"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">最小金额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="min"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">最小递增额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="minadd"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">购买级别</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="level"></input>
+					</div>
+					</div>
+					<button id="0" class="btn btn-lg btn-success btn-block productedit">创建/更新</button>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="panel panel-default" style="margin-bottom:5px;">
+				<div class="panel-heading">
+					<span class="glyphicon glyphicon-pencil"></span>均衡型
+					<div style="clear:both;"></div>
+				</div>
+				<div class="panel-body" id="1" style="width:100%; height:80%;">
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">金额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="amount"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">利率</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="rate"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">还款期限</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="incomeendtime1"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">最小金额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="min"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">最小递增额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="minadd"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">购买级别</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="level"></input>
+					</div>
+					</div>
+					<button id="1" class="btn btn-lg btn-success btn-block productedit">创建/更新</button>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="panel panel-default" style="margin-bottom:5px;">
+				<div class="panel-heading">
+					<span class="glyphicon glyphicon-pencil"></span>进取型
+					<div style="clear:both;"></div>
+				</div>
+				<div class="panel-body" id="2" style="width:100%; height:80%;">
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">金额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="amount"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">利率</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="rate"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">还款期限</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="incomeendtime2"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">最小金额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="min"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">最小递增额</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="minadd"></input>
+					</div>
+					</div>
+					<div class="form-group has-success has-feedback">
+						<label class="control-label col-sm-5" for="inputSuccess3">购买级别</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" id="level"></input>
+					</div>
+					</div>
+					<button id="2" class="btn btn-lg btn-success btn-block productedit">创建/更新</button>
+				</div>
+			</div>
+		</div>
+		
+		</div>
+		<div class="row" style="border: #eee solid 1px; margin-top:20px; margin-bottom:20px;">
+		<button id="recal" value = "重新计算还款计划">重新计算还款计划</button>
+		</div>
+		<div class="row" style="border: #eee solid 1px;">
+			<div class="col-md-12">
+				请选择上传附件类型：<select id="category">
+					<option value=0>中标通知书</option>
+					<option value=1>政府采购合同</option>
+				</select>
+				</div>
+			
+			<div id="fileQueue" class="col-md-12">
+				<input type="file" name="uploadify" id="uploadify" /> 
+				<button id="upload">上传</button><button id="clearall">清空列表</button>
+			</div>
+		</div>
+		<div class="row" id="category_0" data-desk="0" style="border: #eee solid 1px; min-height:50px;">
+		</div>
+		<div class="row" id="category_1" data-desk="1" style="border: #eee solid 1px; min-height:50px;">
+		</div>
+	</div>
+</body>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/tool.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/uploadify2/jquery.uploadify.min.js"></script>
+<script type="text/javascript" src="js/image/default.include.c78d4e.js"></script>
+<script type="text/javascript" src="js/image/async-share.js"></script>
+<script type="text/javascript"
+	src="js/image/default.include-footer.304291.js"></script>
+<script type="text/javascript"
+	src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+	src="/easyservice/gpps.service.IBorrowerService?json"></script>
+<script type="text/javascript"
+	src="/easyservice/gpps.service.IGovermentOrderService?json"></script>
+<script type="text/javascript"
+	src="/easyservice/gpps.service.IProductSeriesService?json"></script>c
+<script type="text/javascript"
+	src="/easyservice/gpps.service.IProductService?json"></script>
+<script>
+
+
+
+var id = parseInt(getQueryString('id'));
+var oid = null;
+var categoryname = {0:'中标通知书', 1:'政府采购合同'};
+var orderService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IGovermentOrderService");
+var borrowerService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IBorrowerService");
+var seriesService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductSeriesService");
+var productService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductService");
+var financingrequest = null;
+var order = null;
+
+var seriestype = {};
+var series = seriesService.findAll();
+for(var i=0; i<series.size(); i++){
+	seriestype[series.get(i).type] = series.get(i).id;
+}
+
+function refreshproduct(product){
+	if(product){
+		var st = 0;
+		for(var t in seriestype){
+			if(seriestype[t] == product.productseriesId)
+				st=t;
+		}
+		
+		$('div#'+st).find('#amount').val(product.expectAmount.value);
+		$('div#'+st).find('#rate').val(product.rate.value);
+		$('#incomeendtime'+st).val(formatDateToDay(product.incomeEndtime));
+		$('div#'+st).find('#min').val(product.minimum);
+		$('div#'+st).find('#minadd').val(product.miniAdd);
+		$('div#'+st).find('#level').val(product.levelToBuy);
+		$('div#'+st).attr('data-sk', product.id);
+		
+	}
+}
+
+function refreshInfo(){
+	financingrequest = borrowerService.findFinancingRequest(id);
+	order = financingrequest.govermentOrder;
+	
+	if(order!=null)
+		{
+			oid = order.id;
+			$('#title').val(order.title);
+			$('#financingStarttime').val(formatDateToDay(order.financingStarttime));
+			$('#financingEndtime').val(formatDateToDay(order.financingEndtime));
+			$('#incomeStarttime').val(formatDateToDay(order.incomeStarttime));
+			$('#formalName').val(order.formalName);
+			$('#formalLevel').val(order.formalLevel);
+			$('#formalAmount').val(order.formalAmount);
+			$('#tenderUnits').val(order.tenderUnits);
+			$('#formalLink').val(order.formalLink);
+			$('#description').val(order.description);
+			
+			var products = productService.findByGovermentOrder(oid);
+			for(var i=0; i<products.size(); i++){
+				var pro = products.get(i);
+				refreshproduct(pro);
+			}
+		}
+}
+
+
+
+
+
+
+
+
+
+function refreshOrderAccessory(){
+	if(oid==null)
+		return;
+	
+    for(var t=0; t<=1; t++){
+    
+    
+    var items=orderService.findMimeItems(oid,t);
+    if(items)
+    {
+    	$("#category_"+t).empty();
+    	$("#category_"+t).append('<div class="col-md-12">'+categoryname[t]+':</div>');
+        for(var i=0;i<items.size();i++)
+        {
+              var item=items.get(i);
+              var url="/download/order/"+oid+"/"+t+"/"+item.id;
+              var viewurl = "img/pdf.png";
+              
+              var single = $("<div class='col-md-4'></div>");
+              single.append("<div><a class='sit-preview' href='"+url+"' target='_blank'><img src='"+viewurl+"' data-preview-url='"+url+"' style='width:200px; height:150px;'/></a></div>");
+              var div = $('<div></div>');
+              var a = $("<a class='btn btn-warning btn-lg' href='#' style='width:200px;' id='"+item.id+"' data-desk='"+t+"'>删除</a>");
+              a.click(function(e){
+            	  deleteOrderAccessory(oid,parseInt($(this).attr('data-desk')),$(this).attr('id'));
+              })
+              div.append(a);
+              single.append(div);
+              
+              $("#category_"+t).append(single);
+        }
+    }
+    
+    }
+}
+function deleteOrderAccessory(id,category,itemId){
+	orderService.delAccessory(id,category,itemId);
+	refreshOrderAccessory();
+}
+$(document).ready(function () {
+	
+	$.datepicker.regional['zh-CN'] = {
+			showButtonPanel : true,
+			clearText : '清除',
+			clearStatus : '清除已选日期',
+			closeText : '清除',
+			closeStatus : '不改变当前选择',
+			onClose : function(dateText, inst) {
+				if (inst.selected == false) {
+					inst.input.val("");
+				}
+				inst.selected = false;
+			},
+			onSelect : function(dateText, inst) {
+				inst.selected = true;
+			},
+			prevText : '&lt;上月',
+			prevStatus : '显示上月',
+			nextText : '下月&gt;',
+			nextStatus : '显示下月',
+			currentText : '今天',
+			currentStatus : '显示本月',
+			monthNames : [ '一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月' ],
+			monthNamesShort : [ '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二' ],
+			monthStatus : '选择月份',
+			yearStatus : '选择年份',
+			weekHeader : '周',
+			weekStatus : '年内周次',
+			dayNames : [ '星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六' ],
+			dayNamesShort : [ '周日', '周一', '周二', '周三', '周四', '周五', '周六' ],
+			dayNamesMin : [ '日', '一', '二', '三', '四', '五', '六' ],
+			dayStatus : '设置 DD 为一周起始',
+			dateStatus : '选择 m月 d日, DD',
+			dateFormat : 'yy-mm-dd',
+			firstDay : 1,
+			initStatus : '请选择日期',
+			isRTL : false
+
+		};
+		$.datepicker.setDefaults($.datepicker.regional['zh-CN']);
+
+	
+	
+	
+	
+	
+	$('#financingStarttime').datepicker();
+	$('#financingEndtime').datepicker();
+	$('#incomeStarttime').datepicker();
+	$('#incomeendtime0').datepicker();
+	$('#incomeendtime1').datepicker();
+	$('#incomeendtime2').datepicker();
+	
+	refreshInfo();
+	
+	
+	$('button.productedit').click(function(e){
+		if(oid==null){
+			alert('尚未生成订单，无法创建产品！');
+			return;
+		}
+		
+		
+		
+		var buttonid = parseInt($(this).attr('id'));
+		
+		var proid = $('div#'+buttonid).attr('data-sk');
+		
+		
+		var amount = $('div#'+buttonid).find('#amount').val();
+		var rate = $('div#'+buttonid).find('#rate').val();
+		var incomeendtime =  new Date(Date.parse($('#incomeendtime'+buttonid).val())).getTime();
+		var min = parseInt($('div#'+buttonid).find('#min').val());
+		var minadd = parseInt($('div#'+buttonid).find('#minadd').val());
+		var level = parseInt($('div#'+buttonid).find('#level').val());
+		
+		
+		if(proid){
+			productService.update(parseInt(proid),parseInt(amount),rate,incomeendtime,min,minadd,level);
+			alert('产品更改成功！');
+		}else{
+			var nproduct = {'_t_':"gpps.model.Product",
+				'govermentorderId':oid,
+				'createtime':(new Date()).getTime(),
+				'expectAmount':{'_t_':"java.math.BigDecimal",'value':amount},
+				'levelToBuy':level,
+				'productseriesId':seriestype[buttonid],
+				'rate':{'_t_':"java.math.BigDecimal",'value':rate},
+				'realAmount' : {'_t_':"java.math.BigDecimal",'value':'0'},
+				'minimum' : min,
+				'state' : 0,
+				'miniAdd' : minadd,
+				'incomeEndtime':incomeendtime
+				}
+			productService.create(nproduct);
+			alert('产品创建成功！');
+		}
+		refreshInfo();
+	});
+
+	
+	
+$('#upload').click(function(e){
+	if(oid==null){
+		alert('尚未生成订单，无法上传附件！');
+		return;
+	}
+	
+	var url = '/upload/order/'+oid+'/'+$('select#category').val();
+	$('#uploadify').uploadify('settings','uploader',url);
+	$('#uploadify').uploadify('upload','*')
+});
+$('#clearall').click(function(e){
+	$('#uploadify').uploadify('cancel', '*');
+});
+
+$('#save').click(function(e){
+	var title = $('#title').val();
+	var financingStarttime = new Date(Date.parse($('#financingStarttime').val())).getTime();
+	var financingEndtime = new Date(Date.parse($('#financingEndtime').val())).getTime();
+	var incomeStarttime = new Date(Date.parse($('#incomeStarttime').val())).getTime();
+	var description = $('#description').val();
+	var formalName = $('#formalName').val();
+	var formalLevel = $('#formalLevel').val();
+	var formalAmount = $('#formalAmount').val();
+	var tenderUnits = $('#tenderUnits').val();
+	var formalLink = $('#formalLink').val();
+	if(oid!=null){
+		orderService.update(oid, title,financingStarttime,financingEndtime,incomeStarttime,description,formalName,formalLevel,formalAmount,tenderUnits,formalLink);
+		alert('保存完成！');
+	}else{
+		if(title==null || title==''){
+			alert('订单名称不能为空！');
+			return;
+		}
+		
+		
+		var norder = {	'_t_':"gpps.model.GovermentOrder",
+						'borrowerId':financingrequest.borrowerID,
+						'createtime':(new Date()).getTime(),
+						'financingStarttime':financingStarttime,
+						'financingEndtime':financingEndtime,
+						'title':title,
+						'incomeStarttime':incomeStarttime,
+						'lastModifytime' : (new Date()).getTime(),
+						'state' : 0,
+						'description' : description,
+						'formalName' : formalName,
+						'formalLevel' : formalLevel,
+						'formalAmount' : formalAmount,
+						'tenderUnits' : tenderUnits,
+						'formalLink' : formalLink,
+						'financingRequestId' : id
+		}
+		
+		order = orderService.create(norder);
+		alert('订单创建成功！');
+	}
+	
+	refreshInfo();
+	
+});
+
+
+$('button#recal').click(function(e){
+	try{
+		orderService.reCalculateRepayPlan(oid);
+		alert('重新计算还款计划成功！');
+	}catch(e){
+		alert(e.message);
+	}
+})
+	
+	
+refreshOrderAccessory();
+$("#uploadify").uploadify({
+        'swf'       : 'js/uploadify2/uploadify.swf',   
+        'uploader'         : '',//servlet的路径或者.jsp 这是访问servlet 'scripts/uploadif' 
+        'auto'     : false,
+        'removeCompleted' : true,
+        'progressData' : 'percentage',
+        'buttonText' : '选择上传文件',
+        'fileSizeLimit' : '1GB',
+        'fileTypeExts' : '*.*',
+        'multi'    : true,
+        'requeueErrors' : true,
+        'cancelImg'      : 'js/uploadify2/uploadify-cancel.png',   
+        'queueID'        : 'fileQueue',
+        'onUploadComplete'  :function(event,queueId,fileObj,response,data){
+        	refreshOrderAccessory();
+        }
+    }); 
+    
+jQuery(".sit-preview").smartImageTooltip({previewTemplate: "simple", imageWidth: "600px"});
+jQuery(".adminbar-quick-backup-run a").click(function(e) {
+    e.preventDefault();
+    var code = jQuery(this).attr("href").substr(11);
+    jQuery.ajax({
+        type: 'post', success: function(json) { alert(json.message); },
+        dataType: 'json', data: { runquick: {id: id, type: code, control: 0} },
+        url: gdpt_ajax_url + '?action=presstools_backup_quick&_ajax_nonce=376ffa5105'
+    });
+});
+
+});
+</script>
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        
+});
+</script>
+</html>

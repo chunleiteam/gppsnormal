@@ -1,0 +1,14 @@
+1.每天晚上11点50以后执行校验，校验内容如下：
+	1.1 增量校验当天现金流与第三方钱多多现金流的逐条比对，并记录增量数据
+	1.2 全量的深度校验账户金额，也就是由本平台所有有效现金流推倒出的金额（总额，可用金额，冻结金额，已投资金额）等与账户中记录金额是否一致。以及账户中记录的金额与第三方钱多多中对应的账户金额是否一致。
+	1.3 全量的校验产品的额度是否正确，综合投标、现金流、还款、以及产品本身记载的额度，保证从产品维度的金额一致性。
+2.校验完成后，将相应的校验结果记录到 E:\gpps_mysql_dump\remoteserver\校验结果.txt 中，单条记录的示例如下：
+	日期			现金流（增量）		账户		产品
+	2015-1-13	11条（已校验）		已校验		已校验
+3.服务器端备份数据库  mysqldump -uroot -pcalis123 gppsnormal > install/mysqldump/gppsnormal_201501192355.dump
+	其中，服务器端备份的路径约定为 install/mysqldump/
+	mysql备份文件的命名为 "gppsnormal"+yyyy+mm+dd+hh+MM+ss+".dump"
+4. 使用xftp下载服务器上的mysql备份文件到本地保存
+	cd至install/mysqldump/
+	lcd E:\gpps_mysql_dump\remoteserver
+	get gppsnormalyyyymmddhhMMss.dump

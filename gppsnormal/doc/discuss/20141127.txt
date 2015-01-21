@@ -1,0 +1,4 @@
+1. 活动增加简介字段和展示图片上传功能 yes
+2. 公告增加publicType字段 yes
+3. 新闻增加publicType字段 yes
+4. 活动服务的findbystate方法支持状态为-1 yes

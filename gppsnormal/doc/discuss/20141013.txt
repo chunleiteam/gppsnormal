@@ -1,0 +1,50 @@
+1. borrower注册后加入session yes
+2. 增加融资请求实体及相关服务  yes
+      字段
+	 政府订单名称
+   	 订单详细说明
+   	 申请融资额度
+   	 预期利率
+   	 状态
+   	 创建时间
+   	 最后修改时间
+    	 borrowerID
+      服务
+	创建
+	查找
+	修改状态
+    关联订单（非持久化）yes 注：每个申请仅限创建一个订单
+3. 身份证提供查重校验功能，类似于手机号码 yes
+4. Borrower添加字段： yes
+	license 企业营业执照
+	Corporationphone   法人电话
+	Corporationname    法人姓名
+	Corporationaddr    法人联系地址
+	thirdPartyAccount 第三方账户
+	level  信用等级
+
+5. a. borrower注册，成为有查看权限的企业用户      yes  IBorrowerService   public Borrower register(Borrower borrower, String messageValidateCode) throws ValidateCodeException, IllegalArgumentException, LoginException;
+   b. borrower在“我要融资”中申请融资，注册成为申请融资权限的企业用户，并创建申请融资实体   yes  a+c
+   c. 查看权限的borrower在“我的账户”申请融资，则该borrower变为申请融资权限的企业用户，并创建申请融资实体 yes IBorrowerService public void applyFinancing(FinancingRequest financingRequest);
+   d. 申请融资权限的borrower在“我的账户”申请融资，创建申请融资实体 yes IBorrowerService public void applyFinancing(FinancingRequest financingRequest);
+   
+   e. 管理员实地净调后，审核通过borrower的融资资格，borrower变为有融资权限的企业用户 yes IBorrowerService public void passFinancingRequest(Integer financingRequestId);
+   f. 管理员实地净调后，审核通过borrower的融资申请，为该融资申请创建订单和一系列的融资产品，订单的状态为“预览”。 yes  创建订单的时候带上financingRequestId
+   g. 当管理员将状态为“预览”的订单改为“融资中”时，需要先检查borrower的第三方账户是否开通，只允许开通了第三方账户的borrower的融资订单变为“融资中” yes
+
+
+6. 企业中心 
+信用积分和信用等级 
+企业相关资料 yes 同订单/产品上传下载附件
+   我的融资申请（如为通过，则关联相应的订单） yes IGovermentOrderService public List<FinancingRequest> findBorrowerFinancingRequest(int state)
+   我的订单（关联应的产品）【预览，融资中，还款中，待关闭，已关闭，流标】yes   IGovermentOrderService  public List<GovermentOrder> findBorrowerOrderByStates(int states);
+	融资产品详情：
+	每一笔购买情况 yes ISubmitService public Map<String, Object> findPayedSubmitsByProduct(Integer productId,int offset, int recnum);
+	还款日程表  yes IPayBackService public List<PayBack> findAll(Integer productId);
+   我的还款（总览，已还款，待还款，还款提醒） 排序？ yes IPayBackService public Map<String, Object> findBorrowerPayBacks(int state,long starttime,long endtime,int offset,int recnum);
+   资金查看
+
+
+
+
+3. 界面注册时校验用户名不能为全数字，为了避免跟手机号码冲突 yes

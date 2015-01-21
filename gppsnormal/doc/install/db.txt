@@ -1,0 +1,6 @@
+ mysql>show variables like 'max_connections';(查可以看当前的最大连接数)
+ msyql>set global max_connections=1000;(设置最大连接数为1000，可以再次查看是否设置成功)
+ 
+ 
+ 修改密码 mysqladmin -u root -p111111 password 123456
+ 将用户root的密码从111111改为123456

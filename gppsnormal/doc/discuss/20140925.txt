@@ -1,0 +1,7 @@
+1.投资查看：倒叙 yes
+2.最小金额校验，最小递增金额 yes
+3.退订的submit将产品金额回滚 yes
+4. product\submit增加lastmodifytime，在状态修改时修改 yes
+5.流标操作时验证所有submit已支付成功，否则操作失败 yes
+6.待验证：只有最后一次payback的情况下的提前还款 yes
+7.过期退订的情况下退款代码的完善. yes

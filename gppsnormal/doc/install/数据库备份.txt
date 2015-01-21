@@ -1,0 +1,16 @@
+windows:使用管理员身份运行cmd,进入mysql安装目录/bin目录下
+全库备份    mysqldump -uroot -p111111 gpps > e:/gpps.dump
+全库恢复  mysql gpps < e:/gpps.dump
+
+单表备份   mysqldump -h localhost -uroot -p111111  gpps help > e:/help.sql
+单表恢复  在mysql命令行中，进入库中 use gpps 运行source e:/help.sql
+
+
+linux:直接在命令行里运行便可，不用更改目录
+mysqldump -uroot -pcalis123 gpps > install/mysqldump/gpps.dump
+全库恢复  mysql gpps < install/mysqldump/gpps.dump
+
+使用xftp下载备份好的文件，
+lcd:更改下载到本地的工作目录
+cd到相应的目录下
+get gpps.dump

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gpps.dao.IFinancingRequestDao">
+	<insert id="create" parameterType="gpps.model.FinancingRequest"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into
+		FinancingRequest(govermentOrderName,govermentOrderDetail,applyFinancingAmount,rate,state,createtime,lastModifyTime,borrowerID)
+		values(#{govermentOrderName},#{govermentOrderDetail},#{applyFinancingAmount},#{rate},#{state},#{createtime},#{lastModifyTime},#{borrowerID})
+	</insert>
+	<update id="changeState">
+		update FinancingRequest set
+		state=#{state},lastmodifytime=#{lastmodifytime}
+		where
+		id=#{id}
+	</update>
+	<select id="find" parameterType="Integer" resultType="gpps.model.FinancingRequest">
+		select  *
+		from FinancingRequest where id=#{id}
+	</select>
+	<select id="findByBorrowerAndState" resultType="gpps.model.FinancingRequest">
+		select  *
+		from FinancingRequest where borrowerId=#{borrowerId}
+		<if test="state != -1">
+			 and state=#{state}
+		</if>
+	</select>
+	<select id="countByState" resultType="int">
+		select count(*)
+		from FinancingRequest
+		<if test="state != -1">
+			where state=#{state}
+		</if>
+	</select>
+	<select id="findByState" resultType="gpps.model.FinancingRequest">
+		select  *
+		from FinancingRequest
+		<if test="state != -1">
+			where state=#{state}
+		</if>
+		order by createtime asc 
+		LIMIT #{offset}, #{recnum}
+	</select>
+	<delete id="delete">
+		delete from FinancingRequest
+		where
+		id=#{id}
+	</delete>
+</mapper>

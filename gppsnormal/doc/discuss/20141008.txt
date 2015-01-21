@@ -1,0 +1,11 @@
+1. public List<Product> findByStates(int states, int offset, int recnum)方法中返回的product中加上order  yes
+2. 投资查看中的待回款是本金加利息  yes 取submit.waitforRepayAmount
+3. 输入金额，根据产品ID计算收益的方法   yes IPayBackService  public List<PayBack> generatePayBacks(Integer productId, int amount);
+4. 手机号可以登录  yes
+5. 注册的第二步里，身份证要查重 yes
+6. 不允许重复登录
+
+
+西部数码 http://www.west263.com/manager/vhost/database.asp
+用户名： wangd
+密码： 111111

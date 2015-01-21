@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<title>政采贷</title>
+
+<!-- Bootstrap core CSS -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/plist/a.css" rel="stylesheet">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.ILenderService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+<![endif]-->
+<script src="js/tool.js"></script>
+<script src="js/getuser.js"></script>
+</head>
+<body>
+	<div class="container">
+	
+	<div class="row" id="header" style="padding-left:15px; padding-right:15px;">
+      
+      </div>
+	<div class="row" style="max-width:500px; margin: 0 auto; background-color : #f5f5f5;">
+		<div class="col-md-12">
+      		<p class="form-control-static" style="float:right;">我已经是企业用户?&nbsp;<a href="login.html">登录</a>&nbsp;|&nbsp;<a href="index.html">取消</a></p>
+    		<div style="clear:both;"></div>
+  		</div>
+  		<div class="col-md-12" id="message"></div>
+		
+	
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="inputSuccess3">用户名</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="username" style="padding-left:1px; padding-right:1px;" placeholder="请输入用户名" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="inputSuccess3">密码</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="password" class="form-control" id="password" style="padding-left:1px; padding-right:1px;" placeholder="请输入密码" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="inputSuccess3">确认密码</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="password" class="form-control" id="password_r" style="padding-left:1px; padding-right:1px;" placeholder="请再次输入密码" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="inputSuccess3">企业名称</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="companyname" style="padding-left:1px; padding-right:1px;" placeholder="请输入企业名称" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="inputSuccess3">营业执照号码</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="license" style="padding-left:1px; padding-right:1px;" placeholder="请输入营业执照号码" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3">
+			<label class="control-label" for="inputSuccess3">中标订单名称</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="ordertitle" style="padding-left:1px; padding-right:1px;" placeholder="请输入中标订单名称" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3">
+			<label class="control-label" for="inputSuccess3">申请融资额度</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="amount" style="padding-left:1px; padding-right:1px;" placeholder="申请融资额度" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3">
+			<label class="control-label" for="inputSuccess3">邮箱地址</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="email" style="padding-left:1px; padding-right:1px;" placeholder="邮箱地址" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+			
+			<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3">
+			<label class="control-label" for="inputError2">联系人手机</label>
+			</div>
+			<div class="col-xs-7 col-sm-7 col-md-5 col-lg-5">
+				<input type="text" class="form-control" id="phone" style="padding-left:1px; padding-right:1px;" placeholder="请输入手机号码" required>
+			</div>
+			<div class="col-xs-5 col-sm-5 col-md-4 col-lg-4">
+			<button type="submit" class="form-control btn-warning" id="sendValCode" style="padding-left:1px; padding-right:1px;">发送验证码</button>
+			</div>
+			<div style="clear:both;"></div>
+			</div>
+			
+			
+			<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3">
+			<label class="control-label" for="inputSuccess3">验证码</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="validate" style="padding-left:1px; padding-right:1px;" placeholder="请输入验证码" required>
+			</div>
+			<div style="clear:both;"></div>
+			</div>
+			
+			<button id="login" class="btn btn-lg btn-success btn-block">申请融资</button>
+			
+
+		</div>
+		
+	</div>
+
+</body>
+
+<script src="js/head.js"></script>
+ <script>
+ 
+ var ok = '<span class="glyphicon glyphicon-ok form-control-feedback"></span>';
+ var error = '<span class="glyphicon glyphicon-remove form-control-feedback"></span>';
+ 
+ function addMessage(title){
+		$('#message').html('');
+		var div = $('<div class="alert alert-warning alert-dismissible" role="alert" style="margin-bottom:2px;"></div>');
+		div.append('<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>');
+		div.append(title);
+		$('#message').append(div);
+}
+
+function removeMessage(){
+	  $('#message').html('');
+}
+
+
+
+ 
+$(document).ready(function() {
+	
+	header('loan');
+	
+	if(usertype=='borrower'){
+		$('div#message').css('display', 'none');
+		$('input#username').val(user.loginId).attr('disabled', 'disabled');
+		$('input#password').parent().parent().css('display', 'none');
+		$('input#password_r').parent().parent().css('display', 'none');
+		$('input#companyname').val(user.companyName).attr('disabled', 'disabled');
+		$('input#license').val(user.license).attr('disabled', 'disabled');
+		$('input#phone').parent().parent().css('display', 'none');
+		$('input#validate').parent().parent().css('display', 'none');
+		$('input#email').parent().parent().css('display', 'none');
+		
+		
+		$('#login').click(function(e){
+			var amount = $('input#amount').val();
+			var ordertitle = $('input#ordertitle').val();
+			
+			if(ordertitle==null||ordertitle==''){
+				$('input#ordertitle').parent().find('span').remove();
+				$('input#ordertitle').parent().append(error);
+				$('input#ordertitle').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请输入中标订单的名称');
+				return;
+			}else{
+				$('input#ordertitle').parent().find('span').remove();
+				$('input#ordertitle').parent().append(ok);
+				$('input#ordertitle').parent().parent().removeClass('has-error').addClass('has-success');
+				removeMessage();
+			}
+			
+			var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
+			if(amount==null || amount=='' || !myreg.test(amount))
+			{
+				$('input#amount').parent().find('span').remove();
+				$('input#amount').parent().append(error);
+				$('input#amount').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('金额必须大于0且为整数或小数，小数点后不超过两位');
+				return;
+			}else{
+				$('input#amount').parent().find('span').remove();
+				$('input#amount').parent().append(ok);
+				$('input#amount').parent().parent().removeClass('has-error').addClass('has-success');
+				removeMessage();
+			}
+			try{
+				var financingrequest = {"_t_":"gpps.model.FinancingRequest", "govermentOrderName":ordertitle, "govermentOrderDetail":"asdfadfadsfasdf", "applyFinancingAmount":parseFloat(amount), "rate":"20%", "createtime":(new Date()).getTime(), "lastModifyTime":(new Date()).getTime(), "borrowerID": user.id};
+				bservice.applyFinancing(financingrequest);
+				window.location.href="baccount.html?fid=request&sid=request-tohandle";
+			}catch(ee){
+				alert(ee.message);
+			}
+		});
+	}else{
+	$('#username').focus();
+    $('#login').click(function(e){
+			var username = $('input#username').val();
+			var password = $('input#password').val();
+			var password_r = $('input#password_r').val();
+			var phone = $('input#phone').val();
+			var email = $('input#email').val();
+			var validate = $('input#validate').val();
+			
+			if(username==null||username==''){
+					$('input#username').parent().find('span').remove();
+					$('input#username').parent().append(error);
+					$('input#username').parent().parent().removeClass('has-success').addClass('has-error');
+					addMessage('*请输入用户名');
+					return;
+					}else if(bservice.isLoginIdExist(username)){
+						$('input#username').parent().find('span').remove();
+						$('input#username').parent().append(error);
+						$('input#username').parent().parent().removeClass('has-success').addClass('has-error');
+						addMessage('*用户名已被注册');
+						return;
+					}else if(/^[0-9]*$/.test(username)){
+						$('input#username').parent().find('span').remove();
+						$('input#username').parent().append(error);
+						$('input#username').parent().parent().removeClass('has-success').addClass('has-error');
+						addMessage('*用户名不能是纯数字');
+						return;
+					}
+					else{
+						$('input#username').parent().find('span').remove();
+						$('input#username').parent().append(ok);
+						$('input#username').parent().parent().removeClass('has-error').addClass('has-success');
+						removeMessage();
+					}
+
+			if(password==null||password==''){
+				$('input#password').parent().find('span').remove();
+				$('input#password').parent().append(error);
+				$('input#password').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请输入密码');
+				return;
+				}else if(password_r!=password){
+					$('input#password_r').parent().find('span').remove();
+					$('input#password_r').parent().append(error);
+					$('input#password_r').parent().parent().removeClass('has-success').addClass('has-error');
+					addMessage('*密码不一致');
+				return;
+				}
+			else{
+				$('input#password').parent().find('span').remove();
+				$('input#password').parent().append(ok);
+				$('input#password_r').parent().find('span').remove();
+				$('input#password_r').parent().append(ok);
+				$('input#password').parent().parent().removeClass('has-error').addClass('has-success');
+				$('input#password_r').parent().parent().removeClass('has-error').addClass('has-success');
+				removeMessage();
+				}
+
+
+			if(validate==null||validate==''){
+				$('input#validate').parent().find('span').remove();
+				$('input#validate').parent().append(error);
+				$('input#validate').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请填写验证码');
+				return;
+				}
+				else{
+					$('input#validate').parent().find('span').remove();
+					$('input#validate').parent().append(ok);
+					$('input#validate').parent().parent().removeClass('has-error').addClass('has-success');
+					removeMessage();
+				}
+			
+			
+			
+			var emailreg = /^([\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
+			
+			if(email==null||email==''){
+				$('input#email').parent().find('span').remove();
+				$('input#email').parent().append(error);
+				$('input#email').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请输入邮箱地址');
+				return;
+	        }else if(bservice.isEmailExist(email)){
+				$('input#email').parent().find('span').remove();
+				$('input#email').parent().append(error);
+				$('input#email').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*邮箱已被注册');
+				return;
+			}
+	        else if(!emailreg.test(email)){
+					$('input#email').parent().find('span').remove();
+					$('input#email').parent().append(error);
+					$('input#email').parent().parent().removeClass('has-success').addClass('has-error');
+					addMessage('*邮箱格式不正确');
+					return;
+				}
+	        else{
+	        	$('input#email').parent().find('span').remove();
+				$('input#email').parent().append(ok);
+				$('input#email').parent().parent().removeClass('has-error').addClass('has-success');
+				removeMessage();
+	        	}
+
+
+			
+			var companyname = $('input#companyname').val();
+			var license = $('input#license').val();
+			var amount = $('input#amount').val();
+			var ordertitle = $('input#ordertitle').val();
+			
+			var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
+			if(amount==null || amount=='' || !myreg.test(amount))
+			{
+				$('input#amount').parent().find('span').remove();
+				$('input#amount').parent().append(error);
+				$('input#amount').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('金额必须大于0且为整数或小数，小数点后不超过两位');
+				return;
+			}else{
+				$('input#amount').parent().find('span').remove();
+				$('input#amount').parent().append(ok);
+				$('input#amount').parent().parent().removeClass('has-error').addClass('has-success');
+				removeMessage();
+			}
+			
+			if(ordertitle==null||ordertitle==''){
+				$('input#ordertitle').parent().find('span').remove();
+				$('input#ordertitle').parent().append(error);
+				$('input#ordertitle').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请输入中标订单的名称');
+				return;
+			}else{
+				$('input#ordertitle').parent().find('span').remove();
+				$('input#ordertitle').parent().append(ok);
+				$('input#ordertitle').parent().parent().removeClass('has-error').addClass('has-success');
+				removeMessage();
+			}
+			
+			if(companyname==null||companyname==''){
+				$('input#companyname').parent().find('span').remove();
+				$('input#companyname').parent().append(error);
+				$('input#companyname').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请输入企业名称');
+				return;
+				}else{
+					$('input#companyname').parent().find('span').remove();
+					$('input#companyname').parent().append(ok);
+					$('input#companyname').parent().parent().removeClass('has-error').addClass('has-success');
+					removeMessage();
+				}
+			
+			
+			if(license==null||license==''){
+				$('input#license').parent().find('span').remove();
+				$('input#license').parent().append(error);
+				$('input#license').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请输入企业营业执照号');
+				return;
+				}else{
+					$('input#license').parent().find('span').remove();
+					$('input#license').parent().append(ok);
+					$('input#license').parent().parent().removeClass('has-error').addClass('has-success');
+					removeMessage();
+				}
+			
+			
+
+			try{
+				var borrower = {"_t_":"gpps.model.Borrower", "loginId":username, "password" : password, "tel" : phone, "companyName" : companyname,"identityCard":"123", "license" : license, "privilege" : 11, "email" : email};
+				var bor = bservice.register(borrower, validate);
+				
+				var financingrequest = {"_t_":"gpps.model.FinancingRequest", "govermentOrderName":ordertitle, "govermentOrderDetail":"asdfadfadsfasdf", "applyFinancingAmount":parseFloat(amount), "rate":"20%", "createtime":(new Date()).getTime(), "lastModifyTime":(new Date()).getTime(), "borrowerID": bor.id};
+				bservice.applyFinancing(financingrequest);
+				
+				window.location.href="baccount.html?fid=request&sid=request-tohandle";
+			}catch(ee){
+				alert(ee.message);
+				$('input#password').val('');
+				$('input#password_r').val('');
+				$('input#validate').val('');
+			}
+			
+			
+        });
+    
+    
+    $('input#email').blur(function(e){
+    	var email = $(this).val();
+    	var emailreg = /^([\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
+        	if(email==null||email==''){
+        }else if(bservice.isEmailExist(email)){
+			$('input#email').parent().find('span').remove();
+			$('input#email').parent().append(error);
+			$('input#email').parent().parent().removeClass('has-success').addClass('has-error');
+			addMessage('*邮箱已被注册');
+			return;
+		}
+        else if(!emailreg.test(email)){
+				$('input#email').parent().find('span').remove();
+				$('input#email').parent().append(error);
+				$('input#email').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*邮箱格式不正确');
+			}
+        else{
+        	$('input#email').parent().find('span').remove();
+			$('input#email').parent().append(ok);
+			$('input#email').parent().parent().removeClass('has-error').addClass('has-success');
+			removeMessage();
+        		}
+    });
+    
+    
+
+    $('input#username').blur(function(e){
+        var username = $(this).val();
+        if(username==null||username==''){
+        	//$('input#username').parent().find('span').remove();
+			//$('input#username').parent().append(error);
+			//$('input#username').parent().parent().removeClass('has-success').addClass('has-error');
+			//addMessage('*请输入用户名');
+        }else if(bservice.isLoginIdExist(username)){
+        	$('input#username').parent().find('span').remove();
+			$('input#username').parent().append(error);
+			$('input#username').parent().parent().removeClass('has-success').addClass('has-error');
+			addMessage('*用户名已被注册');
+			}else if(/^[0-9]*$/.test(username)){
+				$('input#username').parent().find('span').remove();
+				$('input#username').parent().append(error);
+				$('input#username').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*用户名不能是纯数字');
+			}
+        else{
+        	$('input#username').parent().find('span').remove();
+			$('input#username').parent().append(ok);
+			$('input#username').parent().parent().removeClass('has-error').addClass('has-success');
+			removeMessage();
+        		}
+        });
+    
+    
+    
+  
+    
+    
+    
+    $('button#sendValCode').click(function(e){
+    	
+    	
+ 	  var phone = $('input#phone').val();
+ 	  
+ 	  var reg=/^1\d{10}$/;
+ 	  
+ 	  if(phone==null || phone==''){
+ 		 $('input#phone').parent().find('span').remove();
+			$('input#phone').parent().append(error);
+			$('input#phone').parent().parent().removeClass('has-success').addClass('has-error');
+			addMessage('*请输入手机号码');
+			return;
+ 	  }else if(!reg.test(phone)){
+ 		 $('input#phone').parent().find('span').remove();
+			$('input#phone').parent().append(error);
+			$('input#phone').parent().parent().removeClass('has-success').addClass('has-error');
+			addMessage('*手机号码格式不对');
+			return;
+ 	  }
+ 	  else if(bservice.isPhoneNumberExist(phone)){
+ 		 $('input#phone').parent().find('span').remove();
+			$('input#phone').parent().append(error);
+			$('input#phone').parent().parent().removeClass('has-success').addClass('has-error');
+			addMessage('*该手机号码已被注册');
+			return;
+ 	  }else{
+ 		  
+ 		  try{
+ 		 	service.sendMessageValidateCode(phone);
+ 		 	$('input#phone').parent().find('span').remove();
+			$('input#phone').parent().append(ok);
+			$('input#phone').parent().parent().removeClass('has-error').addClass('has-success');
+ 		 	removeMessage();
+ 		 	
+ 		 	
+ 		 	var t = 60;
+ 	    	$('button#sendValCode').attr('disabled', true);
+ 	    	
+ 	    	var cccfun = null;
+ 			
+ 			//显示当前的秒数
+ 		    function count(){
+ 		    	
+ 		    	t --;
+ 		    	//秒数自减 
+ 		    	if(t >= 0){
+ 		    		$('button#sendValCode').html(t+'秒后重发');
+ 		    		//刷新当前的秒数，重新显示秒数
+ 		    		}else{
+ 		    			$('button#sendValCode').html('发送验证码');
+ 		    			//$('button#sendValCode').html(t+'秒后重发');
+ 		    			$('button#sendValCode').attr('disabled', false);
+ 		    			window.clearInterval(cccfun);
+ 		    			}
+ 		    }
+ 			
+ 		   cccfun = setInterval(count,1000);   
+ 		  }catch(e){
+ 			  alert(e.message);
+ 		  }
+ 	  }
+    });
+    
+    $('input#password').blur(function(e){
+ 	   var password = $(this).val();
+ 	   if(password==null||password==''){
+ 		 // $('input#password').parent().find('span').remove();
+		//	$('input#password').parent().append(error);
+		//	$('input#password').parent().parent().removeClass('has-success').addClass('has-error');
+		//	addMessage('*请输入密码');
+			}else{
+				$('input#password').parent().find('span').remove();
+				$('input#password').parent().append(ok);
+				$('input#password').parent().parent().removeClass('has-error').addClass('has-success');
+				removeMessage();
+				}
+        });
+
+    $('input#password_r').blur(function(e){
+ 	   var password_r = $(this).val();
+ 	   var password = $('input#password').val();
+ 	   if(password_r==null||password_r==''){
+ 		 // $('input#password_r').parent().find('span').remove();
+		//	$('input#password_r').parent().append(error);
+		//	$('input#password_r').parent().parent().removeClass('has-success').addClass('has-error');
+		//	addMessage('*请再次输入密码');
+			}else if(password_r!=password){
+				$('input#password_r').parent().find('span').remove();
+				$('input#password_r').parent().append(error);
+				$('input#password_r').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*密码不一致');
+				}
+			else{
+				$('input#password_r').parent().find('span').remove();
+				$('input#password_r').parent().append(ok);
+				$('input#password_r').parent().parent().removeClass('has-error').addClass('has-success');
+				removeMessage();
+				}
+        });
+
+    $('input#validate').on('keyup', function(e) {
+
+			var key = e.keyCode;
+			if (key === 13) { // 表示按的是enter键
+				$('#login').click();
+			}
+    });
+	}
+	
+})
+</script>
+</html>

@@ -1,0 +1,14 @@
+1. IAdminService添加changePrivilege方法 yes
+2. Help实体的type字段意义扩展，增加是否回答的状态。增加answertime; yes
+3. IHelpService的create方法变成两个，一个创建private,一个创建public yes
+4. IHelpService的findMyHelps增加一个状态字段 yes
+5. IHelpService增加给管理员看的findHelps方法 yes
+6. IHelpService增加回答接口 yes
+7. Letter增加readtime yes
+8. ILetterService增加findAllLetters翻页 yes
+9. ILetterService的findMyLetters方法增加状态参数 yes
+10.ILetterService把alreadyRead集成到find方法中 yes
+11.INoticeService的findAll去掉userfor,level参数，改为从session中取。匿名用户均为0 yes
+12.ActivityRef的applyState字段改名为participate yes
+13.IActivityRefService增加一个针对匿名用户的applyActivity（name, phone, email） yes
+14.第三方认证完回调的时候，把手机和邮箱更新成第三方返回的值，判断是否为空idj yes

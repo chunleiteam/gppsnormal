@@ -1,0 +1,15 @@
+1.用户和企业用户的查询做成分页 yes
+ILenderService public Map<String, Object> findByPrivilegeWithPaging(int privilege,int offset,int recnum);
+IBorrowerService public Map<String, Object> findByPrivilegeWithPaging(int privilege,int offset,int recnum);
+2.融资申请的审核在融资申请实体上操作，为该申请编辑订单详细信息，添加订单附件，添加产品。并执行“审核通过”或“拒绝”操作。与该融资申请实体关联的订单和产品状态做相应修改。
+3.融资申请实体加一个非持久化关联实体borrower yes
+4.多文件的异步上传界面 yes
+5.订单流标的时候，后台服务把该订单相关的产品状态都改为流标 yes
+
+
+
+
+
+p1.管理端少监控/待处理事项界面
+p2.融资管理-》创建订单创建产品，审核通过
+p3.订单管理界面

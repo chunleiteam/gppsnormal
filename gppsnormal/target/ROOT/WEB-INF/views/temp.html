@@ -1,0 +1,24 @@
+<html>
+<body>
+<script src="js/cdn/jquery.min.js"></script>
+<script type="text/javascript"
+	src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+	src="/easyservice/gpps.service.ILenderService?json"></script>
+<script>
+$(document).ready(function() {
+	
+	
+	var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ILenderService");
+	var cuser = service.getCurrentUser();
+	
+	
+	if(cuser==null){
+		window.location.href="login.html";
+		}else{
+			window.location.href="myaccount.html";
+		}
+});
+</script>
+</body>
+</html>

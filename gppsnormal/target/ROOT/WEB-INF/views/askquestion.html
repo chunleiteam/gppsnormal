@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap core CSS -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.ILenderService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IHelpService?json"></script>
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+	<div class="container">
+	
+	<div class="form-horizontal" role="form" style="width:400px; margin: 0 auto;" id="askquestion">
+
+  		<div style="width:100%" id="message"></div>
+  		
+		<div class="form-group has-success has-feedback" style="margin-top:10px;">
+			<label class="control-label col-sm-12" for="inputSuccess3" style="text-align:left;">我的问题：</label>
+			<div class="col-sm-12">
+				<textarea id="question" style="width:99%; height:200px;"></textarea>
+			</div>
+		</div>
+			<button id="ask" class="btn btn-lg btn-success btn-block">提问</button>
+			
+
+		</div>
+		
+	</div>
+
+</body>
+ <script>
+ 
+ var ok = '<span class="glyphicon glyphicon-ok form-control-feedback"></span>';
+ var error = '<span class="glyphicon glyphicon-remove form-control-feedback"></span>';
+ 
+ function addMessage(title){
+		$('#message').html('');
+		var div = $('<div class="alert alert-warning alert-dismissible" role="alert" style="margin-bottom:2px;"></div>');
+		div.append('<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>');
+		div.append(title);
+		$('#message').append(div);
+}
+
+function removeMessage(){
+	  $('#message').html('');
+}
+
+ 
+$(document).ready(function() {
+	var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ILenderService");
+	var bservice = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IBorrowerService");
+	var helpservice = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IHelpService");
+	
+	var questionerType = -1;
+	
+	var user = service.getCurrentUser();
+	if(user!=null){
+		questionerType=0;
+	}
+	else{
+		user = bservice.getCurrentUser();
+		if(user!=null){
+			questionerType=1;
+		}else{
+			$('#askquestion').html('<br><br><a href="javascript:void(0);" id="login" style="float:right;">登录后才可提问</a>');
+			var rb = window.parent.location.href;
+			$('#login').click(function(e){
+				window.parent.location.href="login.html?rb="+rb;
+			});
+		}
+	};
+	
+	
+	$('#ask').click(function(e){
+		var question = $('#question').val();
+		if(question==null || question==''){
+			addMessage('请输入问题！');
+			return;
+		}else{
+			removeMessage();
+			var help = {'_t_':'gpps.model.Help', 'type':1, 'questionerType':questionerType, 'questionerId': user.id, 'question':question, 'createtime': (new Date()).getTime()};
+			try{
+			helpservice.createPrivate(help);
+			if(questionerType==0)
+				window.location.href="myaccount.html?fid=mycenter&sid=question-view";
+			else if(questionerType==1)
+				window.location.href="baccount.html?fid=mycenter&sid=question-view";
+			}catch(e){
+				alert(e.message);
+			}
+		}
+	})
+	
+	
+})
+</script>
+</html>

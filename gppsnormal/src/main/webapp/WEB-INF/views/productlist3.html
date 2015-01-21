@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <title>政采贷 > 投资中心</title>
+    <meta name="keywords" content="政采贷">
+    <!-- Bootstrap core CSS -->
+    
+    
+    
+    
+    
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="css/gpps/lufax-main.css">
+    <link rel="stylesheet" type="text/css" href="css/gpps/new-lufax.css">
+    <link rel="stylesheet" type="text/css" href="css/gpps/productlist.css">
+    
+    <link href="css/plist/a.css" rel="stylesheet">
+    <link href="css/mine.css" rel="stylesheet">
+    
+    
+    <script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/tool.js"></script>
+<script src="js/data.js"></script>
+
+<script src="js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IGovermentOrderService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.dao.IProductSeriesDao?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.ILenderService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IHelpService?json"></script>
+<script src="js/getuser.js"></script>
+</head>
+ 
+<body>
+ 
+<div class="container">
+
+      <div class="row" id="header" style="padding-left:15px; padding-right:15px;">
+      
+      </div>
+	<div class="main-wrap row">
+    <div class="list-wrap clearfix" class="row">
+        <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9" style="padding-left:0px; padding-right:2px;">
+        
+        
+        
+        <ul class="bcrumb">
+        <li><a href="javascript:void(0);">投资中心</a> <span class="divider">&gt;</span></li>
+        <li id="nav_name" class="active"></li>
+    	</ul>
+    	
+    	
+    	
+    	<nav class="navbar navbar-default" role="navigation">
+    	<div class="container-fluid">
+    	<div class="navbar-header">
+    	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+    	<span class="sr-only">Toggle navigation</span>
+    	<span class="icon-bar"></span>
+    	<span class="icon-bar"></span>
+    	<span class="icon-bar"></span>
+    	</button>
+    	<span class="navbar-brand" href="#">类型</span>
+    	</div>
+    	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+    	
+    	<ul id="plnav" class="nav navbar-nav plnav">
+		</ul>
+		
+		</div>
+		</div>
+		</nav>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<div class="service-intro clearfix row" style="margin-left:0px; margin-right:0px;">
+		<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
+    		<p class="service-intro-title">
+       			 服务介绍<b></b>
+    		</p>
+    	</div>
+    	<div class="hidden-xs hidden-sm col-md-11 col-lg-11">
+    	<div class="service-intro-con" id="intro"></div>
+    	</div>
+		</div>
+        
+        
+        
+        
+        
+            <div class="table-title-wrap clearfix">
+                <span class="table-title">项目列表</span>
+                <div class="table-product-event">
+                                    </div>
+            </div>
+            <div class="list-table-wrap" id="list-table-wrap">
+                <ul class="list-table">
+                </ul>
+ 
+			
+                <div class="cpagination ui_complex_pagination">
+                <span class="btns disabled btn_page btn_small prev"><span class="caret">&lt;</span> 上一页</span>
+ 
+                <p class="pageNum">第1页/共1页</p>
+                <a class="btns disabled btn_page btn_small next" href="javascript:void(0)" id="nextPage">下一页<span
+                        class="caret">&gt;</span></a>
+            </div>
+                
+ 
+            </div>
+            
+ 
+        </div>
+        <div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px; padding-left:15px; margin-top:40px;">
+ 
+            <div class="news-notice sidebar-panels">
+                <a href="intro/help.html" target="_blank"
+                   class="news-notice-head clearfix">
+                    <span class="info">常见问题</span>
+                    <span class="more">&gt;</span>
+                </a>
+ 
+                <div class="news-notice-body">
+                    <ul class="news-notice-list faq-list" id="cjquestion">
+                                     
+                     </ul>
+                </div>
+            </div>
+            
+            
+            
+             <div class="news-notice sidebar-panels">
+                <a href="intro/help.html" target="_blank"
+                   class="news-notice-head clearfix">
+                    <span class="info">新手帮助</span>
+                    <span class="more">&gt;</span>
+                </a>
+ 
+                <div class="news-notice-body">
+                    <ul class="news-notice-list faq-list" id="newhelp">
+                                     
+                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+</div>
+
+<div class="row foot" id="footer" style="border: #eee solid 1px; background:#eee; min-height:120px; font-size:13px; margin-top:0px; margin-left: 0px; margin-right:0px;">
+
+	</div>
+
+</div>
+
+<script src="js/head.js"></script>
+<script src="js/foot.js"></script>
+ 	<script>
+ 	var seriesname = {};
+ 	function refreshList(orders){
+ 		var total = orders.get('total');
+    	var rst = orders.get('result');
+    	
+    	$('ul.list-table li').remove();
+    	$('ul.list-table').append('<li class="clearfix"></li>');
+    	for(var i=0; i<rst.size(); i++){
+    	
+    	$('ul.list-table').append(createProduct2(rst.get(i)));
+    	
+    	}
+ 	}
+ 	
+         $(document).ready(function () {
+        	 header('productlist');
+        	 var sid = getQueryString('sid');
+        	 
+        	 var seriesDao = EasyServiceClient.getRemoteProxy("/easyservice/gpps.dao.IProductSeriesDao");
+        	 var orderService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IGovermentOrderService");
+        	 var helpService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IHelpService");
+        	 var series = seriesDao.findAll();
+        	 var li1 = $('<li class="active"></li>');
+        	 var a1 = $('<a href="javascript:void(0);" data-sk="all"><span class="min-price">全部</span></a>');
+        	 $('li#nav_name').html('全部');
+        	 li1.append(a1);
+        	 a1.click(function(e){
+        		 $(this).parent().parent().find('li').removeClass('active');
+        		 $(this).parent().addClass('active');
+        		 $('li#nav_name').html('全部');
+        		 var orders = orderService.findByStatesByPage(-1,0,10);
+        		 refreshList(orders);
+        		 
+        		 $('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">6.0%~18.0% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 100 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限： 3-12个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：------ &nbsp; &nbsp; &nbsp;<a href="intro/intro.html" target="_blank">了解详情</a></p>');
+        		 
+        		 $('a.constructure, a.stat').click(function(e){
+              	   var info = $(this).parents('li').find('div.productinfo');
+              	  	if(info.css('display')=='block'){
+              	  		info.css('display', 'none');
+              	  		var stat = $(this).parents('li').find('a.stat');
+              	  		if(stat.text()=='投资中'){
+              	  			stat.removeClass('btns-grey').addClass('btns');
+              	  		}else if(stat.text()=='预发布'){
+              	  			stat.removeClass('btns-grey').addClass('btns-green');
+              	  		}
+              	  	}else{
+              	  		//$('ul#productlist li').find('div.productinfo').css('display', 'none');
+              	  		info.css('display', 'block');
+              	  		var stat = $(this).parents('li').find('a.stat');
+              	  		stat.removeClass('btns').removeClass('btns-green').addClass('btns-grey');
+              	  	}
+                 });
+        	 });
+        	 $('ul.plnav').append(li1);
+        	 for(var i=0; i<series.size(); i++){
+        		 var id = series.get(i).id;
+        		 seriesname[id] = series.get(i).title;
+        		 var lis = $('<li></li>');
+        		 var ass = $('<a id="'+id+'" href="javascript:void(0);" data-sk='+series.get(i).id+'><span class="min-price">'+series.get(i).title+'</span></a>');
+        		 lis.append(ass);
+        		 $('ul.plnav').append(lis);
+        		 ass.click(function(e){
+        			 $(this).parent().parent().find('li').removeClass('active');
+            		 $(this).parent().addClass('active');
+            		 $('li#nav_name').html($(this).text());
+        			
+            		 if($(this).attr('id')=='1')
+        			 	$('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">6.0%~10.0% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 100 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限： 3-6个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：每月均摊本息  &nbsp; &nbsp; &nbsp;<a href="intro/intro.html?sid='+$(this).attr('id')+'" target="_blank">了解详情</a></p>');
+            		 else if($(this).attr('id')=='2')
+            			 $('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">8.0%~12.0% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 1000 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限： 3-9个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：每月还息到期还本  &nbsp; &nbsp; &nbsp;<a href="intro/intro.html?sid='+$(this).attr('id')+'" target="_blank">了解详情</a></p>');
+            		 else if($(this).attr('id')=='3')
+            			 $('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">12.0%~18.0% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 10000 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限：6-12个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：每月还息到期还本  &nbsp; &nbsp; &nbsp;<a href="intro/intro.html?sid='+$(this).attr('id')+'" target="_blank">了解详情</a></p>');
+            		 
+            		 
+            		 var orders = orderService.findGovermentOrderByProductSeries(parseInt($(this).attr('id')),-1,0,10);
+        			 refreshList(orders);
+        		 })
+        		 
+        	 }
+        	 
+        	 
+        	 var cjquestions = helpService.findPublicHelps(1,0,10);
+        	 var questions = cjquestions.get('result');
+        	 if(questions){
+        		 for(var i=0; i<questions.size(); i++)
+        			 {
+        		 		$('#cjquestion').append('<li><b></b><a href="#" target="_blank">'+questions.get(i).question+'</a></li>');
+        			 }
+        	 }
+        	 
+        	 var newhelps = helpService.findPublicHelps(0,0,10);
+        	 var nhelps = newhelps.get('result');
+        	 if(nhelps){
+        		 for(var i=0; i<nhelps.size(); i++){
+        			 $('#newhelp').append('<li><b></b><a href="#" target="_blank">'+nhelps.get(i).question+'</a></li>');
+        		 }
+        	 }
+        	 
+        	 
+        	 
+        	 
+        	 
+        	 
+        	 
+        	 //a1.trigger('click');
+        	 if(sid==null){
+        		 a1.trigger('click');
+        	 }else{
+        	 $('a#'+sid).trigger('click');
+        	 }
+        	 
+        	 
+         });
+         </script>
+    </body>
+</html>

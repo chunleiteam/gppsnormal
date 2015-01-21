@@ -1,0 +1,6 @@
+1. tomcat内存配置
+2. tomcat线程数配置
+3. jconsole试一试是否能远程，如果不行的话，命令行用top. 看看tomcat是否支持JMX
+4. mysql不允许远程访问，最大连接数修改
+5. tomcat设置https
+6. 数据库备份，阿里本身镜像服务

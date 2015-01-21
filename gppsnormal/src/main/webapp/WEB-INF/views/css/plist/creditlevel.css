@@ -1,0 +1,14 @@
+.ui-creditlevel {display:block;border-radius:18px;width:36px;height:36px;line-height:36px;font-size:16px;font-style:normal;text-align:center;text-decoration:none;color:#fff}
+a.ui-creditlevel {
+    line-height: 36px;
+}
+.ui-creditlevel.AA{background:#1bb8e2}
+.ui-creditlevel.A{background:#bfdb39}
+.ui-creditlevel.B{background:#ede71f}
+.ui-creditlevel.C{background:#ffc400}
+.ui-creditlevel.D{background:#fb5a00}
+.ui-creditlevel.E{background:#e52012}
+.ui-creditlevel.HR{background:#f01f5a}
+.ui-creditlevel {
+    margin: 10px auto;
+}

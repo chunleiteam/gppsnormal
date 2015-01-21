@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no">
+<title>政采贷</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+
+
+<link href="css/mine.css" rel="stylesheet">
+
+<link href="css/plist/a.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript"
+	src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+	src="/easyservice/gpps.service.ILenderService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+<script type="text/javascript"
+        src="/easyservice/gpps.service.thirdpay.IThirdPaySupportService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+<script src="js/tool.js"></script>
+<script src="js/getuser.js"></script>
+</head>
+<body>
+
+
+<div class="container-fluid">
+<div class="row" id="header" style="margin-left:0px; margin-right:0px;">
+      
+</div>
+
+<div class="row" style="padding-left:0px; padding-right:0px; margin-top:5px;">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="border: #eee solid 1px; padding: 5px 10px 5px 10px; BACKGROUND-COLOR: #fef9f1;">
+				提示：<br/>
+                1.投资人充值过程全程免费，手续费由网站垫付；<br />
+                2.最低充值金额应大于等于 100 元；<br />
+                3.请投资人根据发标计划合理充值，因政采贷无法触及用户资金账户，无法收取用户任何费用；为防止套现，所充资金必须经投标回款后才能提现，否则需偿还网站垫付的充值手续费；<br />
+                4.严禁利用充值功能进行信用卡套现、转账、洗钱等行为，一经发现，将封停账号30天；<br />
+                5.充值期间，请勿关闭浏览器，待充值成功并返回首页后，所充资金才能入账，如有疑问，请联系客服；<br />
+                6.充值需开通银行卡网上支付功能，如有疑问请咨询开户行客服；<br />
+                7.支付限额请参照 <a href="#" target="_blank">支付说明</a>。
+     </div>
+                
+     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center;">
+         <div class="rechargeBoxTitle">请输入充值金额</div>
+            <div class="rechargeNO">
+                <input name="txtAccount" type="text" id="txtAccount" style="height:35px;"/>
+            </div>
+            <div>
+            	<span id="msg" style="color: #b94a48; font-weight: bold;"></span>
+            </div>
+            <div>
+                <input type="button" name="btnSub" value="确 认" id="rechargeConfirm" class="confirmAndCancelBtn" />
+                <input type="button" class="confirmAndCancelBtn" id="reset" value="重 置" />
+            </div>
+            <div id="rechargeformdiv" style="display:none">
+			</div>
+            </div>
+                
+                
+
+</div>
+</div>
+</div>
+
+<script src="js/head.js"></script>
+<script>
+
+function getbank(bank){
+	
+}
+$(document).ready(function() {
+	header('recharge');
+	
+	var rb = getQueryString('rb');
+	
+
+	if(usertype!='lender' && usertype!='borrower'){
+		window.location.href="login.html"; 
+		return;
+	}
+	
+	
+	if(usertype=='lender'){
+		var thirdPartyAccount = user.thirdPartyAccount;
+		var identityCard = user.identityCard;
+		
+		if(identityCard==null || identityCard==''){
+			if(confirm("您尚未实名认证，马上认证?")){
+				window.location.href="register2.html";
+			}else{
+				window.close();
+	  		}
+		}
+		else if(thirdPartyAccount==null || thirdPartyAccount==''){
+			if(confirm("您尚未在第三方注册，马上注册？")){
+				window.location.href="register3.html";
+			}else{
+				window.close();
+			}
+		}
+	}else if(usertype=='borrower'){
+		var privilege = user.privilege;
+		var thirdPartyAccount = user.thirdPartyAccount;
+		if(privilege==10){
+			if(confirm("您尚未申请实地尽调，马上申请?")){
+				window.location.href="baccount.html";
+			}else{
+				window.close();
+	  		}
+		}else if(privilege==11){
+			alert("等待实地尽调中，目前暂不能充值！");
+			window.close();
+		}
+		else if(thirdPartyAccount==null || thirdPartyAccount==''){
+			if(confirm("您尚未在第三方注册，马上注册？")){
+				window.location.href="register3.html";
+			}else{
+				window.close();
+			}
+		}
+	}
+	
+	
+	
+	
+	$('#txtAccount').keyup(function(e){
+		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
+		if(!myreg.test(this.value))
+		{
+			document.getElementById('msg').innerHTML='金额必须大于0且为整数或小数，小数点后不超过两位';
+			this.value=''; 
+			}else{
+				document.getElementById('msg').innerHTML='';
+				};
+	});
+	
+	
+	$('#reset').click(function(e){
+		document.getElementById('msg').innerHTML='';
+		$('#txtAccount').val('');
+	});
+	
+	$('#rechargeConfirm').click(function(e){
+		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
+		var value = $('#txtAccount').val();
+		if(!myreg.test(value))
+		{
+			document.getElementById('msg').innerHTML='金额必须大于0且为整数或小数，小数点后不超过两位';
+			$('#txtAccount').val('');
+		}else{
+			var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+            var recharge=service.getRecharge(value);
+            var content="<form id='rechargeform' action='"+recharge.baseUrl+"'method='post'>";
+            for(var o in recharge)
+           	{
+                if(o=="baseUrl")
+               	{
+                	continue;
+               	}
+                var len = o.length;
+                var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                content+="<input id='"+name+"' name='"+name+"' value='"+recharge[o]+"'/> ";
+           	}
+            content+="</form>";
+            $('#rechargeformdiv').html(content);
+            $('#rechargeform').submit();
+		};
+	});
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gpps.dao.ITaskDao">
+	<insert id="create" parameterType="gpps.model.Task"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into
+		Task(type,createTime,state,productId,payBackId)
+		values(#{type},#{createTime},#{state},#{productId},#{payBackId})
+	</insert>
+	<update id="changeState">
+		update Task set
+		state=#{state}
+		where
+		id=#{id}
+	</update>
+	<select id="find" parameterType="Integer" resultType="gpps.model.Task">
+		select *
+		from Task where id=#{id}
+	</select>
+	<select id="findByState" parameterType="int"
+		resultType="gpps.model.Task">
+		select *
+		from Task where state=#{state} order by createTime asc
+	</select>
+	<delete id="delete">
+		delete from Task
+		where
+		id=#{id}
+	</delete>
+</mapper>

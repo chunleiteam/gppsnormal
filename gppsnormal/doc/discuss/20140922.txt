@@ -1,0 +1,11 @@
+1.等额本息计算方法：按银行算法 yes
+2.还款顺序的后台校验：
+还款顺序:还款方式顺序 0>1>2 yes
+3.financingEndtime放在Product中,financingStarttime相同，还放在订单中 yes
+4.提供接口，管理员操作payback延期时，顺便修改product状态为延期  yes
+5.用户购买校验融资截止日 yes
+6.增加管理员购买接口，不受融资截止日限制。 yes
+7.payback增加失效，失效的payback不查询  yes
+8.关闭订单给borrower增加信用值，等于订单实际金额 yes
+9.订单增加上传附件，附件分类存储 yes
+

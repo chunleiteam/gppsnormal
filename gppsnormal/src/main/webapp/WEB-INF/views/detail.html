@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>政采贷</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+
+    <!-- Custom styles for this template -->
+	<link href="css/plist/a.css" rel="stylesheet">
+    <script src="js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+		<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IHelpService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.INoticeService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.INewsService?json"></script>
+		<script src="js/tool.js"></script>
+		<script src="js/getuser.js"></script>
+  </head>
+
+  <body>
+
+    <div class="container">
+		
+		<div class="row" id="header" style="padding-left:0px; padding-right:0px;">
+      
+      	</div>
+		
+		<div class="row" id="content" style="padding-left:15px; padding-right:15px;">
+		
+      	</div>
+      
+      
+      <div class="row foot" id="footer" style="border: #eee solid 1px; background:#eee; font-size:13px; margin-top:25px; padding-left:0px; padding-right:0px; padding-bottom:0px;">
+
+	</div>
+      
+      
+
+    </div> <!-- /container -->
+
+
+	<textarea id="content_template" style="display:none;">
+	<div class="col-md-12" style="padding-left:0px; padding-right:0px;">
+		政采贷>+-typename-+>+-stypename-+
+		</div>
+		<div class="col-md-12" style="border:solid 2px #f5f5f5; margin-top:15px; padding-bottom:15px; background-color:#f5f5f5">
+			<div class="col-md-12" style="margin-top:15px;">
+			<div class="col-md-12" style="padding-left:0px; padding-right:0px;">
+			<!--# 
+			if(type=='question'){
+			 #-->
+			<span style="font-size:18px; color:#999">+-stypename-+</span><a style="float:right;" href="+-centerurl-+">返回列表</a>
+			<!--# 
+			}else{
+			 #-->
+			 <span style="font-size:18px; color:#999">+-stypename-+</span><a style="float:right;" href="+-(centerurl+stype)-+">返回列表</a>
+			 <!--# 
+			 }
+			  #-->
+			<div style="clear:both;"></div>
+			</div>
+			
+			<div class="col-md-12" style="border-top:solid gold 1px; margin-top:2px;">
+			</div>
+			</div>
+			<div class="col-md-12" style="margin-top:15px; padding-left:0px; padding-right:0px;">
+			
+				<!--# 
+				if(type=='notice' || type=='news')
+				{
+				 #-->
+				<div class="row">
+				<div class="hidden-xs hidden-sm col-md-2"></div>
+				<div class="col-xs-12 col-sm-12 col-md-8" style="margin-top:5px; border:solid #eee 1px; background-color:white;">
+				<div style="min-height:300px;">+-value.content-+</div>
+				<div  style="text-align:right;">北京春蕾投资管理有限责任公司</div>
+				<div style="text-align:right;">+-formatDate(value.publishtime)-+</div>
+				<div style = "clear:both;"></div>
+				</div>
+				<div class="hidden-xs hidden-sm col-md-2"></div>
+				</div>
+				<!--# 
+				}else
+				{
+				var content = "";
+				var publishtime = "";
+				var answertime = "";
+				if(value.type==0){
+					content = value.answer;
+					publishtime = formatDate(value.createtime)+"发布";
+					answertime = formatDate(value.createtime)+"发布";
+				}else if(value.type==1){
+					content = '尚未回答';
+					publishtime = formatDate(value.createtime)+"提问";
+					answertime = formatDate(value.createtime)+"提问";
+				}else if(value.type==2){
+					content = value.answer;
+					publishtime = formatDate(value.createtime)+"提问";
+					answertime = formatDate(value.answertime)+"回答";
+				}
+				
+				
+				 #-->
+				 <div class="col-md-12">
+				<span style="font-size:16px; font-weight:bold; color:#999;">[+-value.question-+]</span>
+				</div>
+				<div class="col-md-12" style="margin-top:5px;">
+				<span style="font-size:12px; color:#999;">+-publishtime-+</span>
+				</div>
+				<div class="row">
+				<div class="hidden-xs hidden-sm col-md-2"></div>
+				<div class="col-xs-12 col-sm-12 col-md-8" style="margin-top:20px;">
+				<div style="min-height:200px;">+-content-+</div>
+				<div  style="text-align:right;">北京春蕾投资管理有限责任公司</div>
+				<div style="text-align:right;">+-answertime-+</div>
+				<div style = "clear:both;"></div>
+				</div>
+				<div class="hidden-xs hidden-sm col-md-2"></div>
+				</div>
+				 <!--# 
+				 }
+				  #-->
+			</div>
+		</div>
+	</textarea>
+
+
+    
+  </body>
+  
+  
+  <script src="js/head.js"></script>
+  <script src="js/foot.js"></script>
+  <script>
+  	var noticeService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.INoticeService");
+  	var newsService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.INewsService");
+  	var helpService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IHelpService");
+	var typename = {
+		"help" : "帮助中心",
+		"notice" : "公告中心",
+		"news" : "新闻中心",
+		"question" : "我的问题"
+	};
+	
+	var centerurl = {
+			"help" : "helpcenter.html?type=",
+			"notice" : "noticecenter.html?type=",
+			"news" : "newscenter.html?type=",
+			"question" : "baccountdetail.html?fid=mycenter&sid=question-view"
+	}
+	
+	var stypename = {
+			"help-1" : "所有",
+			"help0" : "新手帮助",
+			"help1" : "常见问题",
+			"help2" : "交易管理",
+			"help3" : "投资融资",
+			"help4" : "免责声明",
+			"help5" : "我的问题",
+			"notice-1" : "所有",
+			"notice0" : "平台公告",
+			"notice1" : "企业公告",
+			"notice2" : "活动公告",
+			"news-1" : "所有",
+			"news0" : "行业资讯",
+			"news1" : "财经新闻",
+			"question-1" : "所有"
+	}
+	
+	var type = getQueryString('type');
+	var stype = getQueryString('stype');
+	var id = getQueryString('id');
+	
+	$(document).ready(function() {
+		if(type==null || type=='' || stype==null || stype=='' || id==null || id==''){
+			  alert('参数错误！');
+			  return;
+		  }
+		
+	var value = null;
+	
+	if(type=='notice'){
+		value = noticeService.find(parseInt(id));
+	}else if(type=='news'){
+		value = newsService.find(parseInt(id));
+	}else if(type=='help' || type=='question'){
+		value = helpService.find(parseInt(id));
+	}
+		
+	
+	if(value==null){
+		alert('参数错误！');
+		return;
+	}
+	
+	header('detail');
+	
+	var ctx = new EasyServiceClient.newContext();
+	
+	ctx.type = type;
+	ctx.stype = stype;
+	ctx.typename = typename[type];
+	ctx.stypename = stypename[type+stype];
+	ctx.centerurl = centerurl[type];
+	ctx.value = value;
+	ejs.renderComplexNode("#content_template", "#content", ctx);
+	
+})
+</script>
+  
+</html>

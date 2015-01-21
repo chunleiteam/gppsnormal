@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gpps.dao.IActivityRefDao">
+	<insert id="create" parameterType="gpps.model.ActivityRef"
+        useGeneratedKeys="true" keyProperty="id">
+        insert into
+        ActivityRef(participatorType,participatorId,activityId,applyTime,participate,awarddetail,description)
+        values(#{participatorType},#{participatorId},#{activityId},#{applyTime},#{participate},#{awarddetail},#{description})
+    </insert>
+    <select id="find" parameterType="Integer" resultType="gpps.model.ActivityRef">
+        select *
+        from ActivityRef where id=#{id}
+    </select>
+	<select id="findByActivity" resultType="gpps.model.ActivityRef">
+		 select *
+        from ActivityRef where activityId=#{activityId} 
+        order by applyTime desc 
+        LIMIT #{offset}, #{recnum}
+	</select>
+	 <select id="countByActivity" resultType="int">
+        select count(*)
+        from ActivityRef where activityId=#{activityId} 
+    </select>
+    <select id="findByActivityAndLender" resultType="gpps.model.ActivityRef">
+         select *
+        from ActivityRef where activityId=#{activityId} and participatorType=0 and participatorId=#{lenderId}
+    </select>
+    <select id="findByLender" resultType="gpps.model.ActivityRef">
+         select *
+        from ActivityRef where participatorType=0 and participatorId=#{lenderId}
+        order by applyTime desc 
+        LIMIT #{offset}, #{recnum}
+    </select>
+     <select id="countByLender" resultType="int">
+        select count(*)
+        from ActivityRef where participatorType=0 and participatorId=#{lenderId} 
+    </select>
+</mapper>

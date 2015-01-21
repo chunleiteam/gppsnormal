@@ -1,0 +1,480 @@
+.product-detail {
+	BORDER-BOTTOM: #f5f5f5 3px solid; MARGIN-BOTTOM: 20px
+}
+.product-detail-head {
+	BORDER-BOTTOM: #c3dff4 1px solid; BORDER-LEFT: #c3dff4 1px solid; LINE-HEIGHT: 36px; BACKGROUND-COLOR: #e4f3fd; HEIGHT: 38px; BORDER-TOP: #c3dff4 1px solid; BORDER-RIGHT: #c3dff4 1px solid
+}
+.product-detail-head .product-code {
+	VERTICAL-ALIGN: middle
+}
+.product-detail-head .product-name-info {
+	FLOAT: left; MARGIN-LEFT: 20px
+}
+.product-detail-head .product-published-date {
+	FLOAT: right; MARGIN-RIGHT: 20px
+}
+.product-detail-body {
+	BORDER-BOTTOM: #d7d7d7 1px solid; BORDER-LEFT: #d7d7d7 1px solid; PADDING-BOTTOM: 20px; BORDER-TOP: medium none; BORDER-RIGHT: #d7d7d7 1px solid
+}
+.product-detail-info {
+	PADDING-LEFT: 20px; WIDTH: 560px; FLOAT: left
+}
+.detail-info-list {
+	MARGIN: 30px 0px 25px
+}
+.detail-info-list LI {
+	BORDER-LEFT: #d4d4d4 1px dashed; PADDING-BOTTOM: 8px; LINE-HEIGHT: 24px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px; FLOAT: left; PADDING-TOP: 8px
+}
+.detail-info-list LI P:first-child {
+	MARGIN-BOTTOM: 5px
+}
+.detail-info-list LI:first-child {
+	BORDER-LEFT: medium none; PADDING-LEFT: 0px
+}
+.detail-info-list LI.last-col {
+	PADDING-RIGHT: 0px
+}
+.detail-info-list LI STRONG {
+	FONT-SIZE: 15px
+}
+.can-transfer {
+	BORDER-BOTTOM: #e6551d 1px dashed; COLOR: #e6551d; CURSOR: pointer
+}
+.tips-title {
+	BORDER-BOTTOM: #666 1px dashed; CURSOR: pointer; COLOR: #333;
+}
+a.tips-title:hover{
+	 text-decoration:none;
+}
+.mark-up-info .tips-title {
+	BORDER-BOTTOM: #699dd7 1px dashed; COLOR: #699dd7; FONT-SIZE: 14px; CURSOR: pointer; FONT-WEIGHT: bold
+}
+.mark-up-info .tips-title-bid {
+	BORDER-BOTTOM: #333 1px dashed; CURSOR: pointer; MARGIN-RIGHT: 0px
+}
+.income-count {
+	MARGIN-BOTTOM: 20px
+}
+.income-count P {
+	FLOAT: left
+}
+A.calculator-link {
+	PADDING-LEFT: 18px; BACKGROUND: url(img/calculator-icons.png) no-repeat 0px -53px; FLOAT: right; MARGIN-RIGHT: 25px
+}
+.other-detail-info .progress-wrap {
+	FLOAT: left
+}
+.other-detail-info .progress-wrap .progress-label {
+	FLOAT: left; MARGIN-RIGHT: 0px
+}
+.other-detail-info .progress-wrap .progress {
+	BORDER-BOTTOM: medium none; BORDER-LEFT: #eeeded 1px solid; MARGIN: 3px 10px 0px 0px; WIDTH: 145px; BACKGROUND: #eeeded; FLOAT: left; HEIGHT: 10px; BORDER-TOP: #eeeded 1px solid; BORDER-RIGHT: medium none
+}
+.other-detail-info .progress-wrap .progress .bar {
+	BACKGROUND-COLOR: #f3be6e; WIDTH: 0px; HEIGHT: 100%
+}
+.other-detail-info .progress-wrap .progressTxt {
+	FLOAT: left
+}
+.other-detail-info .buyer-transaction-fee {
+	FLOAT: right; COLOR: #666
+}
+.product-detail-status {
+	BACKGROUND: url(img/detail-status-left.jpg) no-repeat 0px 0px;
+}
+.product-detail-status-inner {
+	POSITION: relative; MIN-HEIGHT: 90%; WIDTH: 100%; BORDER-TOP: #ff7e00 3px solid;
+}
+.detail-content {
+	BORDER-BOTTOM: #e4e4e4 1px solid; BORDER-LEFT: #e4e4e4 1px solid; BORDER-TOP: #7f79d1 3px solid; BORDER-RIGHT: #e4e4e4 1px solid
+}
+.detail-content .detail-content-head {
+	BORDER-BOTTOM: #e4e4e4 1px solid; LINE-HEIGHT: 33px; HEIGHT: 33px
+}
+.detail-content .detail-content-head H2 {
+	PADDING-LEFT: 20px; FONT-SIZE: 14px
+}
+.detail-content .detail-content-body {
+	PADDING-BOTTOM: 20px; PADDING-LEFT: 20px; PADDING-RIGHT: 20px; PADDING-TOP: 20px
+}
+.product-description TD {
+	PADDING-BOTTOM: 5px; LINE-HEIGHT: 22px; PADDING-LEFT: 10px; PADDING-TOP: 5px
+}
+.product-description TR TD:first-child {
+	TEXT-ALIGN: right; PADDING-LEFT: 0px; WIDTH: 85px; VERTICAL-ALIGN: top
+}
+.product-description TR TD SPAN.divider {
+	COLOR: #e6551d
+}
+.product-description {
+	MARGIN-BOTTOM: 20px
+}
+.expect-income {
+	LINE-HEIGHT: 34px; BACKGROUND-COLOR: #f5faff; PADDING-LEFT: 10px; HEIGHT: 34px
+}
+.expect-income STRONG {
+	FONT-SIZE: 14px
+}
+.total-income {
+	LINE-HEIGHT: 50px; PADDING-LEFT: 10px; HEIGHT: 50px; FONT-SIZE: 13px
+}
+.collection-table {
+	WIDTH: 100%
+}
+.collection-table TH {
+	BACKGROUND-COLOR: #eff8ff
+}
+.collection-table .cash {
+	TEXT-ALIGN: right; PADDING-RIGHT: 26px
+}
+.collection-table .even TD {
+	BACKGROUND-COLOR: #eff8ff
+}
+.collection-table TH {
+	TEXT-ALIGN: center; PADDING-BOTTOM: 0px; PADDING-LEFT: 6px; WIDTH: 100px; PADDING-RIGHT: 6px; HEIGHT: 35px; FONT-SIZE: 14px; PADDING-TOP: 0px
+}
+.collection-table TD {
+	TEXT-ALIGN: center; PADDING-BOTTOM: 0px; PADDING-LEFT: 6px; WIDTH: 80px; PADDING-RIGHT: 6px; HEIGHT: 35px; PADDING-TOP: 0px
+}
+.collection-table TD:first-child {
+	WIDTH: 30px
+}
+.collection-table TH:first-child {
+	WIDTH: 30px
+}
+.collection-table .repaymentDate {
+	WIDTH: 120px
+}
+.collection-table TH.last-col {
+	WIDTH: 110px
+}
+.collection-table TD.last-col {
+	WIDTH: 90px
+}
+.table-fixed {
+	Z-INDEX: 100; POSITION: fixed; MARGIN: 0px; WIDTH: 638px; BACKGROUND: #fff; TOP: 0px
+}
+.collection-detail {
+	MARGIN-BOTTOM: 20px
+}
+.comments .asterisk {
+	PADDING-BOTTOM: 5px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; FONT-WEIGHT: bold; PADDING-TOP: 5px
+}
+.detail-sidebar {
+	WIDTH: 260px; FLOAT: right
+}
+.invest-record {
+	BORDER-BOTTOM: #e4e4e4 1px solid; BORDER-LEFT: #e4e4e4 1px solid; MARGIN: 0px 0px 10px; MAX-HEIGHT: 350px; BORDER-TOP: #e4e4e4 1px solid; BORDER-RIGHT: #e4e4e4 1px solid; overflow:hidden;
+}
+.invest-record .invest-record-title {
+	BORDER-BOTTOM: #e4e4e4 1px solid; PADDING-BOTTOM: 0px; LINE-HEIGHT: 30px; BACKGROUND-COLOR: #f5f5f5; PADDING-LEFT: 20px; PADDING-RIGHT: 0px; HEIGHT: 30px; FONT-SIZE: 14px; FONT-WEIGHT: bold; PADDING-TOP: 0px
+}
+.invest-record .invest-record-title SPAN {
+	COLOR: #699dd7
+}
+.invest-record-list {
+	WIDTH: 100%
+}
+.invest-record-list TD {
+	TEXT-ALIGN: left; PADDING-BOTTOM: 0px; LINE-HEIGHT: 25px; PADDING-LEFT: 10px; WIDTH: 33%; PADDING-RIGHT: 0px; HEIGHT: 25px; PADDING-TOP: 0px
+}
+.invest-record-list TH {
+	TEXT-ALIGN: left; PADDING-BOTTOM: 0px; LINE-HEIGHT: 25px; PADDING-LEFT: 10px; WIDTH: 33%; PADDING-RIGHT: 0px; HEIGHT: 25px; PADDING-TOP: 0px
+}
+.invest-record-list TH {
+	BORDER-BOTTOM: #e4e4e4 1px solid; LINE-HEIGHT: 30px; HEIGHT: 30px
+}
+.invest-record-list TR.highest TD {
+	COLOR: #e6551d
+}
+.invest-record-list TD:first-child {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 20px; PADDING-RIGHT: 0px; PADDING-TOP: 0px
+}
+.invest-record-list TH:first-child {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 20px; PADDING-RIGHT: 0px; PADDING-TOP: 0px
+}
+.invest-record-wrap {
+	HEIGHT: 103px; OVERFLOW: hidden
+}
+.invest-record-autoHeight {
+	HEIGHT: auto
+}
+.auction-status-online {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px; PADDING-TOP: 65px
+}
+.auction-status-done {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px; PADDING-TOP: 65px
+}
+.no-haggle-done {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px; PADDING-TOP: 65px
+}
+.no-haggle-preview {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px; PADDING-TOP: 65px
+}
+.no-haggle-online {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px; PADDING-TOP: 65px
+}
+.raise-status-online LABEL {
+	FONT-SIZE: 14px
+}
+.raise-status-preview LABEL {
+	FONT-SIZE: 14px
+}
+.auction-status-online LABEL {
+	FONT-SIZE: 14px
+}
+.auction-status-done LABEL {
+	FONT-SIZE: 14px
+}
+.no-haggle-done LABEL {
+	FONT-SIZE: 14px
+}
+.no-haggle-preview LABEL {
+	FONT-SIZE: 14px
+}
+.no-haggle-online LABEL {
+	FONT-SIZE: 14px
+}
+.raise-status-preview .operate {
+	MARGIN: 2px 0px 8px
+}
+.auction-status-online .operate {
+	MARGIN: 2px 0px 8px
+}
+.auction-status-done .operate {
+	MARGIN: 2px 0px 8px
+}
+.no-haggle-done .operate {
+	MARGIN: 2px 0px 8px
+}
+.no-haggle-preview .operate {
+	MARGIN: 2px 0px 8px
+}
+.no-haggle-online .operate {
+	MARGIN: 2px 0px 8px
+}
+.raise-status-preview .operate .invest-amount {
+	LINE-HEIGHT: 36px; WIDTH: 160px; FLOAT: left; FONT-SIZE: 15px
+}
+.auction-status-online .operate .invest-amount {
+	LINE-HEIGHT: 36px; WIDTH: 160px; FLOAT: left; FONT-SIZE: 15px
+}
+.auction-status-done .operate .invest-amount {
+	LINE-HEIGHT: 36px; WIDTH: 160px; FLOAT: left; FONT-SIZE: 15px
+}
+.no-haggle-done .operate .invest-amount {
+	LINE-HEIGHT: 36px; WIDTH: 160px; FLOAT: left; FONT-SIZE: 15px
+}
+.no-haggle-preview .operate .invest-amount {
+	LINE-HEIGHT: 36px; WIDTH: 160px; FLOAT: left; FONT-SIZE: 15px
+}
+.no-haggle-online .operate .invest-amount {
+	LINE-HEIGHT: 36px; WIDTH: 160px; FLOAT: left; FONT-SIZE: 15px
+}
+.raise-status-preview .operate .invest-amount STRONG {
+	FONT-SIZE: 20px
+}
+.auction-status-online .operate .invest-amount STRONG {
+	FONT-SIZE: 20px
+}
+.auction-status-done .operate .invest-amount STRONG {
+	FONT-SIZE: 20px
+}
+.no-haggle-done .operate .invest-amount STRONG {
+	FONT-SIZE: 20px
+}
+.no-haggle-preview .operate .invest-amount STRONG {
+	FONT-SIZE: 20px
+}
+.no-haggle-online .operate .invest-amount STRONG {
+	FONT-SIZE: 20px
+}
+.raise-status-online .operate .btns {
+	FLOAT: right; border-radius: 0
+}
+.auction-status-online .operate .btns {
+	FLOAT: right; border-radius: 0
+}
+.no-haggle-online .operate .btns {
+	FLOAT: right; border-radius: 0
+}
+.product-detail-status .status {
+	Z-INDEX: 100; POSITION: relative; WIDTH: 100%; HEIGHT: 25px
+}
+.product-detail-status .status .balanceAmount {
+	POSITION: absolute; TOP: 4px; RIGHT: 0px
+}
+.product-detail-status .balanceAmount .balanceAmountToggle {
+	PADDING-LEFT: 20px; BACKGROUND: url(img/balanceAmount_icon.png) no-repeat 0px -34px
+}
+.count-down {
+	BORDER-BOTTOM: #c3dff4 1px solid; POSITION: relative; TEXT-ALIGN: center; BORDER-LEFT: #c3dff4 1px solid; LINE-HEIGHT: 34px; BACKGROUND-COLOR: #f5faff; WIDTH: 350px; BOTTOM: -20px; HEIGHT: 34px; FONT-SIZE: 16px; BORDER-TOP: #c3dff4 1px solid; BORDER-RIGHT: #c3dff4 1px solid; LEFT: -15px
+}
+.count-down SPAN {
+	COLOR: #106f00
+}
+.count-down B {
+	POSITION: absolute; WIDTH: 15px; DISPLAY: block; BACKGROUND: url(img/calculator-icons.png) no-repeat -51px 0px; HEIGHT: 7px; TOP: -7px; LEFT: 55px
+}
+.auction-status-done {
+	BACKGROUND: url(img/done-status-stamp.png) no-repeat -509px 13px; PADDING-TOP: 35px
+}
+.no-haggle-done {
+	BACKGROUND: url(img/done-status-stamp.png) no-repeat -509px 13px; PADDING-TOP: 35px
+}
+.no-haggle-transfer-done {
+	BACKGROUND-POSITION: -190px -240px
+}
+.auction-status-done .done-info {
+	COLOR: #666
+}
+.no-haggle-done .done-info {
+	COLOR: #666
+}
+.auction-status-online {
+	PADDING-TOP: 35px
+}
+.auction-status-online .btn-auction.btns {
+	PADDING-BOTTOM: 8px; PADDING-LEFT: 23px; PADDING-RIGHT: 23px; PADDING-TOP: 8px
+}
+.auction-status-done {
+	BACKGROUND-POSITION: 175px -479px
+}
+.mark-up-info {
+	MARGIN-BOTTOM: 10px; COLOR: #666
+}
+.mark-up-info SPAN {
+	MARGIN-RIGHT: 10px
+}
+.raise-status-preview {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px; PADDING-TOP: 30px
+}
+.raise-status-online {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px; PADDING-TOP: 30px
+}
+.raise-status-preview .remaining-amount {
+	BORDER-BOTTOM: #d6d6d6 1px dashed; PADDING-BOTTOM: 10px; MARGIN-BOTTOM: 10px
+}
+.raise-status-online .remaining-amount {
+	BORDER-BOTTOM: #d6d6d6 1px dashed; PADDING-BOTTOM: 10px; MARGIN-BOTTOM: 10px
+}
+.raise-status-preview .remaining-amount STRONG {
+	FONT-SIZE: 14px
+}
+.raise-status-online .remaining-amount STRONG {
+	FONT-SIZE: 14px
+}
+.raise-status-online .reduce-btn {
+	WIDTH: 20px; DISPLAY: block; BACKGROUND: url(img/plus-icons.png) #eee no-repeat 0px -36px; FLOAT: left; HEIGHT: 36px; CURSOR: pointer
+}
+.raise-status-online .plus-btn {
+	WIDTH: 20px; DISPLAY: block; BACKGROUND: url(img/plus-icons.png) #eee no-repeat 0px -36px; FLOAT: left; HEIGHT: 36px; CURSOR: pointer
+}
+.raise-status-online .plus-btn {
+	BACKGROUND-POSITION: -20px -36px
+}
+.raise-status-online .disabled.reduce-btn:hover {
+	BACKGROUND-COLOR: #eee; BACKGROUND-POSITION: 0px 0px; CURSOR: default
+}
+.raise-status-online .disabled.reduce-btn {
+	BACKGROUND-COLOR: #eee; BACKGROUND-POSITION: 0px 0px; CURSOR: default
+}
+.raise-status-online .disabled.plus-btn:hover {
+	BACKGROUND-COLOR: #eee; BACKGROUND-POSITION: -20px 0px; CURSOR: default
+}
+.raise-status-online .disabled.plus-btn {
+	BACKGROUND-COLOR: #eee; BACKGROUND-POSITION: -20px 0px; CURSOR: default
+}
+.raise-status-online .reduce-btn:hover {
+	BACKGROUND-COLOR: #ea5404; BACKGROUND-POSITION: 0px -72px
+}
+.raise-status-online .plus-btn:hover {
+	BACKGROUND-COLOR: #ea5404; BACKGROUND-POSITION: -20px -72px
+}
+.raise-status-online .inputs-gather {
+	BORDER-BOTTOM: #b0b2b4 1px solid; BORDER-LEFT: #b0b2b4 1px solid; FLOAT: left; BORDER-TOP: #b0b2b4 1px solid; BORDER-RIGHT: #b0b2b4 1px solid
+}
+.raise-status-online .raise-operate {
+	MARGIN: 10px 0px
+}
+.raise-status-online .raise-input {
+	PADDING-BOTTOM: 0px; LINE-HEIGHT: 36px; PADDING-LEFT: 5px; WIDTH: 100px; PADDING-RIGHT: 0px; FLOAT: left; HEIGHT: 36px; FONT-SIZE: 16px; PADDING-TOP: 0px; box-shadow: 1px 1px 1px #ccc inset
+}
+.balanceAmountWrap {
+	BORDER-BOTTOM: medium none; POSITION: absolute; BORDER-LEFT: medium none; PADDING-BOTTOM: 5px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; DISPLAY: none; BACKGROUND: url(img/has_arrow_bottom.png) no-repeat 0px bottom; BORDER-TOP: medium none; TOP: 16px; RIGHT: -16px; BORDER-RIGHT: medium none; PADDING-TOP: 0px; box-shadow: none
+}
+.balanceAmountWrap .innerBalanceAmount {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 10px; WIDTH: 231px; PADDING-RIGHT: 10px; BACKGROUND: url(img/has_arrow_top.png) no-repeat 0px 0px; PADDING-TOP: 15px
+}
+.emptyRecord TD {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 20px; PADDING-RIGHT: 0px; PADDING-TOP: 0px
+}
+.noticeQuestion .head {
+	BORDER-BOTTOM: #d9d9d9 1px solid
+}
+.showStatus {
+	BORDER-BOTTOM: #fab418 1px solid; BORDER-LEFT: #fab418 1px solid; LINE-HEIGHT: 30px; BACKGROUND-COLOR: #ffe9ad; PADDING-LEFT: 5px; MARGIN-BOTTOM: 10px; HEIGHT: 30px; BORDER-TOP: #fab418 1px solid; BORDER-RIGHT: #fab418 1px solid; border-radius: 5px
+}
+.showStatus LABEL {
+	PADDING-LEFT: 20px; BACKGROUND: url(img/error.gif) no-repeat 5px center; FONT-SIZE: 12px
+}
+.invest-reward-wrap {
+	MARGIN-TOP: 10px
+}
+.invest-reward-wrap .reward-label {
+	MARGIN-TOP: 5px; FLOAT: left
+}
+.invest-reward-wrap .invest-reward-body {
+	FLOAT: left
+}
+.reward-info {
+	LINE-HEIGHT: 200%; BACKGROUND-COLOR: #fff; MIN-HEIGHT: 28px; DISPLAY: table; MAX-WIDTH: 470px; MARGIN-BOTTOM: 1px; FONT-SIZE: 12px
+}
+.reward-info .title {
+	BORDER-BOTTOM: #f8b551 1px dotted; TEXT-ALIGN: center; BORDER-LEFT: #f8b551 1px dotted; LINE-HEIGHT: 28px; BACKGROUND-COLOR: #fff; WIDTH: 88px; DISPLAY: table-cell; HEIGHT: 28px; COLOR: #f90; FONT-SIZE: 14px; VERTICAL-ALIGN: middle; BORDER-TOP: #f8b551 1px dotted; BORDER-RIGHT: medium none
+}
+.reward-info .description {
+	BORDER-BOTTOM: #f8b551 1px dotted; TEXT-ALIGN: left; BORDER-LEFT: medium none; PADDING-BOTTOM: 1px; BACKGROUND-COLOR: #fff4cb; PADDING-LEFT: 10px; PADDING-RIGHT: 20px; DISPLAY: table-cell; FONT-SIZE: 14px; VERTICAL-ALIGN: middle; BORDER-TOP: #f8b551 1px dotted; BORDER-RIGHT: #f8b551 1px dotted; PADDING-TOP: 1px
+}
+.reward-info .market-icon {
+	WIDTH: 35px; DISPLAY: inline-block; BACKGROUND: url(img/market-icon.png) no-repeat 0px 0px; HEIGHT: 20px; VERTICAL-ALIGN: middle
+}
+.reward-info .cash {
+	BACKGROUND-POSITION: -41px -3px
+}
+.reward-info .coin {
+	BACKGROUND-POSITION: -130px -3px
+}
+.reward-info .gift {
+	BACKGROUND-POSITION: 4px -2px
+}
+.reward-info .deduction {
+	BACKGROUND-POSITION: -171px -2px
+}
+.userStatusError {
+	BORDER-BOTTOM: #e96937 1px solid; BORDER-LEFT: #e96937 1px solid; LINE-HEIGHT: 38px; BACKGROUND-COLOR: #fbeee8; MARGIN: -3px 0px 0px; PADDING-LEFT: 15px; HEIGHT: 38px; BORDER-TOP: #e96937 1px solid; BORDER-RIGHT: #e96937 1px solid
+}
+.content-head {
+	LINE-HEIGHT: 40px; MARGIN-TOP: 0px; HEIGHT: 40px
+}
+.content-head .bcrumb {
+	MARGIN: 0px; FLOAT: left
+}
+.balanceAmountCon {
+	MARGIN-BOTTOM: 5px
+}
+.balanceAmountCon A {
+	FLOAT: right
+}
+.error.raise-input {
+	BORDER-BOTTOM: #ab3f0e 1px solid; BORDER-LEFT: #ab3f0e 1px solid; BORDER-TOP: #ab3f0e 1px solid; BORDER-RIGHT: #ab3f0e 1px solid
+}
+.can-transfer .mouseTips {
+	COLOR: #333
+}
+.can-transfer .mouseTips SPAN {
+	DISPLAY: block
+}
+.can-transfer .mouseTips A {
+	COLOR: #2438cd
+}

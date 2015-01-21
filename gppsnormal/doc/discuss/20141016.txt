@@ -1,0 +1,18 @@
+1. 增加借款方可还款/可提前还款的payback列表服务
+        可还款 yes IPayBackService public List<PayBack> findBorrowerCanBeRepayedPayBacks();
+        可提前 yes IPayBackService public List<PayBack> findBorrowerCanBeRepayedInAdvancePayBacks();
+2. borrower还款的时候，cashstream少一条解冻记录 yes
+3. 申请提前还款的时候计算不正确 yes
+4. 关闭订单的时候，把还款总额加到borrower的信用值里，级别做相应修改 yes
+5. borrower增加审核未通过状态，并允许审核未通过状态变为申请融资状态 yes
+
+6. 对于borrower的现金流展示，有些需要取相反值， borrower冻结解冻都过滤掉 yes
+
+8.  订单状态不是还款中时候，不允许还款，后台服务保证.前台页面限制 yes
+9. 提供一个服务判断某一个payback
+                                    是否可支付   yes   IPayBackService public boolean canRepay(Integer payBackId);
+                                    是否可申请提前 yes IPayBackService public boolean canRepayInAdvance(Integer payBackId);
+10.还款总览
+            待还款 yes  IAccountService    public Map<String,PayBackDetail> getBorrowerWillBeRepayedDetail();
+            已还款 yes  IAccountService    public Map<String,PayBackDetail> getBorrowerRepayedDetail();
+7. 产品详情界面，支持borrower的操作。查看所有投资、添加productaction、还款、申请提前

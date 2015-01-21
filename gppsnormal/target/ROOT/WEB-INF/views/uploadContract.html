@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1 user-scalable=no">
+<title>企业资料编辑</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="js/uploadify2/uploadify.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" id="spi-render-css-css"
+	href="css/image/render.css" type="text/css" media="all" />
+<link rel="stylesheet" type="text/css"
+	href="css/image/default.include.b2676e.css" media="all" />
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+<script src="js/jquery.min.js"></script>
+<script src="js/tool.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/uploadify2/jquery.uploadify.min.js"></script>
+<script type="text/javascript" src="js/image/default.include.c78d4e.js"></script>
+<script type="text/javascript" src="js/image/async-share.js"></script>
+<script type="text/javascript"
+	src="js/image/default.include-footer.304291.js"></script>
+<script type="text/javascript"
+	src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+	src="/easyservice/gpps.service.IAdminService?json"></script>
+<script type="text/javascript"
+	src="/easyservice/gpps.service.IContractService?json"></script>
+</head>
+<body>
+<div class="container-fluid" style="width:800px;">
+<div class="row" style="border: #eee solid 1px;">
+			<div class="col-md-12" style="padding-top:20px; padding-bottom:20px;" id="title">
+			
+			</div>
+			<div id="fileQueue" class="col-md-12" style="padding-top:20px; padding-bottom:20px;">
+				<input type="file" name="uploadify" id="uploadify" /> 
+				<button id="upload">上传</button><button id="clearall">清空列表</button>
+			</div>
+			<div class="col-md-12">
+			<table class="table" id="submitlist">
+				<tr><td>用户姓名</td><td>购买金额</td><td>投标ID</td><td>合同</td></tr>
+			</table>
+			</div>
+		</div>
+</div>
+<script>
+var pid = getQueryString('pid');
+$(document).ready(function () {
+	var adminservice = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IAdminService");
+	var contractservice = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IContractService");
+	if(pid==null || pid==''){
+		alert('参数错误！');
+	}
+	
+	var admin = adminservice.getCurrentUser();
+	if(admin==null){
+		window.location.href="admin.html";
+		return;
+	}
+	
+	$('#upload').click(function(e){
+		$('#uploadify').uploadify('settings','uploader','/upload/contract/'+pid);
+		$('#uploadify').uploadify('upload','*')
+	});
+	$('#clearall').click(function(e){
+		$('#uploadify').uploadify('cancel', '*');
+	});
+	$("#uploadify").uploadify({
+        'swf'       : 'js/uploadify2/uploadify.swf',   
+        'uploader'         : '',//servlet的路径或者.jsp 这是访问servlet 'scripts/uploadif' 
+        'auto'     : false,
+        'removeCompleted' : true,
+        'progressData' : 'percentage',
+        'buttonText' : '选择上传文件',
+        'fileSizeLimit' : '1GB',
+        'fileTypeExts' : '*.*',
+        'multi'    : true,
+        'requeueErrors' : true,
+        'cancelImg'      : 'js/uploadify2/uploadify-cancel.png',   
+        'queueID'        : 'fileQueue',
+        'onUploadComplete'  :function(event,queueId,fileObj,response,data){
+        	alert('上传完毕！');
+        }
+    }); 
+	jQuery(".sit-preview").smartImageTooltip({previewTemplate: "simple", imageWidth: "600px"});
+	jQuery(".adminbar-quick-backup-run a").click(function(e) {
+    e.preventDefault();
+    var code = jQuery(this).attr("href").substr(11);
+    jQuery.ajax({
+        type: 'post', success: function(json) { alert(json.message); },
+        dataType: 'json', data: { runquick: {id: id, type: code, control: 0} },
+        url: gdpt_ajax_url + '?action=presstools_backup_quick&_ajax_nonce=376ffa5105'
+    });
+	});
+	
+	var title = contractservice.getProductName(parseInt(pid));
+	$('#title').html(title);
+	
+	var list = contractservice.list(parseInt(pid));
+	for(var i=0; i<list.size(); i++){
+		var item = list.get(i);
+		var contr = item.exist==true?"<a href='/download/contract/"+pid+"/"+item.submitID+"' target='_blank's>合同查看</a>":"尚未上传";
+		$('#submitlist').append('<tr><td>'+item.lenderName+'</td><td>'+item.amount.value+'</td><td>'+item.submitID+'</td><td>'+contr+'</td></tr>');
+	}
+	
+})
+</script>
+</body>
+</html>

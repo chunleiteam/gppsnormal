@@ -1,0 +1,634 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1 user-scalable=no">
+<meta name="renderer" content="webkit">
+<title>政采贷>我的帐户</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" type="text/css" href="css/gpps/lufax-main.css">
+    <link rel="stylesheet" type="text/css" href="css/gpps/new-lufax.css">
+    <link rel="stylesheet" type="text/css" href="css/gpps/productlist.css">
+
+<link href="css/mine.css" rel="stylesheet">
+<link href="css/plugins/dataTables/jquery.dataTables.css" rel="stylesheet">
+
+<link href="css/plist/a.css" rel="stylesheet">
+<link href="css/myaccount/myaccount.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+
+
+	<script src="js/jquery.dataTables.js"></script>
+	<script src="js/tool.js"></script>
+	
+	
+	<script type="text/javascript"
+		src="/resources/EasyServiceClientFullZ.js"></script>
+	<script type="text/javascript"
+		src="/easyservice/gpps.service.ILenderService?json"></script>
+	<script type="text/javascript"
+		src="/easyservice/gpps.dao.ILenderAccountDao?json"></script>
+	<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+	<script type="text/javascript"
+		src="/easyservice/gpps.service.IAccountService?json"></script>
+	<script type="text/javascript"
+        src="/easyservice/gpps.service.ISubmitService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IPayBackService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.ILetterService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.INoticeService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IHelpService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IActivityRefService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IMyAccountService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IContractService?json"></script>
+    <script src="js/getuser.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/myaccount.js"></script>
+    
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.thirdpay.IThirdPaySupportService?json"></script>
+    
+    <script>
+    var name = "";
+    if (usertype!='lender' && usertype!='borrower') {
+		window.location.href = "login.html";
+	}else if(usertype=='borrower'){
+		window.location.href="baccount.html";
+	}
+	else {
+		name = user.name == null ? user.loginId : user.name;
+	}
+    
+    </script>
+
+<style type="text/css">
+a.accordion-toggle {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.panel-heading a {
+	font-size: 18px;
+	font-weight: bold;
+	color: black;
+}
+
+#path {
+	font-size: 14px;
+	font-weight: bold;
+	color: red;
+}
+</style>
+
+
+</head>
+<body style="background-color: #f5f5f5">
+	
+	<div id="whole" class="container">
+	
+	<div class="row" id="header" style="padding-left:0px; padding-right:0px;">
+      
+      </div>
+	
+		<div class="row" style="margin-top:0px; padding-top:0px; background-color:white;">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+						<div id="account_total" class="col-xs-12 col-sm-12 col-md-9"
+							style="padding-top: 10px; padding-left:0px; padding-right:0px;">
+							
+							<div class="col-xs-12 col-md-12" style="padding-top:5px; padding-left:0px; padding-right:0px; background-color: #CCFFFF; height:30px;">
+								<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding-left:0px; padding-right:0px;">
+									<span id="welcome" style="padding-left:15px;"></span>
+								</div>
+								<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding-left:0px; padding-right:15px; text-align:right">
+									<a href="resetpsw.html" style="color:#999;">修改密码</a> 
+									<a style="margin-left: 20px; color:#999;" href="quit.html">退出</a>
+								</div>
+							</div>
+							
+							<div class="col-xs-12 col-md-7" style="padding-left:15px; padding-right:0px;">
+								
+
+								<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style="margin-top:5px; padding-left:0px; padding-right:0px;">
+									<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="padding-left:5px; padding-right:0px;">
+									<span class="grey">总资产 </span>
+									</div>
+									<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" style="border:solid 1px white; padding-right:5px;">
+									<span class="orange" id="total"></span>元
+									</div>
+								</div>
+								<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style="margin-top:5px; padding-left:0px; padding-right:0px;">
+									<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="padding-left:5px; padding-right:0px;">
+									<span class="grey">可用余额 </span>
+									</div>
+									<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" style="border:solid 1px white; padding-right:5px;">
+									<span class="orange" id="usable"></span>元
+									</div>
+								</div>
+
+
+								<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style="margin-top:5px; padding-left:0px; padding-right:0px;">
+									<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="padding-left:5px; padding-right:0px;">
+									<span class="grey">冻结金额 </span>
+									</div>
+									<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" style="border:solid 1px white; padding-right:5px;">
+									<span class="orange" id="freeze"></span>元
+									</div>
+								</div>
+								<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style="margin-top:5px; padding-left:0px; padding-right:0px;">
+									<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="padding-left:5px; padding-right:0px;">
+									<span class="grey">已投金额</span>
+									</div>
+									<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" style="border:solid 1px white; padding-right:5px;">
+									<span class="orange" id="used"></span>元
+									</div>
+								</div>
+
+
+								<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style="margin-top:5px; padding-left:0px; padding-right:0px;">
+									<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="padding-left:5px; padding-right:0px;">
+									<span class="grey">已获利息</span>
+									</div>
+									<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" style="border:solid 1px white; padding-right:5px;">
+									<span class="orange" id="totalincome"></span>元
+									</div>
+								</div>
+								
+								</div>
+								
+							<div class="col-xs-12 col-md-5" style="padding-left:15px; padding-right:0px;">
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px; padding-left:0px; padding-right:0px; vertical-align : center;">
+									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-left:5px; padding-right:0px;">
+									<span class="grey">身份证号</span>
+									</div>
+									<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="border:solid 1px white; padding-left:2px; padding-right:2px;">
+									<div class="grey" id="idcard" style="margin-bottom:0px;"></div>
+									</div>
+									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-left:0px; padding-right:0px;">
+									<button id="bindidcard" class="btn btn-default" style="padding-top:3px; padding-bottom:3px; width:100%; padding-left:0px; padding-right:0px;">马上绑定</button>
+									</div>
+								</div>
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px; padding-left:0px; padding-right:0px;">
+									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-left:5px; padding-right:0px;">
+									<span class="grey">钱多多号</span>
+									</div>
+									<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="border:solid 1px white; padding-left:2px; padding-right:2px;">
+									<span class="grey" id="tpaccount"></span>
+									</div>
+									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-left:0px; padding-right:0px;">
+									<button id="loginmmm" class="btn btn-default" style="padding-top:3px; padding-bottom:3px; width:100%; padding-left:0px; padding-right:0px;">登录</button>
+									</div>
+								</div>
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px; padding-left:0px; padding-right:0px;">
+									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-left:5px; padding-right:0px;">
+									<span class="grey">银行卡</span>
+									</div>
+									<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="border:solid 1px white; padding-left:2px; padding-right:2px;">
+									<span class="grey" id="bankcard"></span>
+									</div>
+									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-left:0px; padding-right:0px;">
+									<button id="rebind" class="btn btn-default" style="padding-top:3px; padding-bottom:3px; width:100%; padding-left:0px; padding-right:0px;">绑定</button>
+									</div>
+									
+								</div>
+							</div>
+							<div class="col-xs-12 col-md-12">
+								<div class="btn-group btn-group-lg  btn-group-justified"
+									style="padding-bottom: 5px; margin-top: 10px;">
+									<div class="btn-group">
+										<a class="btn btn-warning btn-lg" href="recharge.html" target="_blank" id="recharge">充值</a>
+									</div>
+									<div class="btn-group">
+										<a class="btn btn-default btn-lg" href="cashout.html" target="_blank" id="cashout">提现</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-left:0px; padding-right:0px;">
+							<div class="col-xs-12 col-md-12" style="padding-top: 10px; text-align:center; font-size:20px; font-weight:bold; color:#999;">
+								投资前准备
+							</div>
+							<div class="col-xs-4 col-md-4" style="padding-top: 10px;">
+								<img src="img/people.png" style="width: 40px; height: 40px;"></img>
+								<div
+									style="color: green; font-size: 12px; font-weight: bold; margin-top: 5px; z-index: 1000">
+									 平台注册
+								</div>
+							</div>
+							<div class="col-xs-4 col-md-4" style="padding-top: 10px;">
+								<a id="identity" title="点击绑定身份证" href="register2.html"><img
+									id="identity" src="img/identity.jpg"
+									style="width: 40px; height: 40px;"></img></a>
+								<div id="identity"
+									style="color: red; font-size: 12px; font-weight: bold; margin-top: 5px;">
+									身份证绑定
+								</div>
+							</div>
+							<div class="col-xs-4 col-md-4" style="padding-top: 10px;">
+								<a id="spsw" title="点击开通第三方账户" href="#" data-sk='none'><img
+									id="spsw" src="img/qdd.jpg"
+									style="width: 40px; height: 40px;"></img></a>
+								<div id="spsw"
+									style="color: red; font-size: 12px; font-weight: bold; margin-top: 5px;">
+									 开通第三方
+								</div>
+								<div id="spswformdiv" style="display:none">
+								</div>
+							</div>
+							<div class="col-xs-12 col-md-12" style="padding-top: 35px; text-align:center;">
+								<a class="btn btn-warning btn-lg" href="productlist.html" id="invest" style="width:80%">马上投资</a>
+							</div>
+							
+							<div id="cardBindingformdiv" style="display:none;"></div>
+							
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+
+
+				<div class="row" id="messagearea" style="margin-top:20px;">
+					
+				</div>
+
+
+			</div>
+		</div>
+		
+		
+		<div class="row foot" id="footer" style="border: #eee solid 1px; background:#eee; min-height:120px; font-size:13px; margin-top:5px; padding-left:0px; padding-right:0px;">
+
+	</div>
+		
+		
+	</div>
+	
+	
+	
+<textarea id="messagearea_template" style="display:none;">
+			<div class="col-xs-12 col-md-4">
+						<div class="news-notice sidebar-panels"
+				style="margin-left: 15px; margin-right: 15px;">
+							<a href="myaccountdetail.html?fid=mycenter" target="_blank"
+					class="news-notice-head clearfix"> <span class="info">会员中心</span>
+								<span class="more">&gt;</span>
+							</a>
+
+							<div class="news-notice-body">
+								<ul class="news-notice-list faq-list" id="cjquestion">
+									<li><b></b><a href="myaccountdetail.html?fid=mycenter&sid=my-score" target="_blank">积分+-message.get('grade')-+分，等级level+-message.get('level')-+</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=mycenter&sid=notice-view" target="_blank">查看系统公告</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=mycenter&sid=letter-unread-mycenter" target="_blank">站内信<span style="color:red; font-size:18px;">+-message.get('letters_unread')-+</span>条未读</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=mycenter&sid=question-view" target="_blank">我的问题+-message.get('helps')-+条</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=mycenter&sid=my-activity" target="_blank">我的活动+-message.get('activitys')-+条</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-xs-12 col-md-4">
+						<div class="news-notice sidebar-panels"
+				style="margin-left: 15px; margin-right: 15px;">
+							<a href="myaccountdetail.html?fid=submit" target="_blank"
+					class="news-notice-head clearfix"> <span class="info">投资产看</span>
+								<span class="more">&gt;</span>
+							</a>
+
+							<div class="news-notice-body">
+								<ul class="news-notice-list faq-list" id="cjquestion" style="padding-right: 10px;">
+									<li><b></b><a href="myaccountdetail.html?fid=submit&sid=submit-all" target="_blank">全部+-message.get('submit_all')-+条</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=submit&sid=submit-toafford" target="_blank">待支付+-message.get('submit_waitforpay')-+条</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=submit&sid=submit-payback" target="_blank">还款中+-message.get('submit_paying')-+条</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=submit&sid=submit-done" target="_blank">还款完毕+-message.get('submit_done')-+条</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=submit&sid=submit-retreat" target="_blank">已退订+-message.get('submit_retreat')-+条</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-xs-12 col-md-4">
+						<div class="news-notice sidebar-panels"
+									style="margin-left: 15px; margin-right: 15px;">
+							<a href="myaccountdetail.html?fid=cash" target="_blank"
+					class="news-notice-head clearfix"> <span class="info">资金查看</span>
+								<span class="more">&gt;</span>
+							</a>
+
+							<div class="news-notice-body">
+								<ul class="news-notice-list faq-list" id="cjquestion" style="padding-right: 10px;">
+									<li><b></b><a href="myaccountdetail.html?fid=cash&sid=cash-all" target="_blank">全部+-message.get('cash_total')-+笔</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=cash&sid=cash-recharge" target="_blank">充值+-message.get('cash_recharge')-+笔</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=cash&sid=cash-withdraw" target="_blank">提现+-message.get('cash_withdraw')-+笔</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=cash&sid=cash-invest" target="_blank">投标+-message.get('cash_financing')-+笔</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=cash&sid=cash-receive" target="_blank">回款+-message.get('cash_payback')-+笔</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-xs-12 col-md-4">
+						<div class="news-notice sidebar-panels"
+				style="margin-left: 15px; margin-right: 15px;">
+							<a href="myaccountdetail.html?fid=payback" target="_blank"
+					class="news-notice-head clearfix"> <span class="info">还款查看</span>
+								<span class="more">&gt;</span>
+							</a>
+
+							<div class="news-notice-body">
+								<ul class="news-notice-list faq-list" id="cjquestion" style="padding-right: 10px;">
+									<li><b></b><a href="myaccountdetail.html?fid=payback&sid=payback-to" target="_blank">待回款笔数+-message.get('pbs_waitforrepay')-+笔</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=payback&sid=payback-have" target="_blank">已回款笔数+-message.get('pbs_finishrepay')-+笔</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-4">
+						<div class="news-notice sidebar-panels"
+				style="margin-left: 15px; margin-right: 15px;">
+							<a href="myaccountdetail.html?fid=letter" target="_blank"
+					class="news-notice-head clearfix"> <span class="info">站内信</span>
+								<span class="more">&gt;</span>
+							</a>
+
+							<div class="news-notice-body">
+								<ul class="news-notice-list faq-list" id="cjquestion">
+									<li><b></b><a href="myaccountdetail.html?fid=letter&sid=letter-unread" target="_blank">未读+-message.get('letters_unread')-+条</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=letter&sid=letter-readed" target="_blank">已读+-message.get('letters_readed')-+条</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+</textarea>
+
+
+        <script src="js/head.js"></script>
+		<script src="js/foot.js"></script>
+	<script>
+		$(document).ready(function() {
+							
+							header('myaccount');
+							
+							var fid = getQueryString('fid');
+							var sid = getQueryString('sid');
+							
+							try{
+								var message = myaccountService.getLAccountMessage();
+								}catch(e){
+									alert(e.message);
+								}
+
+								
+							$('button#letter').html('站内信('+lettercount+')');
+							
+							
+							$('#welcome').html(greet() + name+'<a href="myaccountdetail.html?fid=mycenter&sid=letter-unread-mycenter" target="_blank" id="inner_letter" style="color:#999;"><span class="glyphicon glyphicon-envelope" style="margin-left:10px; color=red"></span>&nbsp;'+lettercount+'</a>');
+							
+
+							$('#total').html(message.get('total').value);
+
+							$('#usable').html(message.get('usable').value);
+
+							$('#freeze').html(message.get('freeze').value);
+
+							$('#used').html(message.get('used').value);
+
+							$('#totalincome').html(message.get('totalincome').value);
+							
+							var bankcode = message.get('bankcode');
+							if(bankcode != null){
+								$('#bankcard').html(bankcode);
+								$('#rebind').html('重新绑定');
+							}else{
+								$('#bankcard').html('暂未绑定');
+								$('#rebind').html('绑定');
+							}
+							
+							
+							var ctx = new EasyServiceClient.newContext();
+							ctx.message = message;
+							ejs.renderComplexNode("#messagearea_template", "#messagearea", ctx);
+							
+
+
+							var identity = message.get('identityCard');
+							if (identity != null && identity != "") {
+								$('#idcard').html(identity);
+								$('#bindidcard').html('已绑定');
+								$('#bindidcard').attr('disabled', 'disabled');
+								$('img#identity').attr('src', 'img/identity.png').attr('title', '身份证已绑定').attr('disabled', 'disabled');
+								$('a#identity').attr('href', '#');
+								$('div#identity')
+										.css('color', 'green')
+										.html('身份证绑定')
+							}else{
+								$('#idcard').html('暂未绑定');
+								$('#bindidcard').click(function(){
+									window.location.href = 'register2.html';
+								});
+							}
+
+							var spsw = message.get('qdd');
+							if (spsw != null && spsw != "") {
+								$('#tpaccount').html(spsw);
+								$('#loginmmm').click(function(e){
+									window.open('http://www.moneymoremore.com?accountname='+spsw);
+								})
+								$('img#spsw').attr('src', 'img/qdd.png').attr('title', '第三方账户已开通').attr('disabled', 'disabled');
+								$('a#spsw').attr('href', '#').attr('data-sk',
+										'done');
+								$('div#spsw')
+										.css('color', 'green')
+										.html(
+												'开通第三方')
+							}else{
+								$('#tpaccount').html("暂未开通");
+								$('#loginmmm').html('马上注册');
+								
+								
+								
+								if(identity!=null && identity!="")
+								{
+								$('#loginmmm').click(function(e){
+									$('#spswformdiv').empty();
+									var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+                                    var registAccount=service.getRegistAccount();
+                                    var content="<form id='spswform' action='"+registAccount.baseUrl+"'method='post'>";
+                                    for(var o in registAccount)
+                                   	{
+                                        if(o=="baseUrl")
+                                       	{
+                                        	continue;
+                                       	}
+                                        var len = o.length;
+                                        var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                                        content+="<input id='"+name+"' name='"+name+"' value='"+registAccount[o]+"'/> ";
+                                   	}
+                                    content+="</form>";
+                                    $('#spswformdiv').html(content);
+                                    $('#spswform').submit();
+								});
+								}
+							}
+
+							
+							if(identity!=null && identity!="")
+							{
+							$('a#spsw').click(
+											function(e) {
+												if ($(this).attr('data-sk') == 'done') {
+													return;
+												}
+												//window.location.href = "/account/thirdPartyRegist/request";
+												$('#spswformdiv').empty();
+												var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+                                                var registAccount=service.getRegistAccount();
+                                                var content="<form id='spswform' action='"+registAccount.baseUrl+"'method='post' target='_blank'>";
+                                                for(var o in registAccount)
+                                               	{
+                                                    if(o=="baseUrl")
+                                                   	{
+                                                    	continue;
+                                                   	}
+                                                    var len = o.length;
+                                                    var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                                                    content+="<input id='"+name+"' name='"+name+"' value='"+registAccount[o]+"'/> ";
+                                               	}
+                                                content+="</form>";
+                                                $('#spswformdiv').html(content);
+                                                $('#spswform').submit();
+											});
+							}
+							
+							
+							
+							
+							if (spsw != null && spsw != "") {
+							$('button#rebind').click(
+									function(e) {
+										$('#cardBindingformdiv').empty();
+										var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+                                        var cardBinding=service.getCardBinding();
+                                        var content="<form id='cardBindingform' action='"+cardBinding.baseUrl+"'method='post' target='_blank'>";
+                                        for(var o in cardBinding)
+                                       	{
+                                            if(o=="baseUrl"||o=="_i_"||o=="_t_")
+                                           	{
+                                            	continue;
+                                           	}
+                                            var len = o.length;
+                                            var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                                            content+="<input id='"+name+"' name='"+name+"' value='"+cardBinding[o]+"'/> ";
+                                       	}
+                                        content+="</form>";
+                                        $('#cardBindingformdiv').html(content);
+                                        $('#cardBindingform').submit();
+									});
+							
+							}
+							
+							
+							$('.secondnav').click(function(e){
+								
+								var first = $(this).parents('li.dropdown').find('a.firstnav');
+								$('#navpath').html('<span class="glyphicon glyphicon-play" style="color:orange;"></span>&nbsp;'+first.attr('data-sk')+'->'+$(this).html());
+								
+								var ff = nav2funtion[$(this).attr('id')];
+
+								if (ff == null) {
+									$('div#content').html($(this).attr('id'));
+								} else if (typeof (ff) == "function") {
+									$('div#content').html('');
+									ff($('div#content'));
+								} 
+								
+								
+								
+								
+								$('button.readletter').click(function(e){
+									
+								});
+								
+								$('a.submittoafford').click(function(e){
+									$('#myModal').modal({
+										  keyboard: false,
+										  backdrop: false
+									});
+									
+									try{
+										var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
+								 		var submit = submitService.find(parseInt($(this).attr('id')));
+								 		
+								 		
+								 		var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+								        var transfer=service.getTransferToBuy(submit.id,''+submit.productId);
+								        var content="<form id='buyform' action='"+transfer.baseUrl+"'method='post' target='_blank'>";
+								        for(var o in transfer)
+								       	{
+								            if(o=="baseUrl")
+								           	{
+								            	continue;
+								           	}
+								            var len = o.length;
+								            var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+								            content+="<input id='"+name+"' name='"+name+"' value='"+transfer[o]+"'/> ";
+								       	}
+								        content+="</form>";
+								        $('#buyformdiv').html(content);
+								        $('#buyform').submit();
+								 		
+								 		}catch(e){
+								 			alert(e.message);
+								 		}
+								});
+							});
+							
+							
+							if(sid!=null)
+								$('#'+sid).trigger('click');
+							else
+								$('#submit-all').trigger('click');
+							
+							
+							$('#success').click(function(e){
+									window.location.href = "myaccount.html?fid=submit&sid=submit-toafford";
+							});
+							
+							$('#fail').click(function(e){
+									window.location.href = "myaccount.html?fid=submit&sid=submit-toafford";
+							});
+							
+							$('#inner_letter').click(function(e){
+								$('#letter-unread-mycenter').trigger('click');
+							});
+							
+							
+						});
+	</script>
+</body>
+</html>

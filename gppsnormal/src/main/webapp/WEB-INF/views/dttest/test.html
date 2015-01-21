@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html><head>
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		
+		<link rel="stylesheet" type="text/css" href="test/site.css">
+		<link href="../css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="test/dataTables.css">
+
+		<script type="text/javascript" src="test/site.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
+		<script src="../js/tool.js"></script>
+		<script type="text/javascript" language="javascript" src="test/dataTables.js"></script>
+		<script type="text/javascript"
+				src="../resources/EasyServiceClientFullZ.js"></script>
+		<script type="text/javascript"
+				src="../easyservice/gpps.service.ISubmitService?json"></script>
+		<script type="text/javascript">
+
+		var productstate = {
+				1:'融资中',
+				2:'还款中',
+				4:'流标',
+				8:'还款完成',
+				16:'还款中', 
+				32:'还款完成',
+				64:'还款完成'
+		}
+		
+		$(document).ready( function () {
+			var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
+			var fnServerData = function(sSource, aoData, fnCallback, oSettings) {
+				var sEcho = "";
+				var iDisplayStart = 0;
+				var iDisplayLength = 0;
+				for ( var i = 0; i < aoData.length; i++) {
+					var data = aoData[i];
+					if (data.name == "sEcho")
+						sEcho = data.value;
+					if (data.name == "start")
+						iDisplayStart = data.value;
+					if (data.name == "length")
+						iDisplayLength = data.value;
+				}
+				var res = null;
+				res = submitService.findMyAllSubmitsByProductStates(-1,iDisplayStart, iDisplayLength);
+				var result = {};
+				result.iTotalRecords = res.get('total');
+				result.iTotalDisplayRecords = res.get('total');
+				result.aaData = new Array();
+				var items = res.get('result');
+				if(items)
+				{
+					for(var i=0; i<items.size(); i++){
+						var item=items.get(i);
+						result.aaData.push(["<a href='productdetail.html?pid="+item.product.id+"' >"+item.product.govermentOrder.title+"("+item.product.productSeries.title+")</a>",
+						                    productstate[item.product.state],
+						                    formatDate(item.createtime),
+						                    item.amount.value,
+						                    item.repayedAmount.value,
+						                    item.waitforRepayAmount.value,
+						                    "<a href='pdf/001.pdf' target='_blank'>合同</a>"]);
+					}
+				}
+				result.sEcho = sEcho;
+				fnCallback(result);
+
+				return res;
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			$('#example')
+				.addClass( 'nowrap' )
+				.dataTable( {
+					bServerSide : true,
+					responsive: true,
+					fnServerData : fnServerData
+				} );
+
+			
+
+		} );
+	
+	
+		</script>
+	</head>
+	<body>
+
+	
+				
+				<table aria-describedby="example_info" role="grid" id="example" class="display nowrap dataTable dtr-inline" width="95%" cellspacing="0">
+				<thead>
+				<tr role="row">
+				<th aria-label="Name: activate to sort column descending" aria-sort="ascending" style="width: 135px;" colspan="1" rowspan="1" aria-controls="example" tabindex="0" class="sorting_asc">项目信息</th>
+				<th aria-label="Position: activate to sort column ascending" style="width: 217px;" colspan="1" rowspan="1" aria-controls="example" tabindex="0" class="sorting">状态</th>
+				<th aria-label="Office: activate to sort column ascending" style="width: 102px;" colspan="1" rowspan="1" aria-controls="example" tabindex="0" class="sorting">购买时间</th>
+				<th aria-label="Age: activate to sort column ascending" style="width: 42px;" colspan="1" rowspan="1" aria-controls="example" tabindex="0" class="dt-body-right sorting">金额</th>
+				<th aria-label="Start date: activate to sort column ascending" style="width: 93px;" colspan="1" rowspan="1" aria-controls="example" tabindex="0" class="sorting">已回款</th>
+				<th aria-label="Salary: activate to sort column ascending" style="width: 93px;" colspan="1" rowspan="1" aria-controls="example" tabindex="0" class="dt-body-right sorting">待回款</th>
+				<th aria-label="Salary: activate to sort column ascending" style="width: 78px;" colspan="1" rowspan="1" aria-controls="example" tabindex="0" class="dt-body-right sorting">合同</th>
+				</tr>
+				</thead>
+				<tfoot>
+				<tr>
+				<th colspan="1" rowspan="1">Name</th>
+				<th colspan="1" rowspan="1">Position</th>
+				<th colspan="1" rowspan="1">Office</th>
+				<th colspan="1" rowspan="1" class="dt-body-right">Age</th>
+				<th colspan="1" rowspan="1">Start date</th>
+				<th colspan="1" rowspan="1" class="dt-body-right">Salary</th>
+				</tr>
+				</tfoot>
+				<tbody>
+				</tbody>
+				</table>
+				
+				
+				
+</body>
+</html>

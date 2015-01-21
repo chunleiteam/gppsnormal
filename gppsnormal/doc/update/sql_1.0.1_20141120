@@ -1,0 +1,25 @@
+alter table Help add(answertime bigint);
+alter table Letter add(readtime bigint);
+alter table News add(publictype int not null default 0);
+alter table Notice add(publictype int not null default 0);
+alter table Letter add(title varchar(255)); 
+alter table Activity add(description mediumtext);
+alter table Activity add(accessory mediumtext);
+
+alter table handlelog add(handletime bigint default 0 not null);
+alter table payback add(checktime bigint default 0 not null);
+alter table payback add(checkResult int default 0 not null);
+
+alter table lender add(accountNumber varchar(255));
+alter table borrower add(accountNumber varchar(255));
+
+
+
+
+//20150107修改
+alter table Borrower add(contactor mediumtext);
+alter table GovermentOrder add(formalName varchar(255));
+alter table GovermentOrder add(formalLevel varchar(255));
+alter table GovermentOrder add(formalAmount varchar(255));
+alter table GovermentOrder add(tenderUnits varchar(255));
+alter table GovermentOrder add(formalLink varchar(255));

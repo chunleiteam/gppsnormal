@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gpps.dao.ICardBindingDao">
+	<insert id="create" parameterType="gpps.model.CardBinding"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into
+		CardBinding(cardNo,cardType,bankCode,branchBankName,province,city)
+		values(#{cardNo},#{cardType},#{bankCode},#{branchBankName},#{province},#{city})
+	</insert>
+	<select id="find" resultType="gpps.model.CardBinding" parameterType="Integer">
+		select * from CardBinding where id=#{id}
+	</select>
+</mapper>

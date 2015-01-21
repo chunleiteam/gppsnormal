@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    
+    
+
+    <title>政采贷</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    
+    <link href="css/plist/b.css" rel="stylesheet">
+    <link href="css/plist/creditlevel.css" rel="stylesheet">
+    <link href="css/plist/progressbar.css" rel="stylesheet">
+    
+    <link href="css/mine.css" rel="stylesheet">
+    
+    
+    
+    
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <script src="js/ie-emulation-modes-warning.js"></script>
+    <script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+	<script type="text/javascript"
+				src="/easyservice/gpps.service.IProductService?json"></script>
+	<script type="text/javascript"
+				src="/easyservice/gpps.service.IGovermentOrderService?json"></script>
+    
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+     	<script src="js/cdn/html5shiv.min.js"></script>
+        <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+    .firstnav {
+		cursor: pointer;
+		text-decoration:none;
+	}
+	.secondnav {
+		cursor: pointer;
+		text-decoration:none;
+	}
+	</style>
+    
+  </head>
+
+  <body style="background-color: #f5f5f5">
+
+
+
+	<div class="container">
+	<nav class="navbar navbar-default" role="navigation">
+	<div class="container-fluid">
+	<div class="navbar-header">
+	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	<span class="sr-only">Toggle navigation</span>
+	<span class="icon-bar"></span>
+	<span class="icon-bar"></span>
+	<span class="icon-bar"></span>
+	</button>
+	<span class="navbar-brand">**</span>
+	</div>
+	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	<ul class="nav navbar-nav">
+	<li class="dropdown">
+	<a class="firstnav" class="dropdown-toggle" data-sk="投资查看" data-toggle="dropdown">投资查看<span class="caret"></span></a>
+	<ul class="dropdown-menu" role="menu">
+	<li><a class="secondnav" id="submit-all">全部</a></li>
+	<li><a class="secondnav" id="submit-toafford">待支付</a></li>
+	<li><a class="secondnav" id="submit-payback">还款中</a></li>
+	<li><a class="secondnav" id="submit-done">还款完毕</a></li>
+	<li><a class="secondnav" id="submit-retreat">已退订</a></li>
+	</ul>
+	</li>
+	<li class="dropdown">
+	<a class="firstnav" class="dropdown-toggle" data-sk="回款查看" data-toggle="dropdown">回款查看<span class="caret"></span></a>
+	<ul class="dropdown-menu" role="menu">
+	<li><a class="secondnav" id="payback-all">总览</a></li>
+	<li><a class="secondnav" id="payback-to">待回款</a></li>
+	<li><a class="secondnav" id="payback-have">已回款</a></li>
+	</ul>
+	</li>
+	<li class="dropdown">
+	<a class="firstnav" class="dropdown-toggle" data-sk="资金查看" data-toggle="dropdown">资金查看<span class="caret"></span></a>
+	<ul class="dropdown-menu" role="menu">
+	<li><a class="secondnav" id="cash-all">全部</a></li>
+	<li><a class="secondnav" id="cash-recharge">充值</a></li>
+	<li><a class="secondnav" id="cash-withdraw">提现</a></li>
+	<li><a class="secondnav" id="cash-invest">投标</a></li>
+	<li><a class="secondnav" id="cash-receive">回款</a></li>
+	</ul>
+	</li>
+	<li class="dropdown">
+	<a class="firstnav" class="dropdown-toggle" data-sk="站内信" data-toggle="dropdown">站内信<span class="caret"></span></a>
+	<ul class="dropdown-menu" role="menu">
+	<li><a class="secondnav" id="letter-unread">未读</a></li>
+	<li><a class="secondnav" id="letter-readed">已读</a></li>
+	</ul>
+	</li>
+	</ul>
+	<ul class="nav navbar-nav navbar-right">
+	<li class="dropdown">
+	<a class="firstnav" class="dropdown-toggle" data-sk="会员中心" data-toggle="dropdown">会员中心<span class="caret"></span></a>
+	<ul class="dropdown-menu" role="menu">
+	<li><a class="secondnav" id="my-score">积分等级</a></li>
+	<li><a class="secondnav" id="my-activity">我的活动</a></li>
+	<li><a class="secondnav" id="letter-unread-mycenter">站内信</a></li>
+	<li><a class="secondnav" id="question-view">我的问题</a></li>
+	<li class="divider"></li>
+	<li><a class="secondnav" id="notice-view">系统公告</a></li>
+	</ul>
+	</li>
+	</ul>
+	</div><!-- /.navbar-collapse -->
+	</div><!-- /.container-fluid -->
+	</nav>
+	
+	<div class="row" id="content">
+	
+	</div>
+	</div>
+	<script>
+			var seriesname = {};
+			$(document).ready(function () {
+				$('.secondnav').click(function(e){
+					var first = $(this).parents('li.dropdown').find('a.firstnav');
+					$('#content').html(first.attr('data-sk')+'->'+$(this).html());
+				});
+			})
+	</script>
+	</body>
+	</html>

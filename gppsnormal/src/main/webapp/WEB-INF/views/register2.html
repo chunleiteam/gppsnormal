@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<title>政采贷</title>
+
+<!-- Bootstrap core CSS -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/plist/a.css" rel="stylesheet">
+<link href="css/mine.css" rel="stylesheet">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/tool.js"></script>
+<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.ILenderService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+<![endif]-->
+<script src="js/getuser.js"></script>
+<script>
+if(usertype!='lender' && usertype!='borrower'){
+	window.location.href="login.html";
+}else if(usertype=='borrower'){
+	window.location.href="baccount.html";
+}
+</script>
+</head>
+<body>
+	<div class="container">
+	
+	<div class="row" id="header" style="padding-left:15px; padding-right:15px;">
+      
+      </div>
+	<div class="row" style="margin-bottom:40px; text-align:center; margin-top:20px;">
+	<span class="grey">1:平台注册</span>&nbsp;>>&nbsp;<span class="orange">2:实名认证</span>&nbsp;>>&nbsp;<span class="grey">3:第三方注册</span>&nbsp;>>&nbsp;<span class="grey">4:完成</span>
+	<div style="clear:both;"></div>
+	</div>
+	<div class="row" role="form" style="max-width:500px; margin: 0 auto; background-color : #f5f5f5;">
+		<div class="col-md-12" style="text-align:right; margin-bottom:5px;">
+      		<a href="myaccount.html?fid=mycenter&sid=my-score">取消</a>
+    		<div style="clear:both;"></div>
+  		</div>
+  		<div style="width:100%" id="message"></div>
+		
+	
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="name">姓名*</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="name" style="padding-left:1px; padding-right:1px;" placeholder="请输入真实姓名" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="identity">身份证*</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="identity" style="padding-left:1px; padding-right:1px;" placeholder="请输入身份证号" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		
+		
+		<div class="form-group has-success col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="addr">性别</label>
+			</div>
+			<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+			<label class="radio-inline">
+  				<input type="radio" name="sex"  checked="checked" value="1"> 男
+			</label>
+			<label class="radio-inline">
+  				<input type="radio" name="sex" value="0"> 女
+			</label>
+			</div>
+			<div style="clear:both;"></div>
+			</div>
+		
+		
+		<div class="form-group has-success has-feedback col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="addr">住址</label>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+				<input type="text" class="form-control" id="addr" style="padding-left:1px; padding-right:1px;" placeholder="请输入家庭住址" required>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+
+			<div class="form-group has-success col-md-12" style="padding-left:0px; padding-right:0px;">
+			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-right:0px;">
+			<label class="control-label" for="addr">年收入</label>
+			</div>
+			<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+			<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+			<label class="radio-inline">
+  				<input type="radio" name="salary" checked="checked" value="-100000"> 10万以内
+			</label>
+			</div>
+			<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+			<label class="radio-inline">
+  				<input type="radio" name="salary" value="100000-300000"> 10到30万
+			</label>
+			</div>
+			<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+			<label class="radio-inline">
+  				<input type="radio" name="salary" value="300000-"> 30万以上
+			</label>
+			</div>
+			</div>
+			<div style="clear:both;"></div>
+			</div>
+			
+			
+			<button id="confirm" class="btn btn-lg btn-success btn-block">确定</button>
+			
+
+		</div>
+		
+	</div>
+
+</body>
+<script src="js/head.js"></script>
+ <script>
+ 
+ var ok = '<span class="glyphicon glyphicon-ok form-control-feedback"></span>';
+ var error = '<span class="glyphicon glyphicon-remove form-control-feedback"></span>';
+ 
+ function addMessage(title){
+		$('#message').html('');
+		var div = $('<div class="alert alert-warning alert-dismissible" role="alert" style="margin-bottom:2px;"></div>');
+		div.append('<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>');
+		div.append(title);
+		$('#message').append(div);
+}
+
+function removeMessage(){
+	  $('#message').html('');
+}
+ 
+$(document).ready(function() {
+	
+	
+	
+	
+	header('register2');
+	
+	var thirdPartyAccount = user.thirdPartyAccount;
+	
+	if(user.name!=null)
+		{
+			$('#name').val(user.name);
+		}
+	
+	$('#name').focus();
+		$('#skip').click(function(e){
+			window.parent.toward("myaccount");
+		});
+       $('#confirm').click(function(e){
+    	   var name = $('input#name').val();
+    	   var identity = $('input#identity').val();
+    	   var addr = $('input#addr').val();
+    	   var sex = $("input[name='sex']:checked").val();
+    	   var salary = $("input[name='salary']:checked").val();
+    	   
+    	   if(name==null||name==''){
+    		   $('input#name').parent().find('span').remove();
+				$('input#name').parent().append(error);
+				$('input#name').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请输入姓名');
+				return;
+				}else{
+					$('input#name').parent().find('span').remove();
+					$('input#name').parent().append(ok);
+					$('input#name').parent().parent().removeClass('has-error').addClass('has-success');
+					removeMessage();
+				}
+    	   
+    	   
+    	   //var reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+    	   if(identity==null||identity==''){
+    		   $('input#identity').parent().find('span').remove();
+				$('input#identity').parent().append(error);
+				$('input#identity').parent().parent().removeClass('has-success').addClass('has-error');
+				addMessage('*请输入身份证号');
+				return;
+				}else if(cidInfo(identity) === false){
+					$('input#identity').parent().find('span').remove();
+					$('input#identity').parent().append(error);
+					$('input#identity').parent().parent().removeClass('has-success').addClass('has-error');
+					addMessage('*请填写正确的身份证号');
+					return;
+				}
+    	   		else{
+					$('input#identity').parent().find('span').remove();
+					$('input#identity').parent().append(ok);
+					$('input#identity').parent().parent().removeClass('has-error').addClass('has-success');
+					removeMessage();
+				}
+    	   
+    	   if(addr==null){
+    		   addr = "";
+    	   }
+    	   
+    	   var sexint = parseInt(sex);
+    	   
+    	   try{
+    	   service.registerSecondStep(name, identity, sexint, addr, salary);
+    	   }catch(e){
+    		   alert(e.message);
+    		   return;
+    	   }
+    	   
+    	   if(thirdPartyAccount==null || thirdPartyAccount=="")
+    		   {
+    		   window.location.href="register3.html";
+    		   }
+    	   else
+    		   window.location.href="myaccount.html";
+       });
+	
+})
+</script>
+</html>

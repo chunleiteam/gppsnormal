@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1 user-scalable=no">
+<title>政采贷>我的帐户</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" type="text/css" href="dttest/test/site.css">
+<link rel="stylesheet" type="text/css" href="dttest/test/dataTables.css">
+
+<link href="css/mine.css" rel="stylesheet">
+
+<link href="css/plist/a.css" rel="stylesheet">
+<link href="css/myaccount/myaccount.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+    
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="js/jquery.min.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="js/bootstrap.min.js"></script>
+	
+	<!-- 
+	<script type="text/javascript" src="dttest/test/site.js"></script>
+	<script type="text/javascript" language="javascript" src="dttest/test/dataTables.js"></script>
+	 -->
+		 
+	<script type="text/javascript" language="javascript" src="dttest/test/jquery.dataTables.min.js"></script>
+		
+	<script src="js/tool.js"></script>
+	<script src="js/data.js"></script>
+	
+	<script type="text/javascript"
+		src="/resources/EasyServiceClientFullZ.js"></script>
+	<script type="text/javascript"
+		src="/easyservice/gpps.service.ILenderService?json"></script>
+	<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+	<script type="text/javascript"
+		src="/easyservice/gpps.service.IAccountService?json"></script>
+	<script type="text/javascript"
+        src="/easyservice/gpps.service.ISubmitService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IPayBackService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IGovermentOrderService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IProductService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IHelpService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.ILetterService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.INoticeService?json"></script>
+	<script type="text/javascript"
+        src="/easyservice/gpps.service.thirdpay.IThirdPaySupportService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IMyAccountService?json"></script>
+	<script src="js/baccount.js"></script>
+	<script src="js/getuser.js"></script>
+	
+	<script>
+	var name = "";
+	var fid = getQueryString('fid');
+	var sid = getQueryString('sid');
+	if(fid==null || fid==''){
+		alert('非法参数！！');
+		fid=='';
+	}
+	if (usertype!='lender' && usertype!='borrower') {
+		window.location.href = "login.html";
+	}else if(usertype=='lender'){
+		var hf="myaccountdetail.html?fid="+fid;
+		if(sid!=null && sid!=''){
+			hf+="&sid="+sid;
+		}
+		window.location.href=hf;
+	}
+	else {
+		name = user.loginId;
+	}
+	</script>
+
+
+<style type="text/css">
+a.accordion-toggle {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.panel-heading a {
+	font-size: 18px;
+	font-weight: bold;
+	color: black;
+}
+
+#path {
+	font-size: 14px;
+	font-weight: bold;
+	color: red;
+}
+</style>
+
+
+</head>
+<body>
+	
+	<div id="whole" class="container-fluid">
+	
+	<div class="row" id="header" style="padding-left:15px; padding-right:15px;">
+      
+      </div>
+	<div class="row" style="margin-top:15px;">
+					
+					<div class="col-xs-12 col-md-12">
+						<div class="col-xs-12 col-md-12" id="nav_level2" style="padding-left:0px; padding-right:0px;">
+							<nav class="navbar navbar-default" role="navigation">
+						<div class="container-fluid">
+							<div class="navbar-header">
+								<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+									<span class="sr-only">Toggle navigation</span> 
+									<span class="icon-bar"></span> 
+									<span class="icon-bar"></span> 
+									<span class="icon-bar"></span>
+								</button>
+								<span class="navbar-brand" id="snav_title"></span>
+							</div>
+							<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+								
+							</div>
+						</div>
+					</nav>
+						</div>
+
+						<div class="col-xs-12 col-md-12 table-responsive" id="content"
+							style="min-height: 400px; padding-left:0px; padding-right:0px;"></div>
+
+					</div>
+				</div>
+		
+		
+		<div class="row foot" id="footer" style="border: #eee solid 1px; background:#eee; min-height:120px; font-size:13px; margin-top:5px; margin-left: 0px; margin-right:0px;">
+
+	</div>
+		
+		
+	</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">还款</h4>
+      </div>
+      <div class="modal-body">
+      			还款完成前请不要关闭该对话框，在支付完毕后点击相应的操作以完成还款。
+      </div>
+      <div class="modal-footer">
+        <button id="paysuccess" type="button" class="btn btn-primary" data-dismiss="modal">还款成功</button>
+        <button id="payfail" type="button" class="btn btn-default">还款失败</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="repaydetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">回款详情</h4>
+      </div>
+      <div class="modal-body" id="rdetail">
+      			
+      </div>
+      <div class="modal-footer">
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="noticedetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="nlabel"></h4>
+      </div>
+      <div class="modal-body" id="ndetail">
+      			
+      </div>
+      <div class="modal-footer">
+        <button id="nclose" type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="letterdetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">站内信</h4>
+      </div>
+      <div class="modal-body" id="ldetail">
+      			
+      </div>
+      <div class="modal-footer">
+        <button id="lclose" type="button" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="authorize-div" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">还款授权</h4>
+      </div>
+      <div class="modal-body">
+      			<span style="color:red">您尚未授权还款，请先授权再还款！</span><br><br>&nbsp;&nbsp;&nbsp;&nbsp;在执行还款之前，您需要到第三方平台【钱多多】进行还款转账授权，授权后，春蕾投资才可以在第三方平台审核并执行您的还款申请。
+      </div>
+      <div class="modal-footer">
+      	<button id="authorize" type="button" class="btn btn-primary" data-dismiss="modal">授权</button>
+        <button id="cancel" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="authformdiv" style="display:none;"></div>
+
+	
+        <script src="js/head.js"></script>
+		<script src="js/foot.js"></script>
+	<script>
+		$(document).ready(function() {
+							
+							header('myaccountdetail');
+							
+							if(fid==null || fid==''){
+								return;
+							}
+							
+							var firstnav = {
+									'mycenter' : '企业中心',
+									'request' : '融资申请',
+									'order' : '订单查看',
+									'payback' : '还款查看',
+									'cash' : '资金查看'
+							}
+							
+							
+												var content = createBorrowerNavLevel2(fid);
+							
+							
+								$('#bs-example-navbar-collapse-2').html('');
+								$('#bs-example-navbar-collapse-2').append(content);
+								$('#snav_title').html(firstnav[fid]);
+								
+							
+							
+											//	content.css('float', 'right');
+											//	content.css('margin-right','-15px');
+											//	$('#nav_level2').html('');
+											//	$('#nav_level2')
+											//			.append(content);
+										//		$('#nav_level2')
+										//				.append(
+										//						'<div style="clear:both;"></div>');
+
+												$('ul.nav-second li a').on('click',function(e) {
+																	$('ul.nav-second li')
+																			.removeClass(
+																					'active');
+																	$(this).parent().addClass('active');
+
+																	
+																	var ff = bnav2funtion[$(this).attr('data-sk')];
+
+																	if (ff == null) {
+																		$('div#content').html($(this).attr('data-sk'));
+																	} else if (typeof (ff) == "function") {
+																		$('div#content').html('');
+																		ff($('div#content'));
+																	}
+																	
+																	
+																});
+					
+					
+								if(sid!=null)
+									$('ul.nav-second li a[data-sk="'+sid+'"]').trigger('click');
+								else
+									$('ul.nav-second li a').first().trigger('click');
+								
+							
+							$('#paysuccess').click(function(e){
+									window.location.href = "baccount.html?fid=payback&sid=payback-have";
+							});
+							
+							$('#payfail').click(function(e){
+									window.location.href = "baccount.html?fid=payback&sid=payback-canpay";
+							});
+							
+							
+								$('#authorize').click(function(e){
+								//$('#togive').click(function(e){
+									$('#authformdiv').empty();
+									var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+                                    var auth=service.getAuthorize();
+                                    var content="<form id='authform' action='"+auth.baseUrl+"' method='post'>";
+                                    for(var o in auth)
+                                   	{
+                                        if(o=="baseUrl"||o=="_i_"||o=="_t_")
+                                       	{
+                                        	continue;
+                                       	}
+                                        var len = o.length;
+                                        var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                                        content+="<input id='"+name+"' name='"+name+"' value='"+auth[o]+"'/> ";
+                                   	}
+                                    content+="</form>";
+                                    $('#authformdiv').html(content);
+                                    $('#authform').submit();
+								});
+								
+								
+								$('#lclose').click(function(e){
+									window.location.href="baccountdetail.html?fid=mycenter&sid=letter-unread-mycenter";
+								})
+						});
+	</script>
+</body>
+</html>

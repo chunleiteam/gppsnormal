@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html><head>
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		
+		<link rel="stylesheet" type="text/css" href="test/site.css">
+		<link href="../css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="test/dataTables.css">
+
+		<script type="text/javascript" src="test/site.js"></script>
+		<script src="../js/tool.js"></script>
+		<script type="text/javascript" language="javascript" src="test/dataTables.js"></script>
+		<script type="text/javascript"
+				src="../resources/EasyServiceClientFullZ.js"></script>
+		<script type="text/javascript"
+				src="../easyservice/gpps.service.ISubmitService?json"></script>
+		<script type="text/javascript">
+
+		var productstate = {
+				1:'融资中',
+				2:'还款中',
+				4:'流标',
+				8:'还款完成',
+				16:'还款中', 
+				32:'还款完成',
+				64:'还款完成'
+		}
+		
+		var test1 = function(id){
+			alert(id);
+			return;
+		}
+		
+		
+		
+		$(document).ready( function () {
+			var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
+			var fnServerData = function(sSource, aoData, fnCallback, oSettings) {
+				
+				
+				
+				
+				
+				var sEcho = "";
+				var iDisplayStart = 0;
+				var iDisplayLength = 0;
+				
+				
+				
+				
+				
+				for ( var i = 0; i < aoData.length; i++) {
+					var data = aoData[i];
+					if (data.name == "sEcho")
+						sEcho = data.value;
+					if (data.name == "start")
+						iDisplayStart = data.value;
+					if (data.name == "length")
+						iDisplayLength = data.value;
+				}
+				var res = null;
+				res = submitService.findMyAllSubmitsByProductStates(-1,iDisplayStart, iDisplayLength);
+				var result = {};
+				result.iTotalRecords = res.get('total');
+				result.iTotalDisplayRecords = res.get('total');
+				result.aaData = new Array();
+				var items = res.get('result');
+				if(items)
+				{
+					for(var i=0; i<items.size(); i++){
+						var item=items.get(i);
+						result.aaData.push(["<a href='productdetail.html?pid="+item.product.id+"' >"+item.product.govermentOrder.title+"("+item.product.productSeries.title+")</a>",
+						                    productstate[item.product.state],
+						                    formatDate(item.createtime),
+						                    item.amount.value,
+						                    item.repayedAmount.value,
+						                    item.waitforRepayAmount.value,
+						                    "<a class='ht' id='"+item.id+"'>合同</a>"]);
+					}
+				}
+				result.sEcho = sEcho;
+				fnCallback(result);
+
+				
+				$('a.ht').click(function(e){
+					alert(123);
+					 test1($(this).attr('id'));
+				})
+				
+				
+				return res;
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			$('#example')
+				.addClass( 'nowrap' )
+				.dataTable( {
+					bServerSide : true,
+					responsive: true,
+					fnServerData : fnServerData
+				} );
+
+			
+
+		} );
+	
+	
+		</script>
+	</head>
+	<body>
+
+	
+				
+				<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="95%" cellspacing="0">
+				<thead>
+				<tr role="row">
+				<th style="width: 135px;">项目信息</th>
+				<th style="width: 217px;">状态</th>
+				<th style="width: 102px;">购买时间</th>
+				<th style="width: 42px;">金额</th>
+				<th style="width: 93px;">已回款</th>
+				<th style="width: 93px;">待回款</th>
+				<th style="width: 78px;">合同</th>
+				</tr>
+				</thead>
+				<tbody>
+				</tbody>
+				</table>
+				
+				
+				
+</body>
+</html>

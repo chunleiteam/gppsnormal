@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no">
+<title>政采贷</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+
+<link href="css/index/justified-nav.css" rel="stylesheet">
+<link href="css/mine.css" rel="stylesheet">
+
+<link href="css/plist/a.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/tool.js"></script>
+<script type="text/javascript"
+	src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+		src="/easyservice/gpps.dao.ILenderAccountDao?json"></script>
+<script type="text/javascript"
+		src="/easyservice/gpps.dao.IBorrowerAccountDao?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+<script type="text/javascript"
+        src="/easyservice/gpps.service.thirdpay.IThirdPaySupportService?json"></script>
+<script src="js/getuser.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+
+<div class="row" id="header" style="margin-left:0px; margin-right:0px;">
+      
+</div>
+
+<div class="row" style="padding-left:0px; padding-right:0px; margin-top:5px;">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+			<div style="border: #eee solid 1px; padding: 5px 10px 5px 10px; BACKGROUND-COLOR: #fef9f1;">
+				提示：<br/>
+                1.投资人取款过程由第三方钱多多账户收取千分之二点五的手续费，最低1元<br />
+                2.为避免被收取不必要的手续费，建议取款金额应大于等于400元；<br />
+                3.严禁利用充值功能进行信用卡套现、转账、洗钱等行为，一经发现，将封停账号30天；<br />
+                4.取款期间，请勿关闭浏览器，待取款成功并返回后，提现才能完成，如有疑问，请联系客服；<br />
+                5.钱多多资金到账规则为：工作日9:00-16:00内单笔提现限额为500万且2小时左右到账；工作日16:00-23:30和非工作日9:00-23:30内提现金额单笔低于5万的2小时左右到账， 5万-500万的顺延至下一工作日。23:30-次日9:00不处理提现申请，谢谢合作！。
+               </div>
+                
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center">
+                 <div class="rechargeBoxTitle">
+               		您好:<span id="username" class="orange"></span>,您的可取现金额:<span id="amount" class="green"></span>元, 请输入取款金额</div>
+            	<div class="rechargeNO">
+                <input name="txtAccount" type="text" id="txtAccount" style="height:35px;"/>
+                </div>
+                <div>
+                <span id="msg" style="color: #b94a48; font-weight: bold;"></span></div>
+            <div>
+                <input type="button" name="btnSub" value="确 认" id="rechargeConfirm" class="confirmAndCancelBtn" />
+                <input type="button" class="confirmAndCancelBtn" id="reset" value="重 置" />
+            </div>
+            <div id="cashformdiv" style="display:none"></div>
+            </div>
+                
+                
+
+</div>
+</div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="account" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">取现</h4>
+      </div>
+      <div class="modal-body" id="accountcontent">
+      			您确定要取现是吧伙计！
+      </div>
+      <div class="modal-footer">
+        <button id="confirm" type="button" class="btn btn-primary" data-dismiss="modal">确认取现</button>
+        <button id="cancel" type="button" class="btn btn-default">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="cardBindingformdiv" style="display:none;"></div>
+
+
+<script src="js/head.js"></script>
+<script>
+$(document).ready(function() {
+	
+	header('cashout');
+	
+	var accountDao = EasyServiceClient.getRemoteProxy("/easyservice/gpps.dao.ILenderAccountDao");
+	var baccountDao = EasyServiceClient.getRemoteProxy("/easyservice/gpps.dao.IBorrowerAccountDao");
+	if(usertype!='lender' && usertype!='borrower'){
+		window.location.href="login.html"; 
+		return;
+	}
+	
+	
+	
+	if(usertype=='lender'){
+		var thirdPartyAccount = user.thirdPartyAccount;
+		var identityCard = user.identityCard;
+		var cardbinding = user.cardBinding;
+		
+		if(identityCard==null || identityCard==''){
+			if(confirm("您尚未实名认证，马上认证?")){
+				window.location.href="register2.html";
+			}else{
+				window.close();
+	  		}
+		}
+		else if(thirdPartyAccount==null || thirdPartyAccount==''){
+			if(confirm("您尚未在第三方注册，马上注册？")){
+				window.location.href="register3.html";
+			}else{
+				window.close();
+			}
+		}else if(cardbinding==null){
+			if(confirm("您尚未绑定银行卡，马上绑卡？")){
+				$('#cardBindingformdiv').empty();
+				var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+                var cardBinding=service.getCardBinding();
+                var content="<form id='cardBindingform' action='"+cardBinding.baseUrl+"'method='post'>";
+                for(var o in cardBinding)
+               	{
+                    if(o=="baseUrl"||o=="_i_"||o=="_t_")
+                   	{
+                    	continue;
+                   	}
+                    var len = o.length;
+                    var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                    content+="<input id='"+name+"' name='"+name+"' value='"+cardBinding[o]+"'/> ";
+               	}
+                content+="</form>";
+                $('#cardBindingformdiv').html(content);
+                $('#cardBindingform').submit();
+			}else{
+				window.close();
+			}
+		}
+	}else if(usertype=='borrower'){
+		var privilege = user.privilege;
+		var thirdPartyAccount = user.thirdPartyAccount;
+		var cardbinding = user.cardBinding;
+		if(privilege==10){
+			if(confirm("您尚未申请实地尽调，马上申请?")){
+				window.location.href="baccount.html";
+			}else{
+				window.close();
+	  		}
+		}else if(privilege==11){
+			alert("等待实地尽调中，目前暂不能充值！");
+			window.close();
+		}
+		else if(thirdPartyAccount==null || thirdPartyAccount==''){
+			if(confirm("您尚未在第三方注册，马上注册？")){
+				window.location.href="register3.html";
+			}else{
+				window.close();
+			}
+		}else if(cardbinding==null){
+			if(confirm("您尚未绑定银行卡，马上绑卡？")){
+				$('#cardBindingformdiv').empty();
+				var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+                var cardBinding=service.getCardBinding();
+                var content="<form id='cardBindingform' action='"+cardBinding.baseUrl+"'method='post'>";
+                for(var o in cardBinding)
+               	{
+                    if(o=="baseUrl"||o=="_i_"||o=="_t_")
+                   	{
+                    	continue;
+                   	}
+                    var len = o.length;
+                    var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                    content+="<input id='"+name+"' name='"+name+"' value='"+cardBinding[o]+"'/> ";
+               	}
+                content+="</form>";
+                $('#cardBindingformdiv').html(content);
+                $('#cardBindingform').submit();
+			}else{
+				window.close();
+			}
+		}
+	}
+	
+	var name="";
+	var cashoutAmount = 0;
+	
+	if(usertype=='lender'){
+		name = user.name==null?user.loginId:user.name;
+		var account = accountDao.find(user.accountId);
+		
+		var usable = account.usable;
+		cashoutAmount = usable.value;
+	}else if(usertype=='borrower'){
+		name = user.companyName;
+		var baccount = baccountDao.find(user.accountId);
+		
+		var usable = baccount.usable;
+		cashoutAmount = usable.value;
+	}
+	
+	
+	$('#amount').html(cashoutAmount);
+	$('#username').html(name);
+	
+	
+	$('#txtAccount').keyup(function(e){
+		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
+		if(!myreg.test(this.value))
+		{
+			document.getElementById('msg').innerHTML='金额必须大于0且为整数或小数，小数点后不超过两位';
+			this.value=''; 
+			}else{
+				document.getElementById('msg').innerHTML='';
+				};
+	});
+	
+	$('#reset').click(function(e){
+		document.getElementById('msg').innerHTML='';
+		$('#txtAccount').val('');
+	})
+	
+	$('#rechargeConfirm').click(function(e){
+		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
+		var value = $('#txtAccount').val();
+		if(!myreg.test(value))
+		{
+			document.getElementById('msg').innerHTML='金额必须大于0且为整数或小数，小数点后不超过两位';
+			$('#txtAccount').val('');
+			return;
+		}
+		
+		var cb = user.cardBinding;
+		
+		var bankname = myaccountService.getBankName(cb.bankCode);
+		
+		var str = "您要提现的金额为："+value+"元，提现至银行卡的信息如下：<br>";
+		str += "银行名："+bankname+"<br>";
+		str += "支行名："+cb.branchBankName+"<br>";
+		str += "卡号："+cb.cardNo+"<br>";
+		str += '账户名：'+name+"<br>";
+		str += '请务必核对确认上面信息，如果银行账户名与账号不一致可能导致提现款被退回，浪费您的宝贵时间！';
+		$('#accountcontent').html(str);
+		
+		$('#account').modal({
+			  keyboard: false,
+			  backdrop: true
+		});	
+	});
+	
+	$('#cancel').click(function(e){
+		$('#account').modal('hide');
+	});
+	$('#confirm').click(function(e){
+		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
+		var value = $('#txtAccount').val();
+		if(!myreg.test(value))
+		{
+			document.getElementById('msg').innerHTML='金额必须大于0且为整数或小数，小数点后不超过两位';
+			$('#txtAccount').val('');
+		}else{
+			try{
+				//window.location.href = "/account/cash/request?amount="+value;
+			$('#cashformdiv').empty();
+			var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+            var cash=service.getCash(value);
+            var content="<form id='cashform' action='"+cash.baseUrl+"'method='post'>";
+            for(var o in cash)
+           	{
+                if(o=="baseUrl"||o=="_i_"||o=="_t_")
+               	{
+                	continue;
+               	}
+                var len = o.length;
+                var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                content+="<input id='"+name+"' name='"+name+"' value='"+cash[o]+"'/> ";
+           	}
+            content+="</form>";
+            $('#cashformdiv').html(content);
+            $('#cashform').submit();
+			}catch(e){
+				alert(e.message);
+			}
+            
+            
+		};
+	});
+})
+</script>
+</body>
+</html>

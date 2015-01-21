@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="  
+        http://www.springframework.org/schema/beans  
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+        http://www.springframework.org/schema/mvc  
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd  
+        http://www.springframework.org/schema/context    
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>file:src/main/webapp/WEB-INF/spring/conf.properties</value>
+			</list>
+		</property>
+	</bean>
+	<mvc:annotation-driven />
+	<!-- 注释资源扫描包路径 -->
+	<context:component-scan base-package="com.easyservice,gpps" />
+	<!-- <mvc:default-servlet-handler /> -->
+	<bean id="authorityValidateService" class="com.easyservice.security.AuthorityValidateServiceImpl">
+		<property name="configLocation" value="classpath:StaticRolesConfig.xml"></property>
+	</bean>
+	<bean id="accessoryTransferServlet" class="gpps.servlet.AccessoryTransferServlet">
+        <property name="officalDir" value="file:d:/test/officalDir"></property>
+        <property name="tempDir" value="file:d:/test/tempDir"></property>
+        <property name="contractDir" value="file:d:/test/contractDir"></property>
+    </bean>
+    <bean id="contractService" class="gpps.service.impl.ContractServiceImpl">
+        <property name="contractDir" value="file:d:/test/contractDir"></property>
+    </bean>
+    <bean id="chinanprSupportService" class="gpps.service.impl.ThirdPaySupportServiceImpl">
+        <property name="url" value="${pay.url}"></property>
+        <property name="privateKey" value="${privateKey}"></property>
+        <property name="publicKey" value="${publicKey}"></property>
+        <property name="serverHost" value="${serverHost}"></property>
+        <property name="serverPort" value="${serverPort}"></property>
+        <property name="platformMoneymoremore" value="${platformMoneymoremore}"></property>
+    </bean>
+    <bean id="messageSupportService" class="gpps.service.impl.MessageSupportServiceImpl">
+        <property name="baseUrl" value="${msg.url}"></property>
+        <property name="serialNo" value="${msg.serialNo}"></property>
+        <property name="password" value="${msg.password}"></property>
+        <property name="key" value="${msg.key}"></property>
+        <property name="close" value="${msg.close}"></property>
+    </bean>
+	<import resource="classpath:spring-dao.xml"/>
+</beans>

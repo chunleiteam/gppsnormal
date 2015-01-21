@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gpps.dao.ILenderDao">
+	<select id="countAll" resultType="int">  <!-- 查询表中记录总数 -->
+		select count(*) c from lender;
+	</select>
+	<select id="findAll" resultType="gpps.model.Lender">
+	   select * from Lender 
+	   LIMIT #{offset}, #{recnum}	   
+	</select>
+	<select id="find" parameterType="Integer" resultType="gpps.model.Lender">
+		select *
+		from Lender where id=#{id}
+	</select>
+	<select id="findByAccountID" parameterType="Integer" resultType="gpps.model.Lender">
+		select *
+		from Lender where accountId=#{accountId}
+	</select>
+	<select id="findByLoginId" parameterType="String" resultType="gpps.model.Lender">
+		select *
+		from Lender where loginId=#{loginId}
+	</select>
+	<select id="findByLoginIdAndPassword" resultType="gpps.model.Lender">
+		select *
+		from
+		Lender where (loginId=#{loginId} or tel=#{loginId}) and password=#{password}
+	</select>
+	<select id="findByTel" parameterType="String" resultType="gpps.model.Lender">
+		select
+		*
+		from Lender where tel=#{tel}
+	</select>
+	<select id="findByEmail" parameterType="String" resultType="gpps.model.Lender">
+		select
+		*
+		from Lender where email=#{email}
+	</select>
+	<select id="findByIdentityCard" parameterType="String" resultType="gpps.model.Lender">
+        select *
+        from Lender where identityCard=#{identityCard}
+    </select>
+	<insert id="create" parameterType="gpps.model.Lender"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into
+		Lender(name,tel,email,loginId,password,identityCard,accountId,createtime,privilege,grade,level)
+		values(#{name},#{tel},#{email},#{loginId},#{password},#{identityCard},#{accountId},#{createtime},#{privilege},#{grade}, #{level})
+	</insert>
+	<update id="changePrivilege">
+		update Lender set
+		privilege=#{privilege} 
+		where id=#{id}
+	</update>
+	<update id="changeLevel">
+        update Lender set
+        level=#{level} 
+        where id=#{id}
+    </update>
+	<update id="changePassword">
+		update Lender set
+		password=#{password} 
+		where id=#{id}
+	</update>
+	<update id="changeGradeAndLevel">
+		update Lender set
+		grade=#{grade},level=#{level}
+		where id=#{id}
+	</update>
+	<update id="registerSecondStep">
+		update Lender set
+		name=#{name},identityCard=#{identityCard},sex=#{sex},address=#{address},annualIncome=#{annualIncome}
+		where id=#{id}
+	</update>
+	<update id="registerThirdPartyAccount">
+		update Lender set
+		thirdPartyAccount=#{thirdPartyAccount},accountNumber=#{accountNumber}
+		where id=#{id}
+	</update>
+	<delete id="delete">
+		delete from Lender
+		where id=#{id}
+	</delete>
+	<update id="addGrade">
+        update Lender set
+        grade=grade+#{addGrade} 
+        where id=#{id}
+    </update>
+    <select id="countByPrivilege" resultType="int">  <!-- 查询表中记录总数 -->
+        select count(*) c from Lender
+        <if test="privilege != -1">
+            where privilege =#{privilege}
+        </if>
+    </select>
+    <select id="findByPrivilegeWithPaging" resultType="gpps.model.Lender">
+        select * from Lender 
+         <if test="privilege != -1">
+            where privilege =#{privilege}
+        </if>
+        order by createtime desc
+        LIMIT #{offset}, #{recnum}
+    </select>
+    <update id="bindCard">
+    	update Lender set cardBindingId=#{cardId} where id=#{id}
+    </update>
+    <select id="findByThirdPartyAccount" parameterType="String" resultType="gpps.model.Lender">
+    	select * from Lender where thirdPartyAccount=#{thirdPartyAccount}
+    </select>
+    <update id="updateTelAndEmail">
+    	update Lender set email=#{email},tel=#{tel} where id=#{id}
+    </update>
+    <update id="updateName">
+    	update Lender set name=#{name} where id=#{id}
+    </update>
+    <update id="updateEmail">
+    	update Lender set email=#{email} where id=#{id}
+    </update>
+    <update id="updateAddress">
+    	update Lender set address=#{address} where id=#{id}
+    </update>
+</mapper>

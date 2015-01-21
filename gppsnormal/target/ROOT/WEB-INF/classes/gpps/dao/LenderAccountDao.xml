@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gpps.dao.ILenderAccountDao">
+	<insert id="create" parameterType="gpps.model.LenderAccount"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into
+		LenderAccount(total,freeze,usable,used,totalincome)
+		values(#{total},#{freeze},#{usable},#{used},#{totalincome})
+	</insert>
+	<select id="find" parameterType="Integer" resultType="gpps.model.LenderAccount">
+		select *
+		from LenderAccount where id=#{accountId}
+	</select>
+	<update id="recharge">
+		update LenderAccount set
+		total=total+#{amount},usable=usable+#{amount}
+		where id=#{accountId}
+	</update>
+	<update id="freeze">
+		update LenderAccount set
+		freeze=freeze+#{amount},usable=usable-#{amount}
+		where id=#{accountId}
+	</update>
+	<update id="unfreeze">
+		update LenderAccount set
+		freeze=freeze-#{amount},usable=usable+#{amount}
+		where id=#{accountId}
+	</update>
+	<update id="pay">
+		update LenderAccount set
+		freeze=freeze-#{principalAmount},used=used+#{principalAmount}
+		where id=#{accountId}
+	</update>
+	<update id="repay">
+		update LenderAccount set
+		total=total+#{incomeAmount},totalincome=totalincome+#{incomeAmount},used=used-#{principalAmount},usable=usable+#{principalAmount}+#{incomeAmount}
+		where id=#{accountId}
+	</update>
+	<update id="cash">
+		update LenderAccount set
+		total=total-#{amount},usable=usable-#{amount}
+		where id=#{accountId}
+	</update>
+	<delete id="delete">
+	   delete from LenderAccount where id=#{accountId}
+	</delete>
+	<select id="countAll" resultType="int">
+	   select count(*) from LenderAccount
+	</select>
+	<select id="findAll" resultType="gpps.model.LenderAccount">
+       select * from LenderAccount
+       LIMIT #{offset}, #{recnum}
+    </select>
+</mapper>

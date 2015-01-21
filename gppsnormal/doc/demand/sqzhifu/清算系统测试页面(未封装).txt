@@ -1,0 +1,33 @@
+注册接口:
+http://218.4.234.150:88/main/loan/testloanregister.action
+开户接口:
+http://218.4.234.150:88/main/loan/testloanregisterbind.action
+转账接口:
+http://218.4.234.150:88/main/loan/testloantransfer.action
+余额查询接口:
+http://218.4.234.150:88/main/loan/testloanbalancequery.action
+充值接口:
+http://218.4.234.150:88/main/loan/testloanrecharge.action
+提现接口:
+http://218.4.234.150:88/main/loan/testloanwithdraws.action
+对账接口:
+http://218.4.234.150:88/main/loan/testloanorderquery.action
+授权接口:
+http://218.4.234.150:88/main/loan/testloanauthorize.action
+资金释放接口:
+http://218.4.234.150:88/main/loan/testloanrelease.action
+审核接口:
+http://218.4.234.150:88/main/loan/testloantransferaudit.action
+用户认证、提现银行卡绑定、代扣授权三合一接口:
+http://218.4.234.150:88/main/loan/testloanfastpay.action
+
+测试平台标识:
+p1
+托管账户:
+用户名:1@B.com 登录密码:aaa123 支付密码:aaa456
+密保问题答案:1
+
+
+自有账户:
+用户名:2@B.com 登录密码:aaa123 支付密码:aaa456
+密保问题答案:1

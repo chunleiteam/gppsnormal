@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>政采贷>登陆</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="css/index/justified-nav.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/signin/signin.css" rel="stylesheet">
+	<link href="css/plist/a.css" rel="stylesheet">
+    <script src="js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+		<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IAdminService?json"></script>
+		<script src="js/tool.js"></script>
+  </head>
+
+  <body>
+
+    <div class="container">
+		
+		<div class="row" id="header" style="padding-left:15px; padding-right:15px;">
+      
+      </div>
+		
+		
+      <div class="form-signin">
+      	<div style="width:100%" id="message"></div>
+        <input type="text" id="J-input-user" class="form-control" placeholder="请输入用户名" required autofocus>
+        <input type="password" id="password_input" class="form-control" placeholder="请输入密码" required>
+        
+        <div style="display:inline;">
+        <input class="form-control" id="J-input-checkcode" type="text" style="float:left; width:130px; height:50px;"></input>
+        <img class="form-control" style="width:170px; height:50px; float:right;" id="J-checkcode-img" src="../../login/graphValidateCode?t=100" title="点击图片刷新验证码" alt="点击图片刷新验证码"></img>
+        </div>
+        <button id="J-login-btn" class="btn btn-lg btn-success btn-block">登陆</button>
+      </div>
+      
+      
+      
+      
+      
+      
+      
+
+    </div> <!-- /container -->
+
+
+    
+  </body>
+  
+  
+  <script>
+
+  function addMessage(title){
+		$('#message').html('');
+		var div = $('<div class="alert alert-warning alert-dismissible" role="alert" style="margin-bottom:2px;"></div>');
+		div.append('<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>');
+		div.append(title);
+		$('#message').append(div);
+  }
+  
+  function removeMessage(){
+	  $('#message').html('');
+  }
+
+  
+$(document).ready(function() {
+	
+	var adminService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IAdminService");
+	
+	var admin = adminService.getCurrentUser();
+	if(admin!=null){
+		window.location.href="opadmin.html";
+		return;
+	}
+	
+	var src="../../login/graphValidateCode?t="+Math.random();
+	
+	$('img#J-checkcode-img').click(function(e){
+		var srcn="../../login/graphValidateCode?t="+Math.random();
+		$(this).attr('src', srcn);
+	});
+	
+	$('#J-input-user').focus();
+       $('#J-login-btn').click(function(e){
+			var username = $('input#J-input-user').val();
+			var password = $('input#password_input').val();
+			var validate = $('input#J-input-checkcode').val();
+			
+			
+			if(username==null||username==''){
+				addMessage('*请输入用户名');
+					return;
+				}
+
+			if(password==null||password==''){
+				addMessage('*请输入密码');
+				return;
+			}
+
+
+			if(validate==null||validate==''){
+				addMessage('*验证码错误！');
+				return; 
+			}
+			
+			
+			try{
+			adminService.login(username, password, validate);
+			window.location.href="opadmin.html";
+			}catch(e){
+				alert(e.message);
+				$('input#password_input').val('');
+				$('input#J-input-checkcode').val('');
+				$('img#J-checkcode-img').trigger('click');
+			}
+			
+			
+           });
+
+
+       $('input#J-input-checkcode').on('keyup', function(e) {
+
+			var key = e.keyCode;
+			if (key === 13) { // 表示按的是enter键
+				$('#J-login-btn').click();
+			}
+       });
+})
+</script>
+  
+</html>

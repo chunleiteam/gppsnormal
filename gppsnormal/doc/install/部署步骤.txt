@@ -1,0 +1,8 @@
+1. 清库
+2. 关闭tomcat
+3. 删除ROOT和ROOT.war
+4. 将新版ROOT.war上载到服务器
+5. 执行gpps_1.0.1.sql
+6. 执行id_start.sql
+7. 创建管理员
+8. 启动tomcat

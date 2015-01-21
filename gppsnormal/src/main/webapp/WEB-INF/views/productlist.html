@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <title>政采贷 > 投资中心</title>
+    <meta name="keywords" content="政采贷">
+    <!-- Bootstrap core CSS -->
+    
+    
+    
+    
+    
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="css/gpps/lufax-main.css">
+    <link rel="stylesheet" type="text/css" href="css/gpps/new-lufax.css">
+    <link rel="stylesheet" type="text/css" href="css/gpps/productlist.css">
+    
+    <link href="css/mine.css" rel="stylesheet">
+    
+    <link href="css/plist/b.css" rel="stylesheet">
+    <link href="css/plist/creditlevel.css" rel="stylesheet">
+    <link href="css/plist/progressbar.css" rel="stylesheet">
+    
+    
+    <script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/tool.js"></script>
+<script src="js/data.js"></script>
+
+<script src="js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IGovermentOrderService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IProductSeriesService?json"></script>
+												
+<script type="text/javascript"
+				src="/easyservice/gpps.service.ILenderService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IHelpService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+<script src="js/getuser.js"></script>
+</head>
+ 
+<body>
+ 
+<div class="container">
+
+      <div class="row" id="header" style="padding-left:15px; padding-right:15px;">
+      
+      </div>
+	<div class="main-wrap row">
+    <div class="list-wrap clearfix" class="row">
+        <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9" style="padding-left:0px; padding-right:2px;">
+        
+        
+        
+        <ul class="bcrumb">
+        <li><a href="javascript:void(0);">投资中心</a> <span class="divider">&gt;</span></li>
+        <li id="nav_name" class="active"></li>
+    	</ul>
+    	
+    	
+    	
+    	<nav class="navbar navbar-default" role="navigation" style="margin-bottom:0px;">
+    	<div class="container-fluid">
+    	<div class="navbar-header">
+    	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+    	<span class="sr-only">Toggle navigation</span>
+    	<span class="icon-bar"></span>
+    	<span class="icon-bar"></span>
+    	<span class="icon-bar"></span>
+    	</button>
+    	<span class="navbar-brand" href="#">类型</span>
+    	</div>
+    	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+    	
+    	<ul id="plnav" class="nav navbar-nav plnav">
+		</ul>
+		
+		</div>
+		</div>
+		</nav>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<div class="service-intro clearfix row" style="margin-left:0px; margin-right:0px; border-left:solid 1px #d9d9d9; border-right:solid 1px #d9d9d9; border-bottom:dotted 1px #d9d9d9;">
+		<div class="hidden-xs hidden-sm col-md-1 col-lg-1">
+    		<p class="service-intro-title">
+       			 服务介绍<b></b>
+    		</p>
+    	</div>
+    	<div class="hidden-xs hidden-sm col-md-11 col-lg-11">
+    	<div class="service-intro-con" id="intro"></div>
+    	</div>
+		</div>
+        
+        
+        
+        <div class="row" style="margin-left:0px; margin-right:0px;  border-left:solid 1px #d9d9d9; border-right:solid 1px #d9d9d9; border-bottom:solid 1px #d9d9d9;">
+        <div class="col-md-12" style="color:orange; font-size:18px; font-weight:bold; margin-bottom:15px;">
+        	<span class="glyphicon glyphicon-play" style="color : #c7d78c;"></span>项目列表
+        </div>
+        <div class="col-md-12">
+        	<div class="table-responsive" id="orderlist" style="padding-top:10px;">
+			</div>
+        </div>
+        <div class="col-md-12 cpagination ui_complex_pagination">
+                <a class="btns disabled btn_page btn_small pre" href="javascript:void(0)" id="prePage"><span class="caret">&lt;</span>上一页</a>
+ 
+                <p class="pageNum" id="pageNum">第1页/共1页</p>
+                <a class="btns disabled btn_page btn_small next" href="javascript:void(0)" id="nextPage">下一页<span
+                        class="caret">&gt;</span></a>
+         </div>
+        </div>
+        </div>
+        <div class="hidden-xs hidden-sm col-md-3 col-lg-3" style="padding-right:0px; padding-left:15px; margin-top:40px;">
+ 
+            <div class="news-notice sidebar-panels">
+                <a href="helpcenter.html?type=1" target="_blank"
+                   class="news-notice-head clearfix">
+                    <span class="info">常见问题</span>
+                    <span class="more">&gt;</span>
+                </a>
+ 
+                <div class="news-notice-body">
+                    <ul class="news-notice-list faq-list" id="cjquestion">
+                                     
+                     </ul>
+                </div>
+            </div>
+            
+            
+            
+             <div class="news-notice sidebar-panels">
+                <a href="helpcenter.html?type=0" target="_blank"
+                   class="news-notice-head clearfix">
+                    <span class="info">新手帮助</span>
+                    <span class="more">&gt;</span>
+                </a>
+ 
+                <div class="news-notice-body">
+                    <ul class="news-notice-list faq-list" id="newhelp">
+                                     
+                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+</div>
+
+<div class="row foot" id="footer" style="border: #eee solid 1px; background:#eee; min-height:120px; font-size:13px; margin-top:0px; margin-left: 0px; margin-right:0px;">
+
+	</div>
+
+</div>
+
+
+<textarea style="display:none;" id="orderlist_template">
+
+<table class="ui-list-invest" id="products" style="width:98%;">
+
+<tr id="header" style="padding-left:0px; padding-right:0px; margin-bottom:10px;">
+      				<td class="color-gray-text text-center" style="min-width:150px;"></td>
+      				<td class="color-gray-text text-center" style="min-width:50px;"></td>
+      				<td class="color-gray-text text-center" style="min-width:50px;"></td>
+      				<td class="color-gray-text text-center" style="min-width:120px;"></td>
+      				<td class="color-gray-text text-center" style="min-width:80px;"></td>
+      				<td class="color-gray-text text-center" style="min-width:50px;"></td>
+      				<td class="color-gray-text text-center" style="min-width:100px;"></td>
+    				</tr>
+
+<!--#
+	var orders = res.get('result');
+	if(orders)
+	for(var i=0; i<orders.size(); i++)
+	{
+	var order = orders.get(i);
+	var products = order.products;
+	
+	
+	for(var t=0; t<products.size(); t++)
+	{
+	
+	var product = products.get(t);
+	var rate = parseInt(parseFloat(product.rate.value)*100);
+	
+	var seriesname = '稳健';
+	var seriesclss = 'A';
+	if(product.productseriesId==2){
+		seriesname='均衡';
+		seriesclss='B';
+	}else if(product.productseriesId==3){
+		seriesname='进取';
+		seriesclss='C';
+	}
+	
+	var days = parseInt((product.incomeEndtime-order.incomeStarttime+23*3600*1000)/(24*3600*1000)+'');
+	var percent = parseInt(parseInt(product.realAmount.value)*100/parseInt(product.expectAmount.value));
+	
+	var state = order.state;
+	var state_a_cls = '';
+	var state_span = '';
+	if(state==1)
+		{
+		if(parseInt(product.expectAmount.value)==parseInt(product.realAmount.value))
+		{
+			state_a_cls = 'ui-list-invest-button-FIRST_READY';
+			state_span = '<span class="READY FIRST_READY">已满标</span>'
+			}
+		else
+		{
+			state_a_cls = 'ui-list-invest-button-OPEN';
+			state_span = '<span class="OPEN">投标中</span>';
+			}
+		}
+	else if(state==2)
+	{
+		state_a_cls = 'ui-list-invest-button-FIRST_APPLY';
+		state_span = '<span class="FIRST_APPLY">预发布</span> ';
+		}
+	else if(state==4)
+	{
+		state_a_cls = 'ui-list-invest-button-IN_PROGRESS';
+		state_span = '<span class="IN_PROGRESS">还款中</span>'
+		}
+	else if(state==8)
+	{
+		state_a_cls = 'ui-list-invest-button-OVER_DUE';
+		state_span = '<span class="OVER_DUE">待关闭</span>';
+		}
+	else if(state==32)
+	{
+		state_a_cls = 'ui-list-invest-button-CLOSED';
+		state_span = '<span class="CLOSED">已关闭</span>';
+		}
+	else if(state==16)
+	{
+		state_a_cls = 'ui-list-invest-button-BAD_DEBT';
+		state_span = '<span class="BAD_DEBT">流标</span>';
+		}
+#-->
+
+
+	<!--# 
+	if(t==(products.size()-1))
+	{
+	 #-->
+	 <tr class="ui-list-item" id="header"
+		style="padding-left: 0px; padding-right: 0px; border-bottom:solid #d9d9d9 1px;">
+	 
+	 <!--# 
+	 }else{
+	  #-->
+	<tr class="ui-list-item" id="header"
+		style="padding-left: 0px; padding-right: 0px;">
+	
+	<!--# 
+	}
+	 #-->
+	
+	
+	<!--# 
+	if(t==0)
+	{
+	 #-->
+	<td class="text-big" style="max-width:200px; border-bottom:solid #d9d9d9 1px;" rowspan=+-products.size()-+>
+		<div style="display:inline;">
+			<a class="producttitle" style="font-size:16px;" href="productdetail.html?pid=+-product.id-+"
+				target="_blank" title="+-order.title-+">+-order.title-+</a>
+		</div>
+	</td>
+	<!--# 
+	}else{
+	 #-->
+	 
+	 
+	 <!--# 
+	 }
+	  #-->
+
+	<td class="ui-list-field text-center"><a
+		class="ui-creditlevel +-seriesclss-+ snow">+-seriesname-+</a></td>
+	<td class="ui-list-field num text-right pr10"><em class="value">+-rate-+</em>%</td>
+	<td class="ui-list-field num text-right pr10"><em class="value">+-parseInt(product.expectAmount.value)-+</em>元</td>
+	<td class="ui-list-field num text-right pr10"><em class="value">+-days-+</em>天</td>
+
+	<td class="ui-list-field"><strong
+		class="ui-progressbar-mid ui-progressbar-mid-+-percent-+"><em>+-percent-+</em>%</strong>
+	</td>
+
+	<td class="ui-list-field text-right">
+		<a class="ui-button ui-button-mid ui-button-blue ui-list-invest-button +-state_a_cls-+" href="productdetail.html?pid=+-product.id-+" target="_blank"> 
+			+-state_span-+
+		</a>
+	</td>
+</tr>
+
+<!--# 
+		}
+	}
+ #-->
+
+</table>
+</textarea>
+
+
+<script src="js/head.js"></script>
+<script src="js/foot.js"></script>
+ 	<script>
+ 	var seriesname = {};
+ 	var ctx = new EasyServiceClient.newContext();
+ 	var pageNum = 0;
+ 	var numPerPage = 5;
+ 	var totalPage = 0;
+ 	
+ 	function resetTotal(total){
+ 		pageNum = 0;
+ 		totalPage = parseInt(total/numPerPage+"") + (total%numPerPage==0?0:1);
+ 		$('#pageNum').html('第'+(pageNum+1)+'页/共'+totalPage+'页');
+ 	}
+ 	
+ 	function pre(){
+ 		
+ 		if(pageNum==0)
+ 			{
+ 			
+ 			}
+ 		else{
+ 			pageNum = pageNum-1;
+ 		}
+ 		$('#pageNum').html('第'+(pageNum+1)+'页/共'+totalPage+'页');
+ 		return pageNum;
+ 	}
+ 	
+ 	function next(){
+ 		if(pageNum==totalPage-1){
+ 			
+ 		}else{
+ 			pageNum = pageNum+1;
+ 		}
+ 		$('#pageNum').html('第'+(pageNum+1)+'页/共'+totalPage+'页');
+ 		return pageNum;
+ 	}
+ 	
+ 	
+ 	
+ 	function refreshList(orders){
+ 		
+ 		ctx.res = orders;
+ 		ejs.renderComplexNode("#orderlist_template", "#orderlist", ctx);
+ 		
+ 		var total = orders.get('total');
+    	var rst = orders.get('result');
+ 	}
+ 	
+         $(document).ready(function () {
+        	 header('productlist');
+        	 var sid = getQueryString('sid');
+        	 
+        	 var seriesService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductSeriesService");
+        	 var orderService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IGovermentOrderService");
+        	 var helpService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IHelpService");
+        	 var series = seriesService.findAll();
+        	 var li1 = $('<li class="active"></li>');
+        	 var a1 = $('<a href="javascript:void(0);" data-sk="all"><span class="min-price">全部</span></a>');
+        	 $('li#nav_name').html('全部');
+        	 li1.append(a1);
+        	 a1.click(function(e){
+        		 $(this).parent().parent().find('li').removeClass('active');
+        		 $(this).parent().addClass('active');
+        		 $('li#nav_name').html('全部');
+        		 var orders = orderService.findByStatesByPage(-1,0,numPerPage);
+        		 
+        		 var total = orders.get('total');
+        		 resetTotal(total);
+        		 
+        		 refreshList(orders);
+        		 
+        		 $('#prePage').unbind('click');
+        		 $('#prePage').bind('click', function(e){
+        			var cp = pre();
+        			var orders = orderService.findByStatesByPage(-1,cp*numPerPage, numPerPage);
+        			refreshList(orders);
+        		 });
+        		 $('#nextPage').unbind('click');
+        		 $('#nextPage').bind('click', function(e){
+        			var cp = next(); 
+        			var orders = orderService.findByStatesByPage(-1,cp*numPerPage, numPerPage);
+        			refreshList(orders);
+        		 });
+        		 
+        		 $('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">6.0%~18.0% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 100 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限： 3-12个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：------</p>');
+        	 });
+        	 $('ul.plnav').append(li1);
+        	 for(var i=0; i<series.size(); i++){
+        		 var id = series.get(i).id;
+        		 seriesname[id] = series.get(i).title;
+        		 var lis = $('<li></li>');
+        		 var ass = $('<a id="'+series.get(i).type+'" href="javascript:void(0);" data-sk='+series.get(i).id+'><span class="min-price">'+series.get(i).title+'</span></a>');
+        		 lis.append(ass);
+        		 $('ul.plnav').append(lis);
+        		 ass.click(function(e){
+        			 $(this).parent().parent().find('li').removeClass('active');
+            		 $(this).parent().addClass('active');
+            		 $('li#nav_name').html($(this).text());
+        			
+            		 if($(this).attr('id')=='0')
+        			 	$('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">6.0%~10.0% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 100 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限： 3-6个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：每月均摊本息  &nbsp; &nbsp; &nbsp;<a href="pseriescenter.html?type='+$(this).attr('id')+'" target="_blank">了解详情</a></p>');
+            		 else if($(this).attr('id')=='1')
+            			 $('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">8.0%~12.0% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 1000 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限： 3-9个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：每月还息到期还本  &nbsp; &nbsp; &nbsp;<a href="pseriescenter.html?type='+$(this).attr('id')+'" target="_blank">了解详情</a></p>');
+            		 else if($(this).attr('id')=='2')
+            			 $('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">12.0%~18.0% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 10000 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限：6-12个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：每月还息到期还本  &nbsp; &nbsp; &nbsp;<a href="pseriescenter.html?type='+$(this).attr('id')+'" target="_blank">了解详情</a></p>');
+            		 
+            		 var orders = orderService.findGovermentOrderByProductSeries(parseInt($(this).attr('data-sk')),-1,0,numPerPage);
+            		 var total = orders.get('total');
+            		 resetTotal(total);
+            		 refreshList(orders);
+            		 
+            		 $('#prePage').attr('data-sk', $(this).attr('data-sk'));
+            		 $('#nextPage').attr('data-sk', $(this).attr('data-sk'));
+            		 
+            		 $('#prePage').unbind('click');
+            		 $('#prePage').bind('click', function(e){
+            			var cp = pre();
+            			var orders = orderService.findGovermentOrderByProductSeries(parseInt($(this).attr('data-sk')),-1,cp*numPerPage,numPerPage);
+            			refreshList(orders);
+            		 });
+            		 $('#nextPage').unbind('click');
+            		 $('#nextPage').bind('click', function(e){
+            			var cp = next(); 
+            			var orders = orderService.findGovermentOrderByProductSeries(parseInt($(this).attr('data-sk')),-1,cp*numPerPage,numPerPage);
+            			refreshList(orders);
+            		 });
+            		 
+        		 })
+        		 
+        	 }
+        	 
+        	 
+        	 var cjquestions = helpService.findPublicHelps(1,0,10);
+        	 var questions = cjquestions.get('result');
+        	 if(questions){
+        		 for(var i=0; i<questions.size(); i++)
+        			 {
+        		 		$('#cjquestion').append('<li><b></b><a href="detail.html?type=help&stype='+questions.get(i).publicType+'&id='+questions.get(i).id+'" target="_blank">'+questions.get(i).question+'</a></li>');
+        			 }
+        	 }
+        	 
+        	 var newhelps = helpService.findPublicHelps(0,0,10);
+        	 var nhelps = newhelps.get('result');
+        	 if(nhelps){
+        		 for(var i=0; i<nhelps.size(); i++){
+        			 $('#newhelp').append('<li><b></b><a href="detail.html?type=help&stype='+nhelps.get(i).publicType+'&id='+nhelps.get(i).id+'" target="_blank">'+nhelps.get(i).question+'</a></li>');
+        		 }
+        	 }
+        	 
+        	 
+        	 
+        	 
+        	 
+        	 
+        	 
+        	 //a1.trigger('click');
+        	 if(sid==null){
+        		 a1.trigger('click');
+        	 }else{
+        	 $('a#'+sid).trigger('click');
+        	 }
+        	 
+        	 
+         });
+         </script>
+    </body>
+</html>

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <title>政采贷>产品详情</title>
+    
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="css/plist/a.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/gpps/lufax-main.css">
+    <link rel="stylesheet" type="text/css" href="css/gpps/new-lufax.css">
+    <link rel="stylesheet" type="text/css" href="css/gpps/detail/productDetail.css">
+    <link href="css/mine.css" rel="stylesheet">
+    
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="js/tool.js"></script>
+ <script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+ <script type="text/javascript"
+				src="/easyservice/gpps.service.IGovermentOrderService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IProductSeriesService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IProductService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.ILenderService?json"></script>
+<script type="text/javascript"
+		src="/easyservice/gpps.dao.ILenderAccountDao?json"></script>
+<script type="text/javascript"
+		src="/easyservice/gpps.service.ISubmitService?json"></script>
+<script type="text/javascript"
+		src="/easyservice/gpps.service.IPayBackService?json"></script>
+<script type="text/javascript"
+		src="/easyservice/gpps.service.IBorrowerService?json"></script>	
+<script type="text/javascript"
+		src="/easyservice/gpps.service.IProductActionService?json"></script>
+<script type="text/javascript"
+        src="/easyservice/gpps.service.thirdpay.IThirdPaySupportService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IHelpService?json"></script>
+<script src="js/getuser.js"></script>
+    
+    <script>
+    var seriesService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductSeriesService");
+	 var orderService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IGovermentOrderService");
+	var productService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductService");
+	var accountDao = EasyServiceClient.getRemoteProxy("/easyservice/gpps.dao.ILenderAccountDao");
+	var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
+	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
+	var productActionService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductActionService");
+	var helpService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IHelpService");
+	var pid = getQueryString('pid');
+	
+	var order = null;
+	var borrower = null;
+	var series = null;
+	var product = null;
+	var paybacks = null;
+	var submits = null;
+	var seriesname = {};
+	var seriestype = {};
+	
+	
+	try{
+ 		order = orderService.findGovermentOrderByProduct(parseInt(pid));
+ 	}catch(e){
+ 		
+ 	}
+ 	
+ 	if( (usertype=='borrower' && user.id==order.borrowerId) || usertype=='admin'){
+ 		window.location.href="productdetailfb.html?pid="+pid;
+  	}
+	
+	try{
+	for(var i=0; i<order.products.size(); i++){
+		if(order.products.get(i).id==parseInt(pid)){
+			product = order.products.get(i);
+			break;
+		}
+	}
+	borrower = bservice.find(order.borrowerId);
+	series = seriesService.find(product.productseriesId);
+	
+	submits = submitService.findPayedSubmitsByProduct(product.id, 0, 5);
+	
+	var allseries = seriesService.findAll();
+	for(var i=0; i<allseries.size(); i++){
+		seriesname[allseries.get(i).id] = allseries.get(i);
+	}
+	
+	paybacks = paybackService.findAll(product.id);
+	
+	}catch(e){
+		
+	}
+    </script>
+    
+    </head>
+ 
+<body>
+ 
+ 
+    
+ <div class="container">
+
+<div class="row" id="header" style="padding-left:0px; padding-right:0px;">
+      
+      </div>
+
+
+<div class="row main-wrap">
+ 
+<div class="row content-head clf">
+    <ul class="bcrumb">
+    	<li><a href="productlist.html">投资中心</a> <span class="divider">&gt;</span></li>
+        <li class="active" id="productseries"></li>
+        <li class="active">项目详情</li>
+    </ul>
+</div>
+ 
+<div class="row product-detail">
+    <div class="product-detail-head">
+        <div class="product-name-info">
+            <span id="product-title" style="font-size:16px; font-weight:bold; color:orange;"></span>
+            <span id="product-code" class="product-code" style="margin-left:20px;"></span>
+                                                <span class="detail-promotion"></span>
+        </div>
+        <p id="product-published-date" class="product-published-date">
+            			
+        </p>
+    </div>
+ 
+    <div class="product-detail-body clf row" style="margin-left:0px; margin-right:0px;">
+        <div class="col-sm-12 col-md-8" style="margin-left:0px;">
+            <ul class="clf detail-info-list">
+                <li>
+                    <p>项目本金</p>
+ 
+                    <p><strong id="totalAmount"></strong></p>
+                </li>
+                <li>
+                    <p>预期年化利率</p>
+ 
+                    <p><strong id="rate" class="tips-title"></strong>
+                    </p>
+                </li>
+                <li>
+                    <p>最长期限</p>
+ 
+                    <p>
+                        <strong id="duration"></strong>
+                    </p>
+                </li>
+                <li>
+                    <p>产品类型</p>
+                                <a class="tips-title" href="plIntroduction.html" target="_blank" title="查看稳健型产品的详细说明">
+                                    <strong id="pseriestitle"></strong></a>
+                                            
+                </li>
+                <li class="last-col">
+                    <p>可购级别</p>
+ 
+                    <p>
+                        <strong id="leveltobuy"></strong>
+                    </p>
+                </li>
+            </ul>
+            <div class="income-count clf">
+                <p id="productdescription"></p>
+ 
+            </div>
+            <div class="other-detail-info clf">
+                                    <div class="progress-wrap clf">
+                        <p class="progress-label">项目进度：</p>
+ 
+                        <div class="progress">
+                            <div class="bar" id="progressBar" style="width:22px;"></div>
+                        </div>
+                        <span id="progressTxt" class="progressTxt"></span>
+                    </div>
+                                            </div>
+                        <div class="invest-reward-wrap clf">
+                <p class="reward-label">还款模式：</p>
+                  <div class="invest-reward-body">
+                              <span id="reward-info" class="reward-info clf">
+       
+     </span>
+    
+ 
+ 
+ 
+                  </div>
+            </div>
+            
+        </div>
+        
+        
+        
+        
+        <div class="product-detail-status col-sm-12 col-md-4" style="margin-right:0px;">
+            <div class="product-detail-status-inner">
+ 
+                 <div class="raise-status-wrap">
+            <div class="raise-status-online">
+                <p id="remainamount" class="remaining-amount">
+                                                                             
+                </p>
+                <label id="stateMessage">请填写投资金额：</label>
+                    <div class="raise-operate operate clf">
+                        <div id="inputAmount" class="inputs-gather clf">
+                            <a class="reduce-btn disabled" disabled="disabled"></a>
+                            <input type="text" class="raise-input" id="raiseAmount"
+                                   value="1000">
+                            <a class="plus-btn disabled" disabled="disabled"></a>
+                        </div>
+ 
+                        <a class="btns btn_xlarge investBtn" href="javascript:void(0);" id="invest">立即投资</a>
+                    </div>
+           			<div id="buyformdiv" style="display:none">
+					</div>
+           			<div id="dt_div" class="markUpInfo">
+                        <p class="mark-up-info">
+                            <span id="detailDate"></span>
+                        </p>
+                    </div>
+           
+           
+            <div class="showStatus">
+
+            <div class="balanceAmount">
+            <p id="loginstatus" class="balanceAmountCon clf">
+            <a id="recharge" href="#" style="margin-right:20px;">充值</a>
+                		账户可用余额：<span class="amountFormat"></span> 元
+            </p>
+</div>    
+
+                    </div>
+ 
+                    <div id="init-add" class="markUpInfo">
+                        <p class="mark-up-info">
+                            <span id="initAmount">起投金额：1,000.00元</span>
+                            <span id="addAmount">递增金额：100元</span>
+                        </p>
+                        <p style="font-size:1px; color:red;">投资有风险，购买需谨慎。</p>
+                    </div>
+                                
+            </div>
+    
+</div>                            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+ 
+ 
+<div class="row detail-content-wrap clf">
+    <div class="detail-content col-sm-12 col-md-9" style="padding-left:0px; padding-right:2px;">
+    
+    
+    
+    
+    
+    
+    	<nav class="navbar navbar-default" role="navigation">
+    	<div class="container-fluid">
+    	<div class="navbar-header">
+    	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+    	<span class="sr-only">Toggle navigation</span>
+    	<span class="icon-bar"></span>
+    	<span class="icon-bar"></span>
+    	<span class="icon-bar"></span>
+    	</button>
+    	<span class="navbar-brand">项目资料</span>
+    	</div>
+    	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+    	
+    	<ul id="sourcelist" class="nav navbar-nav sourcelist">
+    			<li class=""><a href="javascript: void(0);" data-sk="basic"><span class="min-price">项目详情</span></a></li>
+    			<li class=""><a href="javascript: void(0);" data-sk="payback"><span class="min-price">还款计划</span></a></li>
+    			<li class=""><a href="javascript: void(0);" data-sk="resource"><span class="min-price">项目资料</span></a></li>
+    			<li class=""><a href="javascript: void(0);" data-sk="cresource"><span class="min-price">企业资料</span></a></li>
+    			<li class=""><a href="javascript: void(0);" data-sk="action"><span class="min-price">项目进程</span></a></li>
+		</ul>
+		
+		</div>
+		</div>
+		</nav>
+        <div class="detail-content-body" style="min-height:310px;">
+        </div>
+    </div>
+ 
+    <div class="col-sm-12 col-md-3" style="padding-right:0px; padding-left:2px;">
+                    <div class="invest-record">
+                    <div class="invest-record-title" style="padding-left:10px;">
+                    		投资记录<div style="float:right; font-weight:normal; color:#999; padding-right:10px;" id="count"></div>
+                    		<div style="clear:both;"></div>
+                    </div>
+                    <table class="invest-record-list">
+                        <tbody id="invest-record">
+                        <tr>
+                            <th>投资人</th>
+                            <th>金额（元）</th>
+                            <th>时间</th>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                
+                <div id="invest-record-history">
+ 
+                </div>
+            </div>
+        
+        <div class="noticeQuestion hidden-xs hidden-sm col-md-12 col-lg-12" style="padding-left:0px; padding-right:0px;">
+    <div class="clf head">
+        <span class="title">常见问题</span>
+        <span class="more">
+            <a href="helpcenter.html?type=1" target="_blank">更多</a><span>&gt;</span>
+        </span>
+    </div>
+    <ul id="cjquestion" class="contentList">
+              
+    </ul>
+</div>        
+    </div>
+</div>
+ 
+ 
+</div>
+
+
+<div class="row foot" id="footer" style="border: #eee solid 1px; background:#eee; min-height:120px; font-size:13px; margin-top:0px;">
+
+	</div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">产品购买</h4>
+      </div>
+      <div class="modal-body">
+       购买完成前请不要关闭该对话框，在购买完毕后点击相应的操作以完成购买。
+      </div>
+      <div class="modal-footer">
+        <button id="success-continue" type="button" class="btn btn-primary" data-dismiss="modal">继续购买</button>
+        <button id="success-myaccount" type="button" class="btn btn-primary" data-dismiss="modal">返回我的帐户</button>
+        <button id="fail" type="button" class="btn btn-default">购买失败</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+
+<script src="js/head.js"></script>
+<script src="js/foot.js"></script>
+ <script>
+ 
+ var paybackState={0: '待还款', 1 : '正在还款', 2: '已还款', 3: '延期', 5: '待审核'};
+ var actionState={1:'正常', 2:'顺利', 3:'有风险', 4:'严重问题'};
+ 
+  $(document).ready(function () {
+	  header('productdetail');
+	  
+	  
+ 	
+ 	$('li#productseries').html('<a href="productlist.html?sid='+seriesname[product.productseriesId].type+'">'+seriesname[product.productseriesId].title+'</a> <span class="divider">&gt;</span>');
+ 	$('span#product-title').html(order.title+'['+seriesname[product.productseriesId].title+']');
+ 	
+ 	var str = "";
+ 	for(var i=0; i<order.products.size(); i++){
+ 		if(order.products.get(i).id!=parseInt(pid)){
+ 			var pro = order.products.get(i);
+ 			str += '&nbsp;&nbsp;<a style="color:#999;" href="productdetail.html?pid='+pro.id+'">'+seriesname[pro.productseriesId].title+'</a>';
+ 		}
+ 	}
+ 	
+ 	$('span#product-code').html(str);
+ 	
+ 	$('#totalAmount').html(product.expectAmount.value+"元");
+ 	
+ 	$('#raiseAmount').val(product.minimum);
+ 	$('#initAmount').html('起投金额：'+product.minimum+'元');
+ 	$('#addAmount').html('递增金额：'+product.miniAdd+'元');
+ 	$('#rate').html(parseInt(parseFloat(product.rate.value)*100)+"%");
+ 	$('#duration').html(parseInt((product.incomeEndtime-order.incomeStarttime+23*3600*1000)/(24*3600*1000))+'天');
+ 	$('#leveltobuy').html("level"+product.levelToBuy);
+ 	$('#pseriestitle').html(series.title);
+ 	$('#remainamount').html( '剩余可投金额：<strong>'+(parseInt(product.expectAmount.value)-parseInt(product.realAmount.value))+'元</strong>');
+ 	
+ 	$('#productdescription').html(seriesname[product.productseriesId].description);
+ 	$('#progressTxt').html((parseInt(product.realAmount.value)*100/parseInt(product.expectAmount.value)).toFixed(2)+"%");
+ 	$('#progressBar').css('width', parseInt(product.realAmount.value)*145/parseInt(product.expectAmount.value)+'px');
+ 	$('#reward-info').html(seriesname[product.productseriesId].typeDetail);
+ 	
+ 	
+ 	
+ 	
+ 	var cjquestions = helpService.findPublicHelps(1,0,10);
+	 var questions = cjquestions.get('result');
+	 if(questions){
+		 for(var i=0; i<questions.size(); i++)
+			 {
+		 		$('#cjquestion').append('<li><b></b><a href="detail.html?type=help&stype='+questions.get(i).publicType+'&id='+questions.get(i).id+'" target="_blank">'+questions.get(i).question+'</a></li>');
+			 }
+	 }
+	 
+ 	
+ 	
+ 	if(order.state==2){
+ 		var time = order.financingStarttime - (new Date()).getTime();
+ 		var day = 0;
+ 		var hour = 0;
+ 		var min = 0;
+ 		var sec = 0;
+ 		if(time>0)
+ 		{
+ 		day = parseInt(time/(24*3600*1000));
+ 		hour = parseInt((time- day*(24*3600*1000))/(3600*1000));
+ 		min = parseInt((time - day*(24*3600*1000) - hour*(3600*1000))/(60*1000));
+ 		sec = parseInt((time - day*(24*3600*1000) - hour*(3600*1000) - min*(60*1000))/1000);
+ 		}
+ 		$('#remainamount').html('开始融资时间：'+formatDateToDay(order.financingStarttime));
+ 		$('p#product-published-date').html('距离融资开始还有： '+day+'天'+hour+'小时'+min+'分'+sec+'秒');
+ 		$('#stateMessage').html('剩余可投金额：'+parseInt(product.expectAmount.value)+'元');
+ 		$('a#invest').addClass('disabled').attr('disabled',"disabled").text('预发布');
+ 		$('#inputAmount').css('display', 'none');
+ 		$('#dt_div').css('display', 'none');
+ 	}
+ 	else if(product.state==1 && (parseInt(product.expectAmount.value)-parseInt(product.realAmount.value))==0){
+ 		$('#remainamount').html('产品已售罄');
+ 		$('#stateMessage').html('共融资金'+product.realAmount.value+'元');
+ 		$('a#invest').addClass('disabled').attr('disabled',"disabled");
+ 		$('p#product-published-date').html('计息开始时间： '+formatDateToDay(order.incomeStarttime));
+ 		$('#detailDate').html('融资结束时间:'+formatDateToDay(order.financingEndtime));
+ 	}else if(product.state==1){
+ 		var time = order.financingEndtime - (new Date()).getTime();
+ 		var day = 0;
+ 		var hour = 0;
+ 		var min = 0;
+ 		var sec = 0;
+ 		if(time>0)
+ 		{
+ 		day = parseInt(time/(24*3600*1000));
+ 		hour = parseInt((time- day*(24*3600*1000))/(3600*1000));
+ 		min = parseInt((time - day*(24*3600*1000) - hour*(3600*1000))/(60*1000));
+ 		sec = parseInt((time - day*(24*3600*1000) - hour*(3600*1000) - min*(60*1000))/1000);
+ 		}
+ 		$('p#product-published-date').html('距离融资结束还有： '+day+'天'+hour+'小时'+min+'分'+sec+'秒');
+ 		$('#detailDate').html('融资结束时间:'+formatDateToDay(order.financingEndtime));
+ 	}
+ 	else if(product.state==2){
+ 		$('#remainamount').html('融资完成，正在还款');
+ 		$('#stateMessage').html('共融资金'+product.realAmount.value+'元');
+ 		$('p#product-published-date').html('融资完成时间： '+formatDateToDay(order.financingEndtime));
+ 		$('a#invest').addClass('disabled').attr('disabled',"disabled").text('还款中');
+ 		$('#inputAmount').css('display', 'none');
+ 		$('#init-add').css('display', 'none');
+ 		$('#detailDate').html('计息起始时间:'+formatDateToDay(order.incomeStarttime));
+ 	}else if(product.state==4){
+ 		$('p#product-published-date').html('流标时间： '+formatDateToDay(order.lastModifytime));
+ 		$('#remainamount').html('融资失败，流标');
+ 		$('#stateMessage').html('实际融资额不足');
+ 		$('a#invest').addClass('disabled').attr('disabled',"disabled").text('流标');
+ 		$('#inputAmount').css('display', 'none');
+ 		$('#init-add').css('display', 'none');
+ 		$('#dt_div').css('display', 'none');
+ 	}else if(product.state==8){
+ 		$('#remainamount').html('还款完成');
+ 		$('p#product-published-date').html('还款完成时间： '+formatDateToDay(order.lastModifytime));
+ 		$('#stateMessage').html('共融资金'+product.realAmount.value+'元');
+ 		$('a#invest').addClass('disabled').attr('disabled',"disabled").text('还款完成');
+ 		$('#inputAmount').css('display', 'none');
+ 		$('#init-add').css('display', 'none');
+ 		$('#dt_div').css('display', 'none');
+ 	}
+ 	var total = submits.get('total');
+ 	$('#count').html('已投'+total+'笔');
+ 	var subs = submits.get('result');
+ 	
+ 	if(subs!=null)
+ 		{
+ 	for(var i=0; i<subs.size(); i++){
+ 		$('#invest-record').append('<tr><td>'+subs.get(i).lenderName+'</td><td>'+subs.get(i).amount.value+'</td><td>'+formatDateToDay(subs.get(i).createtime)+'</td></tr>');
+ 	}
+ 		}
+ 	
+ 	
+ 	$('a#invest').click(function(e){
+ 		if(order.state==1 && (parseInt(product.expectAmount.value)-parseInt(product.realAmount.value))>0)
+ 		{
+ 		if(usertype!='lender' && usertype!='borrower'){
+ 			if(confirm('登录后才能购买产品，现在登录？')){
+ 				window.location.href = "login.html?rb=productdetail.html?pid="+pid;
+ 			}
+ 			return;
+ 		}else if(usertype=='borrower'){
+ 			alert('企业用户无法投资产品，请登陆个人用户投资！');
+ 			return;
+ 		}
+ 		
+ 		try{
+ 		var oid = submitService.buy(parseInt(pid), parseInt($('#raiseAmount').val()));
+ 		
+ 		//$('#myModal').modal({
+		//	  keyboard: false,
+		//	  backdrop: false
+		//});
+ 		
+ 		//window.location.href = "/account/buy/request?submitId="+oid+"&pid="+pid;
+ 		var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+        var transfer=service.getTransferToBuy(oid,pid);
+        var content="<form id='buyform' action='"+transfer.baseUrl+"'method='post'>";
+        for(var o in transfer)
+       	{
+            if(o=="baseUrl")
+           	{
+            	continue;
+           	}
+            var len = o.length;
+            var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+            content+="<input id='"+name+"' name='"+name+"' value='"+transfer[o]+"'/> ";
+       	}
+        content+="</form>";
+        $('#buyformdiv').html(content);
+        $('#buyform').submit();
+ 		
+ 		}catch(e){
+ 			alert(e.message);
+ 		}
+ 		}
+ 	});
+	  
+        	 $('ul.sourcelist li a').click(function(e){
+        		 $('ul.sourcelist').find('li').removeClass('active');
+        		 $(this).parent().addClass('active');
+        		if($(this).attr('data-sk')=='payback'){
+        			$('.detail-content-body').html('<p>收益如下所示：</p>');
+        			$('.detail-content-body').append('<br>');
+        			$('.detail-content-body').append('<br>');
+        			var table = $('<table class="table"></table>');
+        			table.append('<tr><td>序号</td><td>本金</td><td>利息</td><td>预计还款时间</td><td>实际还款时间</td><td>状态</td></tr>');
+        			for(var t=0; t<paybacks.size(); t++){
+        				var paybackTime = (paybacks.get(t).state==2)?formatDateToDay(paybacks.get(t).realtime) : '-';
+        				table.append('<tr style="height:50px;"><td>'+(t+1)+'</td><td>'+paybacks.get(t).chiefAmount.value+'</td><td>'+paybacks.get(t).interest.value+'</td><td>'+formatDateToDay(paybacks.get(t).deadline)+'</td><td>'+paybackTime+'</td><td>'+paybackState[paybacks.get(t).state]+'</td></tr>');
+        			}
+        			
+        			var tdiv = $('<div class="table-responsive"></div>');
+        			tdiv.append(table);
+        			
+        			$('.detail-content-body').append(tdiv);
+        			$('.detail-content-body').append('<br>');
+        			$('.detail-content-body').append('<br>');
+        			$('.detail-content-body').append('<div class="comments"><p class="asterisk">说明：</p><p class="item">每期实际收款日期、金额以最终到账为准，本项目最终解释权归春蕾投资管理有限公司所有。</p></div>');
+        		}else if($(this).attr('data-sk')=='basic'){
+        			var table = $('<table class="product-description"></table>');
+        			table.append('<tr><td>融资方：</td><td>'+borrower.companyName+'</td></tr>');
+        			table.append('<tr><td>中标政采订单：</td><td><span>'+order.formalName+'【'+order.formalLevel+'】</span></td></tr>');
+        			table.append('<tr><td>中标金额：</td><td><span class="tips-title">'+order.formalAmount+'</span></td></tr>');
+        			table.append('<tr><td>招标单位：</td><td><span>'+order.tenderUnits+'</span></td></tr>');
+        			table.append('<tr><td>中标公示链接：</td><td><span class="tips-title"><a href="'+order.formalLink+'" target="_blank">点此处查看</a></span></td></tr>');
+        			table.append('<tr><td>收益起始日期：</td><td>'+formatDateToDay(order.incomeStarttime)+'</td></tr>');
+        			table.append('<tr><td>最晚还款日期：</td><td>'+formatDateToDay(product.incomeEndtime)+'</td></tr>');
+        			table.append('<tr><td>项目简介：</td><td>'+order.description+'</td></tr>');
+        			
+        			$('.detail-content-body').html('');
+        			$('.detail-content-body').append(table);
+        		}else if($(this).attr('data-sk')=='action'){
+        			actions = productActionService.findAllByProduct(product.id);
+        			var table = $('<table width=100%></table>');
+        			table.append('<tr><td>序号</td><td>时间</td><td>名称</td><td>详细信息</td><td>状态</td></tr>');
+        			for(var t=0; t<actions.size(); t++){
+        				table.append('<tr style="height:50px;"><td>'+(t+1)+'</td><td>'+formatDateToDay(actions.get(t).createtime)+'</td><td>'+actions.get(t).title+'</td><td>'+actions.get(t).detail+'</td><td>'+actionState[actions.get(t).type]+'</td></tr>');
+        			}
+        			$('.detail-content-body').html('');
+        			$('.detail-content-body').append(table);
+        		}else if($(this).attr('data-sk')=='resource'){
+        			$('.detail-content-body').html('');
+        			var items = orderService.findMimeItems(order.id, 0);
+        			$('.detail-content-body').append('<h5>中标通知书</h5>');
+        			var pp = $('<p></p>');
+        			for(var i=0; i<items.size(); i++){
+        				var url = "/download/order/"+order.id+"/0/"+items.get(i).id;
+        				var viewurl = "img/pdf.png";
+        				var img = $('<img class="accessory" data-sk='+url+' src='+viewurl+'></img>').css('width', '200px').css('height', '150px').css('margin-left','10px').css('margin-top','5px');
+        				pp.append(img);
+        			}
+        			$('.detail-content-body').append(pp);
+        			$('.detail-content-body').append('<br>');
+        			
+        			var items1 = orderService.findMimeItems(order.id, 1);
+        			$('.detail-content-body').append('<h5>政府采购合同</h5>');
+        			var pp1 = $('<p></p>');
+        			for(var i=0; i<items1.size(); i++){
+        				var url = "/download/order/"+order.id+"/1/"+items1.get(i).id;
+        				var viewurl = "img/pdf.png";
+        				var img = $('<img class="accessory" data-sk='+url+' src='+viewurl+'></img>').css('width', '200px').css('height', '150px').css('margin-left','10px').css('margin-top','5px');
+        				pp1.append(img);
+        			}
+        			$('.detail-content-body').append(pp1);
+        			
+        			$('img.accessory').click(function(e){
+    					var source = $(this).attr('data-sk');
+    					window.open(source);
+    				});
+        		}else if($(this).attr('data-sk')=='cresource'){
+        			$('.detail-content-body').html('');
+        			var bitems0 = bservice.findMimeItems(order.borrowerId,0);
+        			$('.detail-content-body').append('<h5>证照类</h5>');
+        			var pp0 = $('<p></p>');
+        			for(var i=0; i<bitems0.size(); i++){
+        				var url = "/download/borrower/"+order.borrowerId+"/0/"+bitems0.get(i).id;
+        				var viewurl = "/imageview/borrower/"+order.borrowerId+"/0/"+bitems0.get(i).id;
+        				var img = $('<img class="accessory" title="点击看大图" data-sk='+viewurl+' src='+url+'></img>').css('width', '200px').css('height', '150px').css('margin-left','10px').css('margin-top','5px');
+        				pp0.append(img);
+        			}
+        			$('.detail-content-body').append(pp0);
+        			$('.detail-content-body').append('<br>');
+        			
+        			
+        			var bitems1 = bservice.findMimeItems(order.borrowerId,1);
+        			$('.detail-content-body').append('<h5>法人/实际控制人资料</h5>');
+        			var pp1 = $('<p></p>');
+        			for(var i=0; i<bitems1.size(); i++){
+        				var url = "/download/borrower/"+order.borrowerId+"/1/"+bitems1.get(i).id;
+        				var viewurl = "/imageview/borrower/"+order.borrowerId+"/1/"+bitems1.get(i).id;
+        				var img = $('<img class="accessory" data-sk='+viewurl+' src='+url+'></img>').css('width', '200px').css('height', '150px').css('margin-left','10px').css('margin-top','5px');
+        				pp1.append(img);
+        			}
+        			$('.detail-content-body').append(pp1);
+        			$('.detail-content-body').append('<br>');
+        			
+        			
+        			var bitems2 = bservice.findMimeItems(order.borrowerId,2);
+        			$('.detail-content-body').append('<h5>办公环境</h5>');
+        			var pp2 = $('<p></p>');
+        			for(var i=0; i<bitems2.size(); i++){
+        				var url = "/download/borrower/"+order.borrowerId+"/2/"+bitems2.get(i).id;
+        				var viewurl = "/imageview/borrower/"+order.borrowerId+"/2/"+bitems2.get(i).id;
+        				var img = $('<img class="accessory" data-sk='+viewurl+' src='+url+'></img>').css('width', '200px').css('height', '150px').css('margin-left','10px').css('margin-top','5px');
+        				pp2.append(img);
+        			}
+        			$('.detail-content-body').append(pp2);
+        			$('.detail-content-body').append('<br>');
+        			
+        			
+        			var bitems3 = bservice.findMimeItems(order.borrowerId,3);
+        			$('.detail-content-body').append('<h5>尽调材料</h5>');
+        			var pp3 = $('<p></p>');
+        			for(var i=0; i<bitems3.size(); i++){
+        				var url = "/download/borrower/"+order.borrowerId+"/3/"+bitems3.get(i).id;
+        				var viewurl = "/imageview/borrower/"+order.borrowerId+"/3/"+bitems3.get(i).id;
+        				var img = $('<img class="accessory" data-sk='+viewurl+' src='+url+'></img>').css('width', '200px').css('height', '150px').css('margin-left','10px').css('margin-top','5px');
+        				pp3.append(img);
+        			}
+        			$('.detail-content-body').append(pp3);
+        			$('img.accessory').click(function(e){
+    					var source = $(this).attr('data-sk');
+    					window.open(source);
+    				});
+        		}
+        	 });
+        	 
+        	 $('a[data-sk=basic]').trigger('click');
+        	 
+        	 
+     if(usertype!='lender' && usertype!='borrower'){
+    	 $('p#loginstatus').html('<a href="login.html?rb=productdetail.html?pid='+pid+'" style="margin-right:20px;">登录</a>您尚未登录');
+     }else if(usertype=='borrower'){
+    	 $('p#loginstatus').html('<a href="quit.html" style="margin-right:20px;">退出</a>企业用户无法投资');
+     }
+     else{
+    	 var account = accountDao.find(user.accountId);
+    	 $('p#loginstatus').html('<a href="recharge.html" target="_blank" style="margin-right:20px;">充值</a>账户可用余额：<span class="amountFormat">'+account.usable.value+'</span> 元');
+     }
+     
+     
+     $('#success-continue').click(function(e){
+  		window.location.reload();
+  	});
+     
+     $('#success-myaccount').click(function(e){
+ 		window.location.href = "myaccount.html";
+ 	});
+ 	
+ 	$('#fail').click(function(e){
+ 		window.location.href = "myaccount.html?fid=submit&sid=submit-toafford";
+ 	});
+        	 
+        	 
+         });
+ </script>
+    </body>
+</html>

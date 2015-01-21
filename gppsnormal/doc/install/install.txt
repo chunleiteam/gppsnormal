@@ -1,0 +1,49 @@
+更新服务器新版本
+
+//part1 生成新版本war
+1.打包:将启动tomcat:run改为tomcat:deploy，将下面的Skip tests勾上,启动运行，完成后在项目target文件夹下生成一个ROOT.war
+  q1.1 运行时最后会报错，但是生成ROOT.war是没问题的
+  
+//part2 关闭服务器上正在运行的tomcat
+2.连接到服务器，tomcat路径：/root/install/apache-tomcat-7.0.56
+3.切换到tomcat/bin目录，./shutdown.sh关闭tomcat
+
+//part3 删除服务器上原来的版本，并将新版本拷贝上去
+4.切换到tomcat/webapps,删除原来的ROOT目录和ROOT.war文件，将1新生成的ROOT.war拷贝到当前目录
+  q4.1 rm -rf filepath 删除文件夹及里面的所有文件
+		-r 就是向下递归，不管有多少级目录，一并删除
+		-f 就是直接强行删除，不作任何提示的意思
+  q4.2 上传使用sftp，  cd到要保存的目录下，执行put命令，选择要上传的文件便可
+  
+//part4 启动tomcat,以生成ROOT。war程序的解压目录,然后再关闭tomcat
+5.切换到tomcat/bin目录，./startup启动tomcat，过一会启动完毕后，./shutdown关闭tomcat
+
+//part5 进入ROOT目录，编辑配置文件
+6.切换到tomcat/webapps，看到多了一个ROOT目录，切换到/root/install/apache-tomcat-7.0.56/webapps/ROOT/WEB-INF/spring
+
+6.1 修改conf.properties为：
+jdbc.url=jdbc:mysql://localhost:3306/gpps?useUnicode=true&amp;characterEncoding=UTF-8
+jdbc.username=root
+jdbc.password=calis123
+
+serverHost=123.57.36.87
+serverPort=80
+
+6.2 编辑文件vim root-context.xml,找到下面片段，修改<value></value>中间的值为如下所示
+<bean id="propertyConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+                <list>
+                        <value>file:/root/install/apache-tomcat-7.0.56/webapps/ROOT/WEB-INF/spring/conf.properties</value>
+                </list>
+        </property>
+</bean>
+
+<bean id="accessoryTransferServlet" class="gpps.servlet.AccessoryTransferServlet">
+        <property name="officalDir" value="file:/root/install/data/officialDir"></property>
+        <property name="tempDir" value="file:/root/install/data/tempDir"></property>
+    </bean>
+
+7.切换到tomcat/bin目录，./startup启动tomcat
+

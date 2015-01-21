@@ -1,0 +1,89 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML xmlns="http://www.w3.org/1999/xhtml"><HEAD>
+
+<TITLE>政采贷</TITLE>
+
+<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="renderer" content="webkit">
+
+<!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/mine.css" rel="stylesheet">
+<script src="js/jquery.min.js"></script>
+<script type="text/javascript"
+		src="/resources/EasyServiceClientFullZ.js"></script>
+<script type="text/javascript"
+        src="/easyservice/gpps.service.thirdpay.IThirdPaySupportService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+
+<BODY>
+
+<div class="container">
+<div class="row" style="padding-top:15px;">
+<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+<A href="myaccount.html"><h2>跳过</h2></A>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+<img class="img-responsive" src="rtd_files/step3.png"></img>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center; margin-top:15px;">
+<IMG src="rtd_files/OK.jpg" width=130 height=130 border=0/>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center; font-size:20px; margin-top:15px;">
+	身份验证成功，开通第三方支付，享资金安全保障。
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center; margin-top:15px;">
+<A style="CURSOR: hand" href="javascript:void(0);" id="spsw">
+	<IMG src="rtd_files/kt.jpg" width=110 height=40 border=0>
+</A>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center; color:#999; margin-top:15px; padding-left:0px; padding-right:0px;">
+<P class=rechargeOKPrompt>政采贷使用<A href="#" target=_blank>双乾支付</A>提供的第三方资金托管服务<BR>全方位资金托管保证您的资金安全</P>
+</div>
+
+<DIV class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:right; color:#999; margin-top:15px; padding-left:0px; padding-right:0px;">
+	© 春蕾资产管理有限公司 客服热线：400-869-0311
+</DIV>
+
+</div>
+</div>
+
+
+<div id="spswformdiv" style="display:none">
+</div>
+
+
+<script>
+		$(document).ready(function() {
+			$('a#spsw').click(
+					function(e) {
+						$('#spswformdiv').empty();
+						var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+                        var registAccount=service.getRegistAccount();
+                        var content="<form id='spswform' action='"+registAccount.baseUrl+"'method='post'>";
+                        for(var o in registAccount)
+                       	{
+                            if(o=="baseUrl")
+                           	{
+                            	continue;
+                           	}
+                            var len = o.length;
+                            var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                            content+="<input id='"+name+"' name='"+name+"' value='"+registAccount[o]+"'/> ";
+                       	}
+                        content+="</form>";
+                        $('#spswformdiv').html(content);
+                        $('#spswform').submit();
+					});
+		});
+		
+</script>
+
+</BODY></HTML>
