@@ -12,7 +12,8 @@
 	
 	<!-- Appenders file-->
 	<appender name="dailyfile" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="e:/gppsbackup/log" />
+		<param name="File" value="../logs/mylog.log" />
+		<param name="Append" value="true"/>
 		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="[%d{MM-dd HH:mm:ss SSS\} %-5p] %c - %m%n" />

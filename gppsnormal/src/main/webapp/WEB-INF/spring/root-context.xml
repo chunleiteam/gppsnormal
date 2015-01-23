@@ -15,7 +15,7 @@
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 		<property name="locations">
 			<list>
-				<value>/WEB-INF/spring/conf.properties</value>
+				<value>file:src/main/webapp/WEB-INF/spring/conf.properties</value>
 			</list>
 		</property>
 	</bean>

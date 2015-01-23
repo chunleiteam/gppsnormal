@@ -225,6 +225,7 @@ public class TaskServiceImpl implements ITaskService {
 		thirdPaySupportService.check(loanNos, 2);
 		logger.info("流标任务["+task.getId()+"]完毕，涉及Submit"+submits.size()+"个");
 	}
+	
 	private void executeRepayTask(Task task,boolean interrupted) throws Exception
 	{
 		//考虑打断情况

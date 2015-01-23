@@ -103,9 +103,9 @@ private static final IEasyObjectXMLTransformer xmlTransformer=new EasyObjectXMLT
 		case MESSAGE_TYPE_CASHOUTSUCCESS:
 			if(userType == this.USERTYPE_LENDER)
 			{
-				result = "【春蕾政采贷】尊敬的"+param.get(this.PARAM_NAME)+"，您的账户于"+dateStrMS+"进行一笔提现交易，提现金额为"+param.get(this.PARAM_AMOUNT)+"元，其中由第三方资金平台收取手续费"+param.get(this.PARAM_FEE)+"元，扣款方式为内扣，具体到账时间以第三方平台钱多多为准。";
+				result = "【春蕾政采贷】尊敬的"+param.get(this.PARAM_NAME)+"，您的账户于"+dateStrMS+"进行一笔提现交易，提现金额为"+param.get(this.PARAM_AMOUNT)+"元，其中由第三方资金平台收取手续费"+param.get(this.PARAM_FEE)+"元，扣款方式为内扣，具体到账时间以第三方平台乾多多为准。";
 			}else if(userType == this.USERTYPE_BORROWER){
-				result = "【春蕾政采贷】尊敬的企业客户"+param.get(this.PARAM_NAME)+"，您的账户于"+dateStrMS+"进行一笔提现交易，提现金额为"+param.get(this.PARAM_AMOUNT)+"元，其中由第三方资金平台收取手续费"+param.get(this.PARAM_FEE)+"元，扣款方式为内扣，具体到账时间以第三方平台钱多多为准。";
+				result = "【春蕾政采贷】尊敬的企业客户"+param.get(this.PARAM_NAME)+"，您的账户于"+dateStrMS+"进行一笔提现交易，提现金额为"+param.get(this.PARAM_AMOUNT)+"元，其中由第三方资金平台收取手续费"+param.get(this.PARAM_FEE)+"元，扣款方式为内扣，具体到账时间以第三方平台乾多多为准。";
 			}
 			break;
 		case MESSAGE_TYPE_FINANCINGSUCCESS:

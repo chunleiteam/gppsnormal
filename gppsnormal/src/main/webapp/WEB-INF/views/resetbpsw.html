@@ -219,7 +219,7 @@ $(document).ready(function() {
        $('button#sendValCode').click(function(e){
     	   if(phone==null)
     		{
-    	   	loginId = loginId==null?$('#loginId').val():loginId;
+    	   	loginId = (loginId==null || loginId=='')?$('#loginId').val():loginId;
     	   	if(loginId==null || loginId==''){
     	   		alert('用户名不能为空！');
     	   		return;

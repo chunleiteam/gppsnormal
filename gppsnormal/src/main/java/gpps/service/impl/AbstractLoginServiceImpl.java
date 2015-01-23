@@ -12,6 +12,7 @@ import gpps.tools.GraphValidateCode;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -107,7 +108,14 @@ public abstract class AbstractLoginServiceImpl implements ILoginService {
 	}
 	protected String getProcessedPassword(String password)
 	{
-		return DigestUtils.md5Hex(checkNullAndTrim("password", password)+PASSWORDSEED);
+		String psw = checkNullAndTrim("password", password)+PASSWORDSEED;
+		byte[] pswarr = null;
+		try{
+			pswarr = psw.getBytes("utf-8");
+		}catch(UnsupportedEncodingException e){
+			
+		}
+		return DigestUtils.md5Hex(pswarr);
 	}
 //	private char[] codeSequence = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
 //			'K', 'L', 'M', 'N',  'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',

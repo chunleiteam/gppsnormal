@@ -1,6 +1,8 @@
 package gpps.tools;
 
 import gpps.model.PayBack;
+import gpps.model.Product;
+import gpps.service.exception.IllegalOperationException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -132,4 +134,5 @@ public class PayBackCalculateUtils {
 		}
 		return payBacks;
 	}
+	
 }

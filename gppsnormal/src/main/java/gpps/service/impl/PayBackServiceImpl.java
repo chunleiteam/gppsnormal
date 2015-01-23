@@ -1,6 +1,7 @@
 package gpps.service.impl;
 
 import gpps.constant.Pagination;
+import gpps.dao.IBorrowerAccountDao;
 import gpps.dao.IBorrowerDao;
 import gpps.dao.ICashStreamDao;
 import gpps.dao.IGovermentOrderDao;
@@ -11,8 +12,10 @@ import gpps.dao.IProductSeriesDao;
 import gpps.dao.IStateLogDao;
 import gpps.dao.ISubmitDao;
 import gpps.model.Borrower;
+import gpps.model.BorrowerAccount;
 import gpps.model.CashStream;
 import gpps.model.GovermentOrder;
+import gpps.model.Lender;
 import gpps.model.PayBack;
 import gpps.model.Product;
 import gpps.model.ProductSeries;
@@ -76,6 +79,8 @@ public class PayBackServiceImpl implements IPayBackService {
 	IGovermentOrderService orderService;
 	@Autowired
 	IBorrowerDao borrowerDao;
+	@Autowired
+	IBorrowerAccountDao borrowerAccountDao;
 	@Autowired
 	ISubmitDao submitDao;
 	@Autowired
@@ -141,6 +146,7 @@ public class PayBackServiceImpl implements IPayBackService {
 		cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), 0, 0, 0);
 		if(cal.getTimeInMillis()>payBack.getDeadline())
 			throw new UnSupportRepayInAdvanceException("时间非法");
+		
 		GovermentOrder order=orderSerivce.findGovermentOrderByProduct(payBack.getProductId());
 		List<Product> products=order.getProducts();
 		//验证先还完稳健型或平衡型
@@ -534,45 +540,73 @@ public class PayBackServiceImpl implements IPayBackService {
 
 	@Override
 	public void repay(Integer payBackId) throws IllegalStateException,IllegalOperationException, InsufficientBalanceException, IllegalConvertException {
+		//确定融资方已授权平台执行还款
 		Borrower borrower=borrowerService.getCurrentUser();
 		if((borrower.getAuthorizeTypeOpen()&Borrower.AUTHORIZETYPEOPEN_RECHARGE)==0)
 			throw new IllegalOperationException("请先授权还款权限，然后再执行还款");
+		
+		
 		PayBack payBack = find(payBackId);
 		if(payBack.getState()!=PayBack.STATE_WAITFORREPAY)
 			return;
+		
+		//确定当前产品处于还款中状态
 		Product currentProduct = productService.find(payBack.getProductId());
 		if (currentProduct.getState() != Product.STATE_REPAYING) 
 			throw new IllegalStateException("该产品尚未进入还款阶段");
+		
 		// 验证还款顺序
 		List<Product> products = productService.findByGovermentOrder(currentProduct.getGovermentorderId());
 		for (Product product : products) {
 			if (product.getId() == (int) (currentProduct.getId())) {
+				//按还款时间顺序排列
 				List<PayBack> payBacks = findAll(product.getId());
 				for (PayBack pb : payBacks) {
-					if (pb.getState() == PayBack.STATE_FINISHREPAY || pb.getState() == PayBack.STATE_REPAYING)
-						continue;
-					if (pb.getDeadline() < payBack.getDeadline()) 
+					//确保所有在该还款之前的所有还款都已经执行还款完毕
+					if(pb.getDeadline()<payBack.getDeadline() && pb.getState() != PayBack.STATE_FINISHREPAY){
 						throw new IllegalOperationException("请按时间顺序进行还款");
+					}else if(pb.getDeadline()==payBack.getDeadline() && pb.getState() != PayBack.STATE_WAITFORREPAY){
+						throw new IllegalOperationException("不处于待还款状态");
+					}else if(pb.getDeadline()<payBack.getDeadline() && pb.getState() == PayBack.STATE_FINISHREPAY){
+						continue;
+					}
+					else if(pb.getDeadline()==payBack.getDeadline() && pb.getState() == PayBack.STATE_WAITFORREPAY)
+					{
+						break;
+					}
 				}
 				continue;
-			}
+			}else
+			{
 			product.setProductSeries(productSeriesDao.find(product.getProductseriesId()));
 			if (product.getProductSeries().getType() < currentProduct.getProductSeries().getType()) {
 				List<PayBack> payBacks = findAll(product.getId());
 				for (PayBack pb : payBacks) {
-					if (pb.getState() == PayBack.STATE_FINISHREPAY || pb.getState() == PayBack.STATE_REPAYING)
+					if (pb.getDeadline() <= payBack.getDeadline() && pb.getState() == PayBack.STATE_FINISHREPAY)
+					{
 						continue;
-					if (pb.getDeadline() <= payBack.getDeadline()) 
+					}else if(pb.getDeadline() <= payBack.getDeadline() && pb.getState() != PayBack.STATE_FINISHREPAY){
 						throw new IllegalOperationException("请先还完稳健型/平衡型产品再进行此次还款");
+					}
 				}
 			}
+			}
 		}
-		Integer cashStreamId = accountService.freezeBorrowerAccount(payBack.getBorrowerAccountId(), payBack.getChiefAmount().add(payBack.getInterest()), payBack.getId(), "冻结");
-		log.debug("还款：amount=" + payBack.getChiefAmount().add(payBack.getInterest()) + ",cashStreamId=" + cashStreamId);
-//		CashStream cashStream = cashStreamDao.find(cashStreamId);
+		
+		
+		//首先创建还款冻结现金流，现金流状态为init
+		Integer cashStreamId = accountService.freezeBorrowerAccount(payBack.getBorrowerAccountId(), payBack.getChiefAmount().add(payBack.getInterest()), payBack.getId(), "还款冻结");
+		
+		//然后修改账户金额，执行账户冻结，并将现金流状态变为success,此操作为@Transactional容器托管事务处理
 		accountService.changeCashStreamState(cashStreamId, CashStream.STATE_SUCCESS);
+		
+		//最后将payback的状态修改为"待审核"
 		changeState(payBack.getId(), PayBack.STATE_WAITFORCHECK);
+		
+		log.debug("申请还款：borroweraccountid="+borrower.getAccountId()+" amount=" + payBack.getChiefAmount().add(payBack.getInterest()) + ",cashStreamId=" + cashStreamId);
 	}
+	
+	
 	private void changeBorrowerPayBackLimit(PayBack payBack,Product product)
 	{
 //		if(product.getState()==Product.STATE_UNPUBLISH||product.getState()==Product.STATE_FINANCING||product.getState()==Product.STATE_QUITFINANCING)
@@ -608,7 +642,7 @@ public class PayBackServiceImpl implements IPayBackService {
 		Borrower borrower = borrowerDao.findByAccountID(payback.getBorrowerAccountId());
 		
 		taskService.submit(task);
-		accountService.unfreezeBorrowerAccount(payback.getBorrowerAccountId(),payback.getChiefAmount().add(payback.getInterest()), payback.getId(), "解冻");
+		accountService.unfreezeBorrowerAccount(payback.getBorrowerAccountId(),payback.getChiefAmount().add(payback.getInterest()), payback.getId(), "还款解冻");
 		if (payback.getType() == PayBack.TYPE_LASTPAY) {
 			// TODO 金额正确，设置产品状态为还款完毕
 			productService.finishRepay(payback.getProductId());
@@ -671,59 +705,42 @@ public class PayBackServiceImpl implements IPayBackService {
 	@Override
 	public void checkoutPayBack(Integer payBackId) throws CheckException {
 		PayBack payBack=find(payBackId);
-		if(payBack==null)
-			return;
-		List<Submit> submits=submitDao.findAllByProductAndState(payBack.getProductId(), Submit.STATE_COMPLETEPAY);
-		if(submits==null||submits.size()==0)
-			return;
 		Product product=productDao.find(payBack.getProductId());
-		BigDecimal totalChiefAmount=payBack.getChiefAmount();
-		BigDecimal totalInterest=payBack.getInterest();
-		List<BigDecimal> chiefAmounts=new ArrayList<BigDecimal>();
-		List<BigDecimal> interestAmounts=new ArrayList<BigDecimal>();
-		loop:for(int i=0;i<submits.size();i++)
-		{
-			Submit submit=submits.get(i);
-			BigDecimal lenderChiefAmount=null;
-			BigDecimal lenderInterest=null;
-			if(payBack.getType()==PayBack.TYPE_LASTPAY)
-			{
-				List<CashStream> cashStreams=cashStreamDao.findRepayCashStream(submit.getId(), null);
-				BigDecimal repayedChiefAmount=BigDecimal.ZERO;
-				if(cashStreams!=null&&cashStreams.size()>0)
-				{
-					for(CashStream cashStream:cashStreams)
-					{
-						repayedChiefAmount=repayedChiefAmount.add(cashStream.getChiefamount());
-					}
-				}
-				lenderChiefAmount=submit.getAmount().subtract(repayedChiefAmount);
-			}
-			else {
-				lenderChiefAmount=payBack.getChiefAmount().multiply(submit.getAmount()).divide(product.getRealAmount(), 2, BigDecimal.ROUND_DOWN);
-			}
-			lenderInterest=payBack.getInterest().multiply(submit.getAmount()).divide(product.getRealAmount(), 2, BigDecimal.ROUND_DOWN);
-			totalChiefAmount=totalChiefAmount.subtract(lenderChiefAmount);
-			totalInterest=totalInterest.subtract(lenderInterest);
-			chiefAmounts.add(lenderChiefAmount);
-			interestAmounts.add(lenderInterest);
+		List<CashStream> cs = null;
+		try{
+			cs = calculatePayBacks(payBackId, false);
+		}catch(Exception e){
+			throw new CheckException(e.getMessage());
 		}
-		chiefAmounts.add(totalChiefAmount);
-		interestAmounts.add(totalInterest);
-		BigDecimal total=BigDecimal.ZERO;
-		for(BigDecimal amount:chiefAmounts)
+		StringBuilder sb = new StringBuilder();
+		sb.append("审核还款【"+payBackId+"】:");
+		BigDecimal totalC=BigDecimal.ZERO;
+		BigDecimal totalI=BigDecimal.ZERO;
+		for(CashStream c:cs)
 		{
-			total=total.add(amount);
+			BigDecimal amount = c.getChiefamount();
+			totalC=totalC.add(amount);
+			BigDecimal interest = c.getInterest();
+			totalI=totalI.add(interest);
+			sb.append(c.getLenderAccountId()+"="+c.getChiefamount()+","+c.getInterest()+"; ");
 		}
-		if(total.compareTo(payBack.getChiefAmount())!=0)
-			throw new CheckException("当前还款金额计算不符");
-		total=BigDecimal.ZERO;
-		for(BigDecimal amount:interestAmounts)
+		log.info(sb.toString());
+		if(totalC.compareTo(payBack.getChiefAmount())!=0)
 		{
-			total=total.add(amount);
+			String emsg = "审核失败：当前还款金额计算不符,本金总额不等于各笔还款本金之和";
+			log.warn(emsg);
+			throw new CheckException(emsg);
+			
 		}
-		if(total.compareTo(payBack.getInterest())!=0)
-			throw new CheckException("当前还款金额计算不符");
+		if(totalI.compareTo(payBack.getInterest())!=0)
+		{
+			String emsg = "审核失败：当前还款金额计算不符,利息总额不等于各笔还款利息之和";
+			log.warn(emsg);
+			throw new CheckException(emsg);
+		}
+		
+		
+		
 		// 最后一次验证,验证之前的payback是否符合
 		if(payBack.getType()==PayBack.TYPE_LASTPAY)
 		{
@@ -732,19 +749,152 @@ public class PayBackServiceImpl implements IPayBackService {
 			for(PayBack pb:payBacks)
 			{
 				if(pb.getType()==PayBack.TYPE_LASTPAY)
+				{
 					continue;
+				}
 				if(pb.getState()==PayBack.STATE_REPAYING)
-					throw new CheckException("之前还有执行中的还款");
+				{
+					String emsg = "审核失败：之前还有执行中的还款";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
 				if(pb.getState()!=PayBack.STATE_FINISHREPAY)
-					continue;
+				{
+					String emsg = "审核失败：还有尚未成功的还款";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
+				
+				//统计针对某一次还款的所有执行成功的还款现金流的本金与利息总和
 				CashStreamSum sum=cashStreamDao.sumPayBack(pb.getId());
+				//实际执行的还款的本金与利息总和与payback的本金与利息总额应该一致
 				if(sum.getChiefAmount().compareTo(pb.getChiefAmount())!=0||sum.getInterest().compareTo(pb.getInterest())!=0)
-					throw new CheckException("还款[id:"+pb.getId()+"]金额计算不符");
+				{
+					String emsg = "审核失败：还款[id:"+pb.getId()+"]金额计算不符";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
+				
 				amount=amount.add(pb.getChiefAmount());
 			}
 			if(amount.add(payBack.getChiefAmount()).compareTo(product.getRealAmount())!=0)
-				throw new CheckException("还款总额与产品不符");
+			{
+				String emsg = "审核失败：还款总额与产品不符";
+				log.warn(emsg);
+				throw new CheckException(emsg);
+			}
 		}
 		payBackDao.changeCheckResult(payBackId, PayBack.CHECK_SUCCESS);
+		log.info("还款审核成功！");
+	}
+	
+	private List<CashStream> calculatePayBacks(Integer payBackId, boolean interrupted) throws Exception{
+		List<CashStream> res = new ArrayList<CashStream>();
+		PayBack payBack = payBackDao.find(payBackId);
+		List<Submit> submits=submitDao.findAllByProductAndState(payBack.getProductId(), Submit.STATE_COMPLETEPAY);
+		if(submits==null||submits.size()==0)
+			return res;
+		Product product=productDao.find(payBack.getProductId());
+		GovermentOrder order=govermentOrderDao.find(product.getGovermentorderId());
+		Borrower borrower=borrowerDao.find(order.getBorrowerId());
+		
+		BigDecimal totalChiefAmount=payBack.getChiefAmount();
+		BigDecimal totalInterest=payBack.getInterest();
+		
+		loop:for(int i=0;i<submits.size();i++)
+		{
+			Submit submit=submits.get(i);
+			if(interrupted)
+			{
+				//如果已经执行过还款了，则直接添加到结果列表中
+				List<CashStream> cashStreams=cashStreamDao.findRepayCashStream(submit.getId(), payBack.getId());
+				if(cashStreams!=null&&cashStreams.size()>0)
+				{
+					CashStream cashStream=cashStreams.get(0);
+					totalChiefAmount.subtract(cashStream.getChiefamount());
+					totalInterest.subtract(cashStream.getInterest());
+					res.add(cashStream);
+					continue loop;
+				}
+			}
+			Lender lender=lenderDao.find(submit.getLenderId());
+			BigDecimal lenderChiefAmount=null;
+			BigDecimal lenderInterest=null;
+			if(payBack.getType()==PayBack.TYPE_LASTPAY)
+			{
+				//最后一笔还款根据纵向计算，即投资额等于所有还款的本金之和
+				List<CashStream> cashStreams=cashStreamDao.findRepayCashStream(submit.getId(), null);
+				BigDecimal repayedChiefAmount=BigDecimal.ZERO;
+				if(cashStreams!=null&&cashStreams.size()>0)
+				{
+						for(CashStream cashStream:cashStreams)
+						{
+							repayedChiefAmount=repayedChiefAmount.add(cashStream.getChiefamount());
+						}
+				}
+				lenderChiefAmount=submit.getAmount().subtract(repayedChiefAmount);
+			}
+			else {
+				if(i==(submits.size()-1))
+				{
+					//在同一笔还款中，还给最后一个人的本金额等于本次还款总额减去前面所有人的还款本金之和
+					lenderChiefAmount=totalChiefAmount;
+				}
+				else
+				{
+					//不是最后一个人的还款，直接计算，小数点两位后除不尽的直接舍弃
+					lenderChiefAmount=payBack.getChiefAmount().multiply(submit.getAmount()).divide(product.getRealAmount(), 2, BigDecimal.ROUND_DOWN);
+				}
+			}
+			
+			//利息就是直接计算，小数点两位后除不尽的直接舍弃
+			lenderInterest=payBack.getInterest().multiply(submit.getAmount()).divide(product.getRealAmount(), 2, BigDecimal.ROUND_DOWN);
+			
+			//还款的本金总额减去每一笔还款本金额，用于计算给最后一个人的还款本金
+			totalChiefAmount=totalChiefAmount.subtract(lenderChiefAmount);
+			
+			//还款的利息总额减去每一笔还款利息额，由于还给每一个人的利息都是用舍的，因此用于计算最后存零的值，最后存零的值范围一定在value>=0&&value<submitcount*0.01
+			totalInterest=totalInterest.subtract(lenderInterest);
+			
+			
+			CashStream cs = new CashStream();
+			cs.setAction(CashStream.ACTION_REPAY);
+			cs.setBorrowerAccountId(borrower.getAccountId());
+			cs.setChiefamount(lenderChiefAmount);
+			cs.setDescription("还款预计算");
+			cs.setFee(new BigDecimal(0));
+			cs.setInterest(lenderInterest);
+			cs.setLenderAccountId(lender.getAccountId());
+			cs.setPaybackId(payBackId);
+			cs.setState(CashStream.STATE_INIT);
+			cs.setSubmit(submit);
+			res.add(cs);
+		}
+		
+		
+		if(totalChiefAmount.compareTo(new BigDecimal(0))!=0){
+			throw new Exception("计算有问题，本次还款本金总额不等于各笔还款的本金总和");
+		}
+		
+		if(totalInterest.compareTo(BigDecimal.ZERO)>0 && totalInterest.compareTo(new BigDecimal(0.01*submits.size()))<=0){
+			CashStream cs = new CashStream();
+			cs.setAction(CashStream.ACTION_REPAY);
+			cs.setBorrowerAccountId(borrower.getAccountId());
+			cs.setChiefamount(new BigDecimal(0));
+			cs.setDescription("还款预计算");
+			cs.setFee(new BigDecimal(0));
+			cs.setInterest(totalInterest);
+			cs.setLenderAccountId(-1);
+			cs.setPaybackId(payBackId);
+			cs.setState(CashStream.STATE_INIT);
+			cs.setSubmit(null);
+			res.add(cs);
+		}else if(totalInterest.compareTo(BigDecimal.ZERO)==0){
+			
+		}else{
+			throw new Exception("还款"+payBack.getId()+"金额计算有问题，利息不在合理范围内，请检查！");
+		}
+		
+		return res;
 	}
 }

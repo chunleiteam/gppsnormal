@@ -131,14 +131,14 @@
                 </a>
  
                 <div class="news-notice-body">
-                    <ul class="news-notice-list faq-list" id="newhelp">
+                    <ul class="news-notice-list faq-list" id="actnotice">
                                     <li><b></b><a href="#" target="_blank">活动公告一</a></li>
                                     <li><b></b><a href="#" target="_blank">活动公告二</a></li>
                                     <li><b></b><a href="#" target="_blank">活动公告三</a></li>
                                     <li><b></b><a href="#" target="_blank">活动公告四</a></li>
                                     <li><b></b><a href="#" target="_blank">活动公告五</a></li>
                                     <li><b></b><a href="#" target="_blank">活动公告六</a></li>
-                            </ul>
+                   </ul>
                 </div>
             </div>
             </div>
@@ -195,6 +195,16 @@
 $(document).ready(function() {
 	header('activity');
 	var actService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IActivityService");
+	var notices = noticeService.findAll(2,0,6);
+	
+	 var nts = notices.get('result');
+	 if(nts){
+		 for(var i=0; i<nts.size(); i++){
+			 $('#actnotice').append('<li><b></b><a href="detail.html?type=notice&stype='+nts.get(i).publicType+'&id='+nts.get(i).id+'" target="_blank">'+nts.get(i).title+'</a></li>');
+		 }
+	 }
+	
+	
 	var res = actService.findByState(-1,0,3);
 	var items = res.get('result');
 	if(items){
