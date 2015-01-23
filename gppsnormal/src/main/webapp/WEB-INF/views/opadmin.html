@@ -175,6 +175,24 @@ a.accordion-toggle {
   </div>
 </div>
 
+
+	<!-- Modal PayBack Check -->
+<div class="modal fade" id="paybackDetailDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="alabel">还款详情</h4>
+      </div>
+      <div class="modal-body" id="paybackDetail">
+      		<textarea id="answertxt" style="min-height:150px; min-width:400px;"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button id="confirmPayBack" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 	<script>
 	
 	
@@ -266,6 +284,11 @@ a.accordion-toggle {
 								var hid = $(this).attr('data-sk');
 								helpservice.answer(parseInt(hid),answer);
 								window.location.href = "opadmin.html?fid=help&sid=help-answered";
+							})
+							
+							
+							$('button#confirmPayBack').click(function(e){
+								window.location.href="opadmin.html?fid=tohandle&sid=payback-toaudit";
 							})
 						});
 	</script>

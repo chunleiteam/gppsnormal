@@ -26,6 +26,7 @@ import gpps.service.exception.SMSException;
 import gpps.service.message.IMessageService;
 import gpps.service.thirdpay.IThirdPaySupportService;
 import gpps.service.thirdpay.Transfer.LoanJson;
+import gpps.tools.SinglePayBack;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -232,104 +233,51 @@ public class TaskServiceImpl implements ITaskService {
 		logger.info("开始执行产品id="+task.getProductId()+"的还款任务taskID="+task.getId());
 		if(interrupted)
 			logger.info("该支付任务曾被打断过，现在继续执行");
-		List<Submit> submits=submitDao.findAllByProductAndState(task.getProductId(), Submit.STATE_COMPLETEPAY);
-		if(submits==null||submits.size()==0)
-			return;
+		
+		//调用paybackService的calculatePayBacks计算还款计划(支持对于被打断还款的计算)
+		List<SinglePayBack> spbs = payBackService.calculatePayBacks(task.getPayBackId(), interrupted);
+		//调用paybackService的justCheckOutPayBack校验还款计划，如果发现有不正常，则抛出异常终止下面的进行
+		payBackService.justCheckOutPayBack(task.getPayBackId(), interrupted, "还款校验");
+		
 		PayBack payBack=payBackService.find(task.getPayBackId());
 		Product product=productDao.find(payBack.getProductId());
-		GovermentOrder order=govermentOrderDao.find(product.getGovermentorderId());
-		Borrower borrower=borrowerDao.find(order.getBorrowerId());
-		BigDecimal totalChiefAmount=payBack.getChiefAmount();
-		BigDecimal totalInterest=payBack.getInterest();
-		//TODO 取付款人乾多多标识，收款人乾多多标识，网贷平台订单号，金额（本金+利息）
-		//accountService.repay 去掉changeCashStreamState
 		List<LoanJson> loanJsons=new ArrayList<LoanJson>();
-		loop:for(int i=0;i<submits.size();i++)
-		{
-			Submit submit=submits.get(i);
-			if(interrupted)
-			{
-				List<CashStream> cashStreams=cashStreamDao.findRepayCashStream(submit.getId(), payBack.getId());
-				if(cashStreams!=null&&cashStreams.size()>0)
-				{
-					CashStream cashStream=cashStreams.get(0);
-					totalChiefAmount.subtract(cashStream.getChiefamount());
-					totalInterest.subtract(cashStream.getInterest());
-					logger.debug("还款任务["+task.getId()+"],Submit["+submit.getId()+"]已执行过。");
-					continue loop;
-				}
+		
+		
+		for(SinglePayBack spb : spbs){
+			//已成功还款的直接跳过
+			if(spb.getState()==SinglePayBack.STATE_REPAY_SUCCESS){
+				continue;
 			}
-			Lender lender=lenderDao.find(submit.getLenderId());
-			BigDecimal lenderChiefAmount=null;
-			BigDecimal lenderInterest=null;
-//			if(i==(submits.size()-1))
-//			{
-//				lenderChiefAmount=totalChiefAmount;
-//				lenderInterest=totalInterest;
-//			}
-//			else
-//			{
-				if(payBack.getType()==PayBack.TYPE_LASTPAY)
-				{
-					List<CashStream> cashStreams=cashStreamDao.findRepayCashStream(submit.getId(), null);
-					BigDecimal repayedChiefAmount=BigDecimal.ZERO;
-					if(cashStreams!=null&&cashStreams.size()>0)
-					{
-						for(CashStream cashStream:cashStreams)
-						{
-							repayedChiefAmount=repayedChiefAmount.add(cashStream.getChiefamount());
-						}
-					}
-					lenderChiefAmount=submit.getAmount().subtract(repayedChiefAmount);
-				}
-				else {
-					if(i==(submits.size()-1))
-					{
-						lenderChiefAmount=totalChiefAmount;
-					}
-					else
-						lenderChiefAmount=payBack.getChiefAmount().multiply(submit.getAmount()).divide(product.getRealAmount(), 2, BigDecimal.ROUND_UP);
-				}
-				lenderInterest=payBack.getInterest().multiply(submit.getAmount()).divide(product.getRealAmount(), 2, BigDecimal.ROUND_DOWN);
-				totalChiefAmount=totalChiefAmount.subtract(lenderChiefAmount);
-				totalInterest=totalInterest.subtract(lenderInterest);
-//			}
-			try {
-				Integer cashStreamId=accountService.repay(lender.getAccountId(), payBack.getBorrowerAccountId(), lenderChiefAmount, lenderInterest, submit.getId(), payBack.getId(), "还款");
+			
+			//对于非“存零操作”的还款
+			if(spb.getToAccountId()!=-1)
+			{
+				Integer cashStreamId=accountService.repay(spb.getToAccountId(), spb.getFromAccountId(), spb.getChief(), spb.getInterest(), spb.getSubmitId(), payBack.getId(), "还款");
 				LoanJson loadJson=new LoanJson();
-				loadJson.setLoanOutMoneymoremore(borrower.getThirdPartyAccount());
-				loadJson.setLoanInMoneymoremore(lender.getThirdPartyAccount());
+				loadJson.setLoanOutMoneymoremore(spb.getFromMoneyMoreMore());
+				loadJson.setLoanInMoneymoremore(spb.getToMoneyMoreMore());
 				loadJson.setOrderNo(String.valueOf(cashStreamId));
 				loadJson.setBatchNo(String.valueOf(product.getId()));
-				loadJson.setAmount(lenderChiefAmount.add(lenderInterest).toString());
+				loadJson.setAmount(spb.getChief().add(spb.getInterest()).toString());
 				loanJsons.add(loadJson);
-			} catch (IllegalConvertException e) {
-				logger.error(e.getMessage(),e);
+			}else
+			{
+				//对于“存零操作”的还款，有余额则放入自有账户中
+				Integer cashStreamId=accountService.storeChange(spb.getFromAccountId(),payBack.getId(),spb.getChief(),spb.getInterest(), "存零");
+				LoanJson loadJson=new LoanJson();
+				loadJson.setLoanOutMoneymoremore(spb.getFromMoneyMoreMore());
+				loadJson.setLoanInMoneymoremore(spb.getToMoneyMoreMore());
+				loadJson.setOrderNo(String.valueOf(cashStreamId));
+				loadJson.setBatchNo(String.valueOf(product.getId()));
+				loadJson.setAmount(spb.getChief().add(spb.getInterest()).toString());
+				loanJsons.add(loadJson);
 			}
-			logger.debug("还款任务["+task.getId()+"],Lender["+lender.getId()+"]因Submit["+submit.getId()+"]获取还款本金"+lenderChiefAmount+"元,利息"+lenderInterest+"元");
 		}
-		BigDecimal change=totalChiefAmount.add(totalInterest);
-		if(change.compareTo(BigDecimal.ZERO)>0 && change.compareTo(new BigDecimal(0.01*submits.size()))<=0)
-		{
-			//有余额则放入自有账户中
-			Integer cashStreamId=accountService.storeChange(payBack.getBorrowerAccountId(),payBack.getId(),totalChiefAmount,totalInterest, "存零");
-			LoanJson loadJson=new LoanJson();
-			loadJson.setLoanOutMoneymoremore(borrower.getThirdPartyAccount());
-			loadJson.setLoanInMoneymoremore(thirdPaySupportService.getPlatformMoneymoremore());
-			loadJson.setOrderNo(String.valueOf(cashStreamId));
-			loadJson.setBatchNo(String.valueOf(product.getId()));
-			loadJson.setAmount(change.toString());
-			loanJsons.add(loadJson);
-		}else if(change.compareTo(BigDecimal.ZERO)==0){
-			//等于0意味着刚刚好，什么都不用做
-		}
-		else{
-			logger.error("还款"+payBack.getId()+"金额计算有问题，请检查！");
-			throw new Exception("还款"+payBack.getId()+"金额计算有问题，请检查！");
-		}
+		
 		thirdPaySupportService.repay(loanJsons, payBack);
 		payBackService.changeState(payBack.getId(), PayBack.STATE_FINISHREPAY);
-		logger.info("还款任务["+task.getId()+"]完毕，涉及Submit"+submits.size()+"个");
+		logger.info("还款任务["+task.getId()+"]完毕，涉及"+spbs.size()+"笔");
 	}
 	@Override
 	public void submit(Task task) {

@@ -1479,8 +1479,20 @@ var paybacktoaudit = function(container){
 	$('button.check').click(function(e){
 		var paybackid = parseInt($(this).attr('id'));
 		try{
-			paybackService.checkoutPayBack(paybackid);
-			window.location.href="opadmin.html?fid=tohandle&sid=payback-toaudit";
+			var res = paybackService.checkoutPayBack(paybackid);
+			var table = $('<table width="100%"></table>');
+			table.append('<tr><th>投资者姓名</th><th>还款本金</th><th>还款利息</th><th>投资金额</th></tr>')
+			for(var i=0; i<res.size(); i++){
+				var spb = res.get(i);
+				table.append('<tr><td>'+spb.toname+'</td><td>'+spb.chief.value+'</td><td>'+spb.interest.value+'</td><td>'+spb.submitAmount.value+'</td></tr>');
+			}
+			$('#paybackDetail').html('');
+			$('#paybackDetail').append(table);
+			$('#paybackDetailDialog').modal({
+				  keyboard: false,
+				  backdrop: true
+			});	
+//			window.location.href="opadmin.html?fid=tohandle&sid=payback-toaudit";
 		}catch(e){
 			alert(e.message);
 		}

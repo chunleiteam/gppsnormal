@@ -7,6 +7,7 @@ import gpps.service.exception.IllegalConvertException;
 import gpps.service.exception.IllegalOperationException;
 import gpps.service.exception.InsufficientBalanceException;
 import gpps.service.exception.UnSupportRepayInAdvanceException;
+import gpps.tools.SinglePayBack;
 
 import java.util.List;
 import java.util.Map;
@@ -113,10 +114,29 @@ public interface IPayBackService {
 	 * @param payBackId
 	 * @throws CheckException
 	 */
-	public void checkoutPayBack(Integer payBackId) throws CheckException;
+	public List<SinglePayBack> checkoutPayBack(Integer payBackId) throws CheckException;
 	/**
 	 * 返回所有等待审核的还款
 	 * @return
 	 */
 	public List<PayBack> findWaitforCheckPayBacks();
+	
+	/**
+	 * 根据payBackId计算出本次还款的具体详情
+	 * 
+	 * @param payBackId
+	 * @param interrupted 还款任务执行时是否被打断过
+	 * 
+	 * */
+	public List<SinglePayBack> calculatePayBacks(Integer payBackId, boolean interrupted) throws Exception;
+	
+	/**
+	 * 单纯的对还款计划（被打断过或者没被打断过）进行校验，并返回校验报告
+	 * @param payBackId
+	 * @param interrupted 还款任务执行时是否被打断过
+	 * @param executeStep 生成日志和报告时，显示校验执行步骤
+	 * 
+	 * 
+	 * */
+	public List<SinglePayBack> justCheckOutPayBack(Integer payBackId, boolean isinterrupted, String executeStep) throws CheckException;
 }

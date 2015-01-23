@@ -37,8 +37,10 @@ import gpps.service.exception.SMSException;
 import gpps.service.exception.UnSupportRepayInAdvanceException;
 import gpps.service.message.ILetterSendService;
 import gpps.service.message.IMessageService;
+import gpps.service.thirdpay.IThirdPaySupportService;
 import gpps.tools.DateCalculateUtils;
 import gpps.tools.PayBackCalculateUtils;
+import gpps.tools.SinglePayBack;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -89,6 +91,8 @@ public class PayBackServiceImpl implements IPayBackService {
 	IMessageService messageService;
 	@Autowired
 	ILetterSendService letterSendService;
+	@Autowired
+	IThirdPaySupportService thirdPaySupportService;
 	Logger log=Logger.getLogger(PayBackServiceImpl.class);
 	@Override
 	public void create(PayBack payback) {
@@ -702,44 +706,44 @@ public class PayBackServiceImpl implements IPayBackService {
 		}
 		return paybacks;
 	}
-	@Override
-	public void checkoutPayBack(Integer payBackId) throws CheckException {
+	
+	
+	public List<SinglePayBack> justCheckOutPayBack(Integer payBackId, boolean isinterrupted, String executeStep) throws CheckException{
 		PayBack payBack=find(payBackId);
 		Product product=productDao.find(payBack.getProductId());
-		List<CashStream> cs = null;
+		List<SinglePayBack> spbs = null;
 		try{
-			cs = calculatePayBacks(payBackId, false);
+			spbs = calculatePayBacks(payBackId, isinterrupted);
 		}catch(Exception e){
 			throw new CheckException(e.getMessage());
 		}
 		StringBuilder sb = new StringBuilder();
-		sb.append("审核还款【"+payBackId+"】:");
+		sb.append(executeStep+"【"+payBackId+"】:");
 		BigDecimal totalC=BigDecimal.ZERO;
 		BigDecimal totalI=BigDecimal.ZERO;
-		for(CashStream c:cs)
+		for(SinglePayBack spb:spbs)
 		{
-			BigDecimal amount = c.getChiefamount();
+			BigDecimal amount = spb.getChief();
 			totalC=totalC.add(amount);
-			BigDecimal interest = c.getInterest();
+			BigDecimal interest = spb.getInterest();
 			totalI=totalI.add(interest);
-			sb.append(c.getLenderAccountId()+"="+c.getChiefamount()+","+c.getInterest()+"; ");
+			String singlePayback = spb.getToname()+": 本金="+spb.getChief()+", 利息="+spb.getInterest()+";\n";
+			sb.append(singlePayback);
 		}
 		log.info(sb.toString());
 		if(totalC.compareTo(payBack.getChiefAmount())!=0)
 		{
-			String emsg = "审核失败：当前还款金额计算不符,本金总额不等于各笔还款本金之和";
+			String emsg = executeStep+"失败：当前还款金额计算不符,本金总额不等于各笔还款本金之和";
 			log.warn(emsg);
 			throw new CheckException(emsg);
 			
 		}
 		if(totalI.compareTo(payBack.getInterest())!=0)
 		{
-			String emsg = "审核失败：当前还款金额计算不符,利息总额不等于各笔还款利息之和";
+			String emsg = executeStep+"失败：当前还款金额计算不符,利息总额不等于各笔还款利息之和";
 			log.warn(emsg);
 			throw new CheckException(emsg);
 		}
-		
-		
 		
 		// 最后一次验证,验证之前的payback是否符合
 		if(payBack.getType()==PayBack.TYPE_LASTPAY)
@@ -754,13 +758,13 @@ public class PayBackServiceImpl implements IPayBackService {
 				}
 				if(pb.getState()==PayBack.STATE_REPAYING)
 				{
-					String emsg = "审核失败：之前还有执行中的还款";
+					String emsg = executeStep+"失败：之前还有执行中的还款";
 					log.warn(emsg);
 					throw new CheckException(emsg);
 				}
 				if(pb.getState()!=PayBack.STATE_FINISHREPAY)
 				{
-					String emsg = "审核失败：还有尚未成功的还款";
+					String emsg = executeStep+"失败：还有尚未成功的还款";
 					log.warn(emsg);
 					throw new CheckException(emsg);
 				}
@@ -770,7 +774,7 @@ public class PayBackServiceImpl implements IPayBackService {
 				//实际执行的还款的本金与利息总和与payback的本金与利息总额应该一致
 				if(sum.getChiefAmount().compareTo(pb.getChiefAmount())!=0||sum.getInterest().compareTo(pb.getInterest())!=0)
 				{
-					String emsg = "审核失败：还款[id:"+pb.getId()+"]金额计算不符";
+					String emsg = executeStep+"失败：还款[id:"+pb.getId()+"]金额计算不符";
 					log.warn(emsg);
 					throw new CheckException(emsg);
 				}
@@ -779,17 +783,45 @@ public class PayBackServiceImpl implements IPayBackService {
 			}
 			if(amount.add(payBack.getChiefAmount()).compareTo(product.getRealAmount())!=0)
 			{
-				String emsg = "审核失败：还款总额与产品不符";
+				String emsg = executeStep+"失败：还款总额与产品不符";
 				log.warn(emsg);
 				throw new CheckException(emsg);
 			}
 		}
-		payBackDao.changeCheckResult(payBackId, PayBack.CHECK_SUCCESS);
-		log.info("还款审核成功！");
+		log.info(executeStep+"成功！");
+		
+		SinglePayBack spb = new SinglePayBack();
+		spb.setToname("总计");
+		spb.setChief(payBack.getChiefAmount());
+		spb.setInterest(payBack.getInterest());
+		spb.setSubmitAmount(product.getRealAmount());
+		spbs.add(spb);
+		
+		return spbs;
 	}
 	
-	private List<CashStream> calculatePayBacks(Integer payBackId, boolean interrupted) throws Exception{
-		List<CashStream> res = new ArrayList<CashStream>();
+	
+	@Override
+	public List<SinglePayBack> checkoutPayBack(Integer payBackId) throws CheckException {
+		List<SinglePayBack> spbs = justCheckOutPayBack(payBackId, false, "预审核");
+		payBackDao.changeCheckResult(payBackId, PayBack.CHECK_SUCCESS);
+		
+		PayBack payBack=find(payBackId);
+		Product product=productDao.find(payBack.getProductId());
+		
+		SinglePayBack spb = new SinglePayBack();
+		spb.setToname("总计");
+		spb.setChief(payBack.getChiefAmount());
+		spb.setInterest(payBack.getInterest());
+		spb.setSubmitAmount(product.getRealAmount());
+		spbs.add(spb);
+		
+		return spbs;
+	}
+	
+	@Override
+	public List<SinglePayBack> calculatePayBacks(Integer payBackId, boolean interrupted) throws Exception{
+		List<SinglePayBack> res = new ArrayList<SinglePayBack>();
 		PayBack payBack = payBackDao.find(payBackId);
 		List<Submit> submits=submitDao.findAllByProductAndState(payBack.getProductId(), Submit.STATE_COMPLETEPAY);
 		if(submits==null||submits.size()==0)
@@ -804,6 +836,7 @@ public class PayBackServiceImpl implements IPayBackService {
 		loop:for(int i=0;i<submits.size();i++)
 		{
 			Submit submit=submits.get(i);
+			Lender lender=lenderDao.find(submit.getLenderId());
 			if(interrupted)
 			{
 				//如果已经执行过还款了，则直接添加到结果列表中
@@ -813,11 +846,28 @@ public class PayBackServiceImpl implements IPayBackService {
 					CashStream cashStream=cashStreams.get(0);
 					totalChiefAmount.subtract(cashStream.getChiefamount());
 					totalInterest.subtract(cashStream.getInterest());
-					res.add(cashStream);
+					
+					SinglePayBack spb = new SinglePayBack();
+					spb.setState(SinglePayBack.STATE_REPAY_SUCCESS);
+					spb.setChief(cashStream.getChiefamount());
+					spb.setInterest(cashStream.getInterest());
+					
+					spb.setFromAccountId(cashStream.getBorrowerAccountId());
+					spb.setFromMoneyMoreMore(borrower.getThirdPartyAccount());
+					spb.setFromname(borrower.getCompanyName());
+					
+					spb.setToAccountId(cashStream.getLenderAccountId());
+					spb.setToMoneyMoreMore(lender.getThirdPartyAccount());
+					spb.setToname(lender.getName());
+					
+					spb.setSubmitAmount(submit.getAmount());
+					spb.setSubmitId(submit.getId());
+					
+					res.add(spb);
 					continue loop;
 				}
 			}
-			Lender lender=lenderDao.find(submit.getLenderId());
+			
 			BigDecimal lenderChiefAmount=null;
 			BigDecimal lenderInterest=null;
 			if(payBack.getType()==PayBack.TYPE_LASTPAY)
@@ -857,18 +907,25 @@ public class PayBackServiceImpl implements IPayBackService {
 			totalInterest=totalInterest.subtract(lenderInterest);
 			
 			
-			CashStream cs = new CashStream();
-			cs.setAction(CashStream.ACTION_REPAY);
-			cs.setBorrowerAccountId(borrower.getAccountId());
-			cs.setChiefamount(lenderChiefAmount);
-			cs.setDescription("还款预计算");
-			cs.setFee(new BigDecimal(0));
-			cs.setInterest(lenderInterest);
-			cs.setLenderAccountId(lender.getAccountId());
-			cs.setPaybackId(payBackId);
-			cs.setState(CashStream.STATE_INIT);
-			cs.setSubmit(submit);
-			res.add(cs);
+			
+			
+			SinglePayBack spb = new SinglePayBack();
+			spb.setState(SinglePayBack.STATE_UNREPAY);
+			spb.setChief(lenderChiefAmount);
+			spb.setInterest(lenderInterest);
+			
+			spb.setFromAccountId(borrower.getAccountId());
+			spb.setFromMoneyMoreMore(borrower.getThirdPartyAccount());
+			spb.setFromname(borrower.getCompanyName());
+			
+			spb.setToAccountId(lender.getAccountId());
+			spb.setToMoneyMoreMore(lender.getThirdPartyAccount());
+			spb.setToname(lender.getName());
+			
+			spb.setSubmitAmount(submit.getAmount());
+			spb.setSubmitId(submit.getId());
+			
+			res.add(spb);
 		}
 		
 		
@@ -877,18 +934,24 @@ public class PayBackServiceImpl implements IPayBackService {
 		}
 		
 		if(totalInterest.compareTo(BigDecimal.ZERO)>0 && totalInterest.compareTo(new BigDecimal(0.01*submits.size()))<=0){
-			CashStream cs = new CashStream();
-			cs.setAction(CashStream.ACTION_REPAY);
-			cs.setBorrowerAccountId(borrower.getAccountId());
-			cs.setChiefamount(new BigDecimal(0));
-			cs.setDescription("还款预计算");
-			cs.setFee(new BigDecimal(0));
-			cs.setInterest(totalInterest);
-			cs.setLenderAccountId(-1);
-			cs.setPaybackId(payBackId);
-			cs.setState(CashStream.STATE_INIT);
-			cs.setSubmit(null);
-			res.add(cs);
+			
+			SinglePayBack spb = new SinglePayBack();
+			spb.setState(SinglePayBack.STATE_UNREPAY);
+			spb.setChief(new BigDecimal(0));
+			spb.setInterest(totalInterest);
+			
+			spb.setFromAccountId(borrower.getAccountId());
+			spb.setFromMoneyMoreMore(borrower.getThirdPartyAccount());
+			spb.setFromname(borrower.getCompanyName());
+			
+			spb.setToAccountId(-1);
+			spb.setToMoneyMoreMore(thirdPaySupportService.getPlatformMoneymoremore());
+			spb.setToname("政采贷平台");
+			
+			spb.setSubmitAmount(new BigDecimal(0));
+			spb.setSubmitId(null);
+			
+			res.add(spb);
 		}else if(totalInterest.compareTo(BigDecimal.ZERO)==0){
 			
 		}else{
