@@ -489,7 +489,13 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		params.put("TransferAction", "2");
 		params.put("Action", "2");
 		params.put("TransferType", "2");
+		
+		//还款无需审核
 		params.put("NeedAudit", "1");
+		
+//		//将还款改为需要审核
+//		params.put("NeedAudit", null);
+		
 		params.put("NotifyURL", "http://"+serverHost+":"+serverPort+"/account/repay/response/bg");
 		List<LoanJson> temp=new ArrayList<LoanJson>();
 		

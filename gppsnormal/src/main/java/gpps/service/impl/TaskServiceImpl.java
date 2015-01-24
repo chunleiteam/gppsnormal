@@ -182,11 +182,13 @@ public class TaskServiceImpl implements ITaskService {
 			List<CashStream> cashStreams=cashStreamDao.findSubmitCashStream(submit.getId());
 			for(CashStream cashStream:cashStreams)
 			{
+				//只要有购买成功的现金流，立马跳出循环
 				if(cashStream.getAction()==CashStream.ACTION_PAY&&cashStream.getState()==CashStream.STATE_SUCCESS)
 				{
 					logger.debug("支付任务["+task.getId()+"],Submit["+submit.getId()+"]已执行过。");
 					continue loop;
 				}
+				//如果没有购买成功的现金流，则找到冻结成功的现金流
 				if(cashStream.getAction()==CashStream.ACTION_FREEZE&&cashStream.getState()==CashStream.STATE_SUCCESS)
 					freezeCS=cashStream;
 			}
