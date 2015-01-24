@@ -538,6 +538,10 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		}
 		String body=httpClientService.post(baseUrl, params);
 		Gson gson = new Gson();
+		
+		
+		//自动、免审核转账(Action=2  NeedAudit=1)，除了会通知NotifyURL外，还会将参数以JSON字符串的形式直接输出在页面上，其中包含了2个JSON，一个action为空，表示转账成功，另一个action=1，表示审核通过
+		//因此返回的是两个JSON对象，第一个表示成功，第二个记录了具体的转账信息
 		List returnParams=gson.fromJson(body, List.class);
 		try {
 			repayProcessor((Map<String,String>)returnParams.get(1), order, product, payback);
