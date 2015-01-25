@@ -122,16 +122,18 @@ public class AccountServiceImpl implements IAccountService {
 	}
 
 	@Override
-	public Integer freezeBorrowerAccount(Integer borrowerAccountId, BigDecimal amount, Integer paybackId, String description) throws InsufficientBalanceException {
+	public Integer freezeBorrowerAccount(Integer borrowerAccountId, BigDecimal chiefAmount, BigDecimal interest, Integer submitId, Integer paybackId, String description) throws InsufficientBalanceException {
 		BorrowerAccount borrowerAccount=checkNullObject(BorrowerAccount.class, borrowerAccountDao.find(borrowerAccountId));
-		if(amount.compareTo(borrowerAccount.getUsable())>0)
+		if(chiefAmount.add(interest).compareTo(borrowerAccount.getUsable())>0)
 			throw new InsufficientBalanceException();
 		CashStream cashStream=new CashStream();
 		cashStream.setBorrowerAccountId(borrowerAccountId);
-		cashStream.setChiefamount(amount.negate());
+		cashStream.setChiefamount(chiefAmount.negate());
+		cashStream.setInterest(interest.negate());
 		cashStream.setDescription(description);
 		cashStream.setAction(CashStream.ACTION_FREEZE);
 		cashStream.setPaybackId(paybackId);
+		cashStream.setSubmitId(submitId);
 		cashStreamDao.create(cashStream);
 		recordStateLogWithCreate(cashStream);
 //		changeCashStreamState(cashStream.getId(), CashStream.STATE_SUCCESS);
@@ -156,13 +158,14 @@ public class AccountServiceImpl implements IAccountService {
 	@Override
 	@Transactional
 	public Integer unfreezeBorrowerAccount(Integer borrowerAccountId,
-			BigDecimal amount, Integer paybackId, String description)
+			BigDecimal amount, Integer submitId, Integer paybackId, String description)
 			throws IllegalConvertException {
 		checkNullObject(BorrowerAccount.class, borrowerAccountDao.find(borrowerAccountId));
 		CashStream cashStream=new CashStream();
 		cashStream.setBorrowerAccountId(borrowerAccountId);
 		cashStream.setChiefamount(amount);
 		cashStream.setPaybackId(paybackId);
+		cashStream.setSubmitId(submitId);
 		cashStream.setAction(CashStream.ACTION_UNFREEZE);
 		cashStream.setDescription(description);
 		cashStream.setState(CashStream.STATE_SUCCESS);
@@ -204,10 +207,25 @@ public class AccountServiceImpl implements IAccountService {
 	@Override
 	@Transactional
 	public Integer repay(Integer lenderAccountId, Integer borrowerAccountId, BigDecimal chiefamount, BigDecimal interest, Integer submitId, Integer paybackId, String description) throws IllegalConvertException {
-		checkNullObject(LenderAccount.class, lenderAccountDao.find(lenderAccountId));
 		checkNullObject(BorrowerAccount.class, borrowerAccountDao.find(borrowerAccountId));
 		checkNullObject(Submit.class, submitDao.find(submitId));
 		checkNullObject(PayBack.class, paybackId);
+		
+		//还款先解冻
+		CashStream cashStream0=new CashStream();
+		cashStream0.setBorrowerAccountId(borrowerAccountId);
+		cashStream0.setChiefamount(chiefamount);
+		cashStream0.setInterest(interest);
+		cashStream0.setSubmitId(submitId);
+		cashStream0.setPaybackId(paybackId);
+		cashStream0.setDescription("还款解冻");
+		cashStream0.setAction(CashStream.ACTION_UNFREEZE);
+		cashStream0.setState(CashStream.STATE_SUCCESS);
+		cashStreamDao.create(cashStream0);
+		recordStateLogWithCreate(cashStream0);
+		
+		
+		
 		CashStream cashStream=new CashStream();
 		cashStream.setLenderAccountId(lenderAccountId);
 		cashStream.setBorrowerAccountId(borrowerAccountId);
@@ -219,8 +237,7 @@ public class AccountServiceImpl implements IAccountService {
 		cashStream.setAction(CashStream.ACTION_REPAY);
 		cashStreamDao.create(cashStream);
 		recordStateLogWithCreate(cashStream);
-//		changeCashStreamState(cashStream.getId(), CashStream.STATE_SUCCESS);
-		//批量还款，不需要第三方操作
+		changeCashStreamState(cashStream.getId(), CashStream.STATE_SUCCESS);
 		return cashStream.getId();
 	}
 
@@ -291,9 +308,9 @@ public class AccountServiceImpl implements IAccountService {
 					break;
 				case CashStream.ACTION_FREEZE:
 					if(cashStream.getLenderAccountId()!=null&&cashStream.getBorrowerAccountId()==null)
-						lenderAccountDao.freeze(cashStream.getLenderAccountId(), cashStream.getChiefamount().negate());
+						lenderAccountDao.freeze(cashStream.getLenderAccountId(), cashStream.getChiefamount().add(cashStream.getInterest()).negate());
 					else if(cashStream.getBorrowerAccountId()!=null&&cashStream.getLenderAccountId()==null)
-						borrowerAccountDao.freeze(cashStream.getBorrowerAccountId(), cashStream.getChiefamount().negate());
+						borrowerAccountDao.freeze(cashStream.getBorrowerAccountId(), cashStream.getChiefamount().add(cashStream.getInterest()).negate());
 					else
 						throw new RuntimeException();
 					break;
@@ -617,8 +634,24 @@ public class AccountServiceImpl implements IAccountService {
 	}
 
 	@Override
-	public Integer storeChange(Integer borrowerAccountId,Integer paybackId,BigDecimal chiefamount,BigDecimal interest,
-			String description) {
+	@Transactional
+	public Integer storeChange(Integer borrowerAccountId,Integer paybackId, BigDecimal chiefamount,BigDecimal interest,
+			String description) throws IllegalConvertException{
+		
+		//还款先解冻
+		CashStream cashStream0=new CashStream();
+		cashStream0.setBorrowerAccountId(borrowerAccountId);
+		cashStream0.setChiefamount(chiefamount);
+		cashStream0.setInterest(interest);
+		cashStream0.setPaybackId(paybackId);
+		cashStream0.setDescription("还款解冻");
+		cashStream0.setAction(CashStream.ACTION_UNFREEZE);
+		cashStream0.setState(CashStream.STATE_SUCCESS);
+		cashStreamDao.create(cashStream0);
+		recordStateLogWithCreate(cashStream0);
+		
+		
+		
 		CashStream cashStream=new CashStream();
 		cashStream.setAction(CashStream.ACTION_STORECHANGE);
 		cashStream.setPaybackId(paybackId);
@@ -627,6 +660,9 @@ public class AccountServiceImpl implements IAccountService {
 		cashStream.setDescription(description);
 		cashStream.setBorrowerAccountId(borrowerAccountId);
 		cashStreamDao.create(cashStream);
+		recordStateLogWithCreate(cashStream);
+		
+		changeCashStreamState(cashStream.getId(), CashStream.STATE_SUCCESS);
 		return cashStream.getId();
 	}
 

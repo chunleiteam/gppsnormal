@@ -1,5 +1,6 @@
 package gpps.service;
 
+import gpps.model.CashStream;
 import gpps.model.PayBack;
 import gpps.model.ProductSeries;
 import gpps.service.exception.CheckException;
@@ -114,7 +115,7 @@ public interface IPayBackService {
 	 * @param payBackId
 	 * @throws CheckException
 	 */
-	public List<SinglePayBack> checkoutPayBack(Integer payBackId) throws CheckException;
+	public List<CashStream> checkoutPayBack(Integer payBackId) throws CheckException;
 	/**
 	 * 返回所有等待审核的还款
 	 * @return

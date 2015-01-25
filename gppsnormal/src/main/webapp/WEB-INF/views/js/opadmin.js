@@ -1481,10 +1481,10 @@ var paybacktoaudit = function(container){
 		try{
 			var res = paybackService.checkoutPayBack(paybackid);
 			var table = $('<table width="100%"></table>');
-			table.append('<tr><th>投资者姓名</th><th>还款本金</th><th>还款利息</th><th>投资金额</th></tr>')
+			table.append('<tr><th>投资者账户</th><th>还款本金</th><th>还款利息</th></tr>')
 			for(var i=0; i<res.size(); i++){
-				var spb = res.get(i);
-				table.append('<tr><td>'+spb.toname+'</td><td>'+spb.chief.value+'</td><td>'+spb.interest.value+'</td><td>'+spb.submitAmount.value+'</td></tr>');
+				var re = res.get(i);
+				table.append('<tr><td>'+re.lenderAccountId+'</td><td>'+re.chiefamount.value+'</td><td>'+re.interest.value+'</td></tr>');
 			}
 			$('#paybackDetail').html('');
 			$('#paybackDetail').append(table);

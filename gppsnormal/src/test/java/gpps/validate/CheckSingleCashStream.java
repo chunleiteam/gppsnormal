@@ -76,14 +76,14 @@ public class CheckSingleCashStream {
 	public static void main(String args[]) throws Exception{
 //		withdrawSingleCashStream("LN19029242014122113491557888");
 		
-		Date date = new Date(2015-1900,1-1,22,8,0,0);
+		Date date = new Date(2015-1900,1-1,25,8,0,0);
 		
 		long start = DateCalculateUtils.getStartTime(date.getTime());
 		long end = DateCalculateUtils.getEndTime(date.getTime())+1000;
 		
 		
-		List<CashStream> css = cashStreamDao.findByActionAndTime(-1, start, end);
-//		List<CashStream> css = cashStreamDao.findByActionAndTime(-1, -1, -1);
+//		List<CashStream> css = cashStreamDao.findByActionAndTime(-1, start, end);
+		List<CashStream> css = cashStreamDao.findByActionAndTime(-1, -1, -1);
 		
 //		List<CashStream> css = new ArrayList<CashStream>();
 //		css.add(cashStreamDao.find(56));
@@ -326,8 +326,11 @@ public class CheckSingleCashStream {
 		String laccount = "";
 		
 			Lender lender = lenderDao.findByAccountID(cashStream.getLenderAccountId());
+			
 			if(lender!=null){
 				laccount = lender.getThirdPartyAccount();
+			}else{
+				laccount = borrowerDao.findByAccountID(cashStream.getBorrowerAccountId()).getThirdPartyAccount();
 			}
 		
 		
@@ -355,9 +358,9 @@ public class CheckSingleCashStream {
 		boolean loanflag = cashStream.getLoanNo()==null? false : cashStream.getLoanNo().equals(LoanNo);
 		
 		//投标
-		boolean actionflag = TransferAction.equals("1");
+		boolean actionflag = lender==null? TransferAction.equals("2") : TransferAction.equals("1");
 		
-		boolean totalflag = cashStream.getChiefamount().negate().compareTo(new BigDecimal(Amount))==0;
+		boolean totalflag = cashStream.getChiefamount().add(cashStream.getInterest()).negate().compareTo(new BigDecimal(Amount))==0;
 		
 		flag = flag && loanflag && totalflag && accountflag && actionflag;
 		

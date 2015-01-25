@@ -89,7 +89,16 @@ public interface IThirdPaySupportService {
 	 * 将还款流水组织成第三方模式LoanJson进行处理
 	 * @param loanJsons
 	 */
-	public void repay(List<LoanJson> loanJsons, PayBack payback);
+	public void repay(List<String> loanNos, int auditType);
+	
+	
+	/**
+	 * 将还款申请冻结的现金流组织成第三方模式LoanJson发送至第三方进行处理
+	 * 
+	 * */
+	public void submitForCheckRepay(List<LoanJson> loanJsons, PayBack payback);
+	
+	
 	
 	/**
 	 * 验证第三方回调的请求，验证结果码为“88”，并且签名正确

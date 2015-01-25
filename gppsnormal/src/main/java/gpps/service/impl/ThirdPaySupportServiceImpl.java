@@ -1,5 +1,6 @@
 package gpps.service.impl;
 
+import gpps.dao.IBorrowerDao;
 import gpps.dao.ICardBindingDao;
 import gpps.dao.ICashStreamDao;
 import gpps.dao.ILenderDao;
@@ -10,6 +11,7 @@ import gpps.model.GovermentOrder;
 import gpps.model.Lender;
 import gpps.model.PayBack;
 import gpps.model.Product;
+import gpps.model.ProductSeries;
 import gpps.model.Submit;
 import gpps.service.IAccountService;
 import gpps.service.IBorrowerService;
@@ -101,6 +103,8 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	IGovermentOrderService orderService;
 	@Autowired
 	IBorrowerService borrowerService;
+	@Autowired
+	IBorrowerDao borrowerDao;
 	@Autowired
 	IHttpClientService httpClientService;
 	@Autowired
@@ -297,6 +301,167 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	}
 
 	@Override
+	public void repay(List<String> loanNos, int auditType) {
+		
+
+		if(loanNos==null||loanNos.size()==0)
+			return;
+		String baseUrl=getBaseUrl(ACTION_CHECK);
+		StringBuilder loanNoSBuilder=new StringBuilder();
+		Map<String,String> params=new HashMap<String, String>();
+		params.put("PlatformMoneymoremore", platformMoneymoremore);
+		params.put("AuditType", String.valueOf(auditType));
+		params.put("ReturnURL", "http://" + serverHost + ":" + serverPort + "/account/repay/response/bg");
+		params.put("NotifyURL", params.get("ReturnURL"));
+		for(int i=0;i<loanNos.size();i++)
+		{
+			if(loanNoSBuilder.length()!=0)
+				loanNoSBuilder.append(",");
+			loanNoSBuilder.append(loanNos.get(i));
+			if((i+1)%200==0)
+			{
+				params.put("LoanNoList", loanNoSBuilder.toString());
+				sendExecuteRepay(params,baseUrl);
+				loanNoSBuilder=new StringBuilder();
+			}
+		}
+		if(loanNoSBuilder.length()>0)
+		{
+			params.put("LoanNoList", loanNoSBuilder.toString());
+			sendExecuteRepay(params,baseUrl);
+		}
+	}
+	private void sendExecuteRepay(Map<String,String> params,String baseUrl)
+	{
+		//LoanNoList + PlatformMoneymoremore + AuditType + RandomTimeStamp + Remark1 + Remark2 + Remark3 + ReturnURL + NotifyURL
+		StringBuilder sBuilder=new StringBuilder();
+		sBuilder.append(StringUtil.strFormat(params.get("LoanNoList")));
+		sBuilder.append(StringUtil.strFormat(params.get("PlatformMoneymoremore")));
+		sBuilder.append(StringUtil.strFormat(params.get("AuditType")));
+		sBuilder.append(StringUtil.strFormat(params.get("RandomTimeStamp")));
+		sBuilder.append(StringUtil.strFormat(params.get("Remark1")));
+		sBuilder.append(StringUtil.strFormat(params.get("Remark2")));
+		sBuilder.append(StringUtil.strFormat(params.get("Remark3")));
+		sBuilder.append(StringUtil.strFormat(params.get("ReturnURL")));
+		sBuilder.append(StringUtil.strFormat(params.get("NotifyURL")));
+		RsaHelper rsa = RsaHelper.getInstance();
+		String signInfo=rsa.signData(sBuilder.toString(), privateKey);
+		params.put("SignInfo", signInfo);
+		String body=httpClientService.post(baseUrl, params);
+		Gson gson = new Gson();
+		Map<String,String> returnParams=gson.fromJson(body, Map.class);
+		try {
+			checkExecutePaybackProcessor(returnParams);
+		} catch (SignatureException e) {
+			e.printStackTrace();
+		} catch (ResultCodeException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void checkExecutePaybackProcessor(Map<String,String> params) throws SignatureException, ResultCodeException
+	{
+		String[] signStrs={"LoanNoList","LoanNoListFail","PlatformMoneymoremore","AuditType","RandomTimeStamp"
+				,"Remark1","Remark2","Remark3","ResultCode"};
+		checkRollBack(params, signStrs);
+		String auditType=params.get("AuditType");
+		if(!StringUtil.isEmpty(params.get("LoanNoList")))
+		{
+			String[] loanNoList=params.get("LoanNoList").split(",");
+			for(String loanNo:loanNoList)
+			{
+				List<CashStream> cashStreams=cashStreamDao.findSuccessByActionAndLoanNo(-1, loanNo);
+				if(cashStreams.size()==2)
+					continue;    //重复的命令
+				CashStream cashStream=cashStreams.get(0);
+				try {
+					Integer cashStreamId=null;
+					if(auditType.equals("1")) //通过审核
+					{
+						Submit submit=null;
+						GovermentOrder order=null;
+						Product product = null;
+						Lender lender = null;
+						if(cashStream.getSubmitId()!=null)
+						{
+							submit=submitService.find(cashStream.getSubmitId());
+							order=orderService.findGovermentOrderByProduct(submit.getProductId());
+							product = productService.find(submit.getProductId());
+							lender = lenderDao.find(submit.getLenderId());
+						}else{
+							submit = new Submit();
+							order = new GovermentOrder();
+							product = new Product();
+							product.setProductSeries(new ProductSeries());
+						}
+						
+						Borrower borrower=borrowerDao.findByAccountID(cashStream.getBorrowerAccountId());
+						
+						
+						//增加解冻现金流
+						if(lender!=null){
+							cashStreamId=accountService.repay(lender.getAccountId(), cashStream.getBorrowerAccountId(), cashStream.getChiefamount().negate(), cashStream.getInterest().negate(), cashStream.getSubmitId(), cashStream.getPaybackId(), "还款");
+						}
+						else{
+							cashStreamId=accountService.storeChange(cashStream.getBorrowerAccountId(), cashStream.getPaybackId(), cashStream.getChiefamount().negate(), cashStream.getInterest().negate(), "还款存零");
+						}
+						Map<String, String> param = new HashMap<String, String>();
+						param.put(IMessageService.PARAM_ORDER_NAME, order.getTitle());
+						param.put(IMessageService.PARAM_PRODUCT_SERIES_NAME, product.getProductSeries().getTitle());
+						
+						//使用的是冻结现金流，因此金额要取负数
+						param.put(IMessageService.PARAM_AMOUNT, cashStream.getChiefamount().add(cashStream.getInterest()).negate().toString());
+						param.put(ILetterSendService.PARAM_TITLE, "收到一笔还款");
+						
+						if(lender!=null)
+						{
+							try {
+								letterSendService.sendMessage(ILetterSendService.MESSAGE_TYPE_PAYBACKSUCCESS, ILetterSendService.USERTYPE_LENDER, lender.getId(), param);
+								messageService.sendMessage(IMessageService.MESSAGE_TYPE_PAYBACKSUCCESS,IMessageService.USERTYPE_LENDER,lender.getId(), param);
+							} catch (SMSException e) {
+								log.error(e.getMessage());
+							}
+						}
+						
+					}
+					else
+					{
+						
+						//TODO:审核拒绝该还款
+						
+						
+//						Submit submit=submitService.find(cashStream.getSubmitId());
+//						GovermentOrder order=orderService.findGovermentOrderByProduct(submit.getProductId());
+//						Product product = productService.find(submit.getProductId());
+//						cashStreamId=accountService.unfreezeLenderAccount(cashStream.getLenderAccountId(), cashStream.getChiefamount().negate(), cashStream.getSubmitId(), "流标");
+//						
+//						//每转一笔，都给对应的lender发送短信
+//						Map<String, String> param = new HashMap<String, String>();
+//						param.put(IMessageService.PARAM_ORDER_NAME, order.getTitle());
+//						param.put(IMessageService.PARAM_PRODUCT_SERIES_NAME, product.getProductSeries().getTitle());
+//						param.put(IMessageService.PARAM_AMOUNT, submit.getAmount().toString());
+//						
+//						param.put(ILetterSendService.PARAM_TITLE, "投资流标,资金解冻");
+//						try{
+//						letterSendService.sendMessage(ILetterSendService.MESSAGE_TYPE_FINANCINGFAIL, ILetterSendService.USERTYPE_LENDER, submit.getLenderId(), param);
+//						messageService.sendMessage(IMessageService.MESSAGE_TYPE_FINANCINGFAIL, IMessageService.USERTYPE_LENDER, submit.getLenderId(), param);
+//						}catch(SMSException e){
+//							log.error(e.getMessage());
+//						}
+					}
+					cashStreamDao.updateLoanNo(cashStreamId, loanNo,null);
+				} catch (IllegalConvertException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	
+	@Override
 	public void check(List<String> loanNos,int auditType) {
 		if(loanNos==null||loanNos.size()==0)
 			return;
@@ -478,9 +643,8 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		authorize.setSignInfo(authorize.getSign(privateKey));
 		return authorize;
 	}
-
 	@Override
-	public void repay(List<LoanJson> loanJsons, PayBack payback) {
+	public void submitForCheckRepay(List<LoanJson> loanJsons, PayBack payback){
 		if(loanJsons==null||loanJsons.size()==0)
 			return;
 		String baseUrl=getBaseUrl(ACTION_TRANSFER);
@@ -490,11 +654,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		params.put("Action", "2");
 		params.put("TransferType", "2");
 		
-		//还款无需审核
-		params.put("NeedAudit", "1");
+//		//还款无需审核
+//		params.put("NeedAudit", "1");
 		
-//		//将还款改为需要审核
-//		params.put("NeedAudit", null);
+		//将还款改为需要审核
+		params.put("NeedAudit", null);
 		
 		params.put("NotifyURL", "http://"+serverHost+":"+serverPort+"/account/repay/response/bg");
 		List<LoanJson> temp=new ArrayList<LoanJson>();
@@ -511,8 +675,6 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 				params.put("LoanJsonList", LoanJsonList);
 				temp.clear();
 				sendRepay(params,baseUrl, order, product, payback);
-				//测试
-//				sendRepayRollback(LoanJsonList,params.get("NotifyURL"));
 			}
 		}
 		if(temp.size()>0)
@@ -520,10 +682,9 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 			String LoanJsonList=Common.JSONEncode(temp);
 			params.put("LoanJsonList", LoanJsonList);
 			sendRepay(params,baseUrl, order, product, payback);
-//			//测试
-//			sendRepayRollback(LoanJsonList,params.get("NotifyURL"));
 		}
 	}
+	
 	private void sendRepay(Map<String,String> params,String baseUrl, GovermentOrder order, Product product, PayBack payback)
 	{
 		StringBuilder sBuilder=new StringBuilder();
@@ -546,16 +707,28 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		Gson gson = new Gson();
 		
 		
-		//自动、免审核转账(Action=2  NeedAudit=1)，除了会通知NotifyURL外，还会将参数以JSON字符串的形式直接输出在页面上，其中包含了2个JSON，一个action为空，表示转账成功，另一个action=1，表示审核通过
-		//因此返回的是两个JSON对象，第一个表示成功，第二个记录了具体的转账信息
-		List returnParams=gson.fromJson(body, List.class);
-		try {
-			repayProcessor((Map<String,String>)returnParams.get(1), order, product, payback);
-		} catch (SignatureException e) {
-			e.printStackTrace();
-		} catch (ResultCodeException e) {
-			e.printStackTrace();
-		}
+//		//自动、免审核转账(Action=2  NeedAudit=1)，除了会通知NotifyURL外，还会将参数以JSON字符串的形式直接输出在页面上，其中包含了2个JSON，一个action为空，表示转账成功，另一个action=1，表示审核通过
+//		//因此返回的是两个JSON对象，第一个表示成功，第二个记录了具体的转账信息
+//		List returnParams=gson.fromJson(body, List.class);
+//		try {
+//			repayProcessor((Map<String,String>)returnParams.get(1), order, product, payback);
+//		} catch (SignatureException e) {
+//			e.printStackTrace();
+//		} catch (ResultCodeException e) {
+//			e.printStackTrace();
+//		}
+		
+		
+		
+		//自动、需要审核转账(Action=2  NeedAudit=null)，只包含一个json，记录了具体的转账信息
+				Map returnParams=gson.fromJson(body, Map.class);
+				try {
+					repayProcessor((Map<String,String>)returnParams, order, product, payback);
+				} catch (SignatureException e) {
+					e.printStackTrace();
+				} catch (ResultCodeException e) {
+					e.printStackTrace();
+				}
 	}
 	private void sendRepayRollback(String LoanJsonList,String notifyURL)
 	{
@@ -681,34 +854,34 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 			Integer cashStreamId = Integer.parseInt(loanJson.getOrderNo());
 			String loanNo=loanJson.getLoanNo();
 			CashStream cashStream = cashStreamDao.find(cashStreamId);
-			if(cashStream.getState()==CashStream.STATE_SUCCESS)
+			if(cashStream.getState()==CashStream.STATE_SUCCESS && loanNo.equals(cashStream.getLoanNo()))
 			{
 				log.debug("重复的回复");
 				continue;
 			}
 			cashStreamDao.updateLoanNo(cashStreamId, loanNo,null);
-			try {
-				accountService.changeCashStreamState(cashStreamId, CashStream.STATE_SUCCESS);
-				
-				Map<String, String> param = new HashMap<String, String>();
-				param.put(IMessageService.PARAM_ORDER_NAME, order.getTitle());
-				param.put(IMessageService.PARAM_PRODUCT_SERIES_NAME, product.getProductSeries().getTitle());
-				param.put(IMessageService.PARAM_AMOUNT, cashStream.getChiefamount().add(cashStream.getInterest()).toString());
-				param.put(ILetterSendService.PARAM_TITLE, "收到一笔还款");
-				Lender lender = lenderDao.findByAccountID(cashStream.getLenderAccountId());
-				
-				if(lender!=null)
-				{
-					try {
-						letterSendService.sendMessage(ILetterSendService.MESSAGE_TYPE_PAYBACKSUCCESS, ILetterSendService.USERTYPE_LENDER, lender.getId(), param);
-						messageService.sendMessage(IMessageService.MESSAGE_TYPE_PAYBACKSUCCESS,IMessageService.USERTYPE_LENDER,lender.getId(), param);
-					} catch (SMSException e) {
-						log.error(e.getMessage());
-					}
-				}
-				} catch (IllegalConvertException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				accountService.changeCashStreamState(cashStreamId, CashStream.STATE_SUCCESS);
+//				
+//				Map<String, String> param = new HashMap<String, String>();
+//				param.put(IMessageService.PARAM_ORDER_NAME, order.getTitle());
+//				param.put(IMessageService.PARAM_PRODUCT_SERIES_NAME, product.getProductSeries().getTitle());
+//				param.put(IMessageService.PARAM_AMOUNT, cashStream.getChiefamount().add(cashStream.getInterest()).toString());
+//				param.put(ILetterSendService.PARAM_TITLE, "收到一笔还款");
+//				Lender lender = lenderDao.findByAccountID(cashStream.getLenderAccountId());
+//				
+//				if(lender!=null)
+//				{
+//					try {
+//						letterSendService.sendMessage(ILetterSendService.MESSAGE_TYPE_PAYBACKSUCCESS, ILetterSendService.USERTYPE_LENDER, lender.getId(), param);
+//						messageService.sendMessage(IMessageService.MESSAGE_TYPE_PAYBACKSUCCESS,IMessageService.USERTYPE_LENDER,lender.getId(), param);
+//					} catch (SMSException e) {
+//						log.error(e.getMessage());
+//					}
+//				}
+//				} catch (IllegalConvertException e) {
+//				e.printStackTrace();
+//			}
 		}
 	}
 

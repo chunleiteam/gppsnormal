@@ -51,9 +51,6 @@
 		<if test="action != -1">
 			and action=#{action}
 		</if>
-		<if test="action == -1 and borrowerAccountId != null">
-            <![CDATA[and action<>1 and action <>2]]>
-        </if>
 		<if test="state != -1">
 			and state=#{state}
 		</if>
@@ -72,9 +69,6 @@
 		<if test="action != -1">
 			and action=#{action}
 		</if>
-		<if test="action == -1 and borrowerAccountId != null">
-            <![CDATA[and action<>1 and action <>2]]>
-        </if>
 		<if test="state != -1">
 			and state=#{state}
 		</if>
@@ -121,6 +115,19 @@
             and payBackId=#{payBackId}
         </if>
     </select>
+    <select id="findRepayCashStreamByAction"
+        resultType="gpps.model.CashStream">
+        select *
+        from CashStream where submitId=#{submitId} and state=2 and action=#{action}
+        <if test="payBackId != null">
+            and payBackId=#{payBackId}
+        </if>
+    </select>
+    <select id="findByRepayAndAction"
+        resultType="gpps.model.CashStream">
+        select *
+        from CashStream where payBackId=#{payBackId} and state=2 and action=#{action}
+    </select>
     <update id="updateLoanNo">
     	update CashStream set loanNo=#{loanNo}
     	<if test="fee != null">
@@ -160,9 +167,9 @@
 			and a.action=#{action}
 		</if>
 	</select>
-	<select id="sumPayBack" resultType="gpps.service.CashStreamSum">
+	<select id="sumPayBackByAction" resultType="gpps.service.CashStreamSum">
 		select sum(chiefamount) chiefAmount,sum(interest) interest from
-		CashStream where paybackId=#{paybackId}  and state=2
+		CashStream where paybackId=#{paybackId} and action=#{action}  and state=2
 	</select>
 	<select id="findBySubmitAndState" resultType="gpps.model.CashStream">
 	   select * from CashStream where action=#{action} and submitId=#{submitId}

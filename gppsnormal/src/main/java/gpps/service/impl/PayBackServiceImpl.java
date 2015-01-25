@@ -29,6 +29,7 @@ import gpps.service.IGovermentOrderService;
 import gpps.service.IPayBackService;
 import gpps.service.IProductService;
 import gpps.service.ITaskService;
+import gpps.service.PayBackDetail;
 import gpps.service.exception.CheckException;
 import gpps.service.exception.IllegalConvertException;
 import gpps.service.exception.IllegalOperationException;
@@ -42,6 +43,7 @@ import gpps.tools.DateCalculateUtils;
 import gpps.tools.PayBackCalculateUtils;
 import gpps.tools.SinglePayBack;
 
+import java.awt.image.SinglePixelPackedSampleModel;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -559,6 +561,13 @@ public class PayBackServiceImpl implements IPayBackService {
 		if (currentProduct.getState() != Product.STATE_REPAYING) 
 			throw new IllegalStateException("该产品尚未进入还款阶段");
 		
+		
+		BorrowerAccount baccount = borrowerAccountDao.find(borrower.getAccountId());
+		if(payBack.getChiefAmount().add(payBack.getInterest()).compareTo(baccount.getUsable())>0){
+			throw new IllegalStateException("账户余额不足！");
+		}
+		
+		
 		// 验证还款顺序
 		List<Product> products = productService.findByGovermentOrder(currentProduct.getGovermentorderId());
 		for (Product product : products) {
@@ -598,16 +607,38 @@ public class PayBackServiceImpl implements IPayBackService {
 		}
 		
 		
-		//首先创建还款冻结现金流，现金流状态为init
-		Integer cashStreamId = accountService.freezeBorrowerAccount(payBack.getBorrowerAccountId(), payBack.getChiefAmount().add(payBack.getInterest()), payBack.getId(), "还款冻结");
+		List<SinglePayBack> spbs = null;
+		try{
+			spbs = calculatePayBacks(payBackId, false);
+			justCheckOutPayBack(payBackId, false, "申请还款");
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new IllegalStateException(e.getMessage());
+		}
 		
-		//然后修改账户金额，执行账户冻结，并将现金流状态变为success,此操作为@Transactional容器托管事务处理
-		accountService.changeCashStreamState(cashStreamId, CashStream.STATE_SUCCESS);
+		for(SinglePayBack spb : spbs){
+			
+			List<CashStream> cs = cashStreamDao.findRepayCashStreamByAction(spb.getSubmitId(), payBackId, CashStream.ACTION_FREEZE);
+			
+			if(cs.size()>0){
+				//已经有相关的冻结现金流了
+				continue;
+			}
+			
+			
+			//首先创建还款冻结现金流，现金流状态为init
+			Integer cashStreamId = accountService.freezeBorrowerAccount(payBack.getBorrowerAccountId(), spb.getChief(), spb.getInterest(), spb.getSubmitId(), payBackId, "还款冻结");
+			
+			//然后修改账户金额，执行账户冻结，并将现金流状态变为success,此操作为@Transactional容器托管事务处理
+			accountService.changeCashStreamState(cashStreamId, CashStream.STATE_SUCCESS);
+			
+		} 
+		
 		
 		//最后将payback的状态修改为"待审核"
 		changeState(payBack.getId(), PayBack.STATE_WAITFORCHECK);
 		
-		log.debug("申请还款：borroweraccountid="+borrower.getAccountId()+" amount=" + payBack.getChiefAmount().add(payBack.getInterest()) + ",cashStreamId=" + cashStreamId);
+		log.debug("申请还款：borroweraccountid="+borrower.getAccountId()+" amount=" + payBack.getChiefAmount().add(payBack.getInterest()) + ",共涉及冻结了"+spbs.size()+"笔还款");
 	}
 	
 	
@@ -646,7 +677,12 @@ public class PayBackServiceImpl implements IPayBackService {
 		Borrower borrower = borrowerDao.findByAccountID(payback.getBorrowerAccountId());
 		
 		taskService.submit(task);
-		accountService.unfreezeBorrowerAccount(payback.getBorrowerAccountId(),payback.getChiefAmount().add(payback.getInterest()), payback.getId(), "还款解冻");
+		
+		// 添加进任务以后，任务已经执行成功，就修改payback的状态为成功
+		changeState(payback.getId(), PayBack.STATE_FINISHREPAY);
+		
+		
+//		accountService.unfreezeBorrowerAccount(payback.getBorrowerAccountId(),payback.getChiefAmount().add(payback.getInterest()), 10, payback.getId(), "还款解冻");
 		if (payback.getType() == PayBack.TYPE_LASTPAY) {
 			// TODO 金额正确，设置产品状态为还款完毕
 			productService.finishRepay(payback.getProductId());
@@ -707,6 +743,176 @@ public class PayBackServiceImpl implements IPayBackService {
 		return paybacks;
 	}
 	
+	public void justCheckOutPayBack(List<CashStream> css, Integer payBackId, String executeStep) throws CheckException{
+		PayBack payBack=find(payBackId);
+		Product product=productDao.find(payBack.getProductId());
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(executeStep+"【"+payBackId+"】:");
+		BigDecimal totalC=BigDecimal.ZERO;
+		BigDecimal totalI=BigDecimal.ZERO;
+		for(CashStream cs:css)
+		{
+			BigDecimal amount = cs.getChiefamount();
+			totalC=totalC.add(amount);
+			BigDecimal interest = cs.getInterest();
+			totalI=totalI.add(interest);
+		}
+		log.info(sb.toString());
+		if(totalC.compareTo(payBack.getChiefAmount().negate())!=0)
+		{
+			String emsg = executeStep+"失败：当前还款金额计算不符,本金总额不等于各笔还款本金之和";
+			log.warn(emsg);
+			throw new CheckException(emsg);
+			
+		}
+		if(totalI.compareTo(payBack.getInterest().negate())!=0)
+		{
+			String emsg = executeStep+"失败：当前还款金额计算不符,利息总额不等于各笔还款利息之和";
+			log.warn(emsg);
+			throw new CheckException(emsg);
+		}
+		
+		// 最后一次验证,验证之前的payback是否符合
+		if(payBack.getType()==PayBack.TYPE_LASTPAY)
+		{
+			BigDecimal amount=BigDecimal.ZERO;
+			List<PayBack> payBacks=findAll(payBack.getProductId());
+			for(PayBack pb:payBacks)
+			{
+				if(pb.getType()==PayBack.TYPE_LASTPAY)
+				{
+					continue;
+				}
+				if(pb.getState()==PayBack.STATE_REPAYING)
+				{
+					String emsg = executeStep+"失败：之前还有执行中的还款";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
+				if(pb.getState()!=PayBack.STATE_FINISHREPAY)
+				{
+					String emsg = executeStep+"失败：还有尚未成功的还款";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
+				
+				//统计针对某一次还款的所有执行成功的还款现金流的本金与利息总和
+				CashStreamSum sum=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_REPAY);
+				
+				//存零的金额
+				CashStreamSum sum2=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_STORECHANGE);
+				
+				//实际执行的还款的本金与利息总和与payback的本金与利息总额应该一致
+				if(sum.getChiefAmount().add(sum2.getChiefAmount()).compareTo(pb.getChiefAmount())!=0||sum.getInterest().add(sum2.getInterest()).compareTo(pb.getInterest())!=0)
+				{
+					String emsg = executeStep+"失败：还款[id:"+pb.getId()+"]金额计算不符";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
+				
+				amount=amount.add(pb.getChiefAmount());
+			}
+			if(amount.add(payBack.getChiefAmount()).compareTo(product.getRealAmount())!=0)
+			{
+				String emsg = executeStep+"失败：还款总额与产品不符";
+				log.warn(emsg);
+				throw new CheckException(emsg);
+			}
+		}
+		log.info(executeStep+"成功！");
+	}
+	
+	
+	public List<SinglePayBack> justCheckOutPayBack(List<SinglePayBack> spbs, Integer payBackId, boolean isinterrupted, String executeStep) throws CheckException{
+		PayBack payBack=find(payBackId);
+		Product product=productDao.find(payBack.getProductId());
+		StringBuilder sb = new StringBuilder();
+		sb.append(executeStep+"【"+payBackId+"】:");
+		BigDecimal totalC=BigDecimal.ZERO;
+		BigDecimal totalI=BigDecimal.ZERO;
+		for(SinglePayBack spb:spbs)
+		{
+			BigDecimal amount = spb.getChief();
+			totalC=totalC.add(amount);
+			BigDecimal interest = spb.getInterest();
+			totalI=totalI.add(interest);
+			String singlePayback = spb.getToname()+": 本金="+spb.getChief()+", 利息="+spb.getInterest()+";\n";
+			sb.append(singlePayback);
+		}
+		log.info(sb.toString());
+		if(totalC.compareTo(payBack.getChiefAmount())!=0)
+		{
+			String emsg = executeStep+"失败：当前还款金额计算不符,本金总额不等于各笔还款本金之和";
+			log.warn(emsg);
+			throw new CheckException(emsg);
+			
+		}
+		if(totalI.compareTo(payBack.getInterest())!=0)
+		{
+			String emsg = executeStep+"失败：当前还款金额计算不符,利息总额不等于各笔还款利息之和";
+			log.warn(emsg);
+			throw new CheckException(emsg);
+		}
+		
+		// 最后一次验证,验证之前的payback是否符合
+		if(payBack.getType()==PayBack.TYPE_LASTPAY)
+		{
+			BigDecimal amount=BigDecimal.ZERO;
+			List<PayBack> payBacks=findAll(payBack.getProductId());
+			for(PayBack pb:payBacks)
+			{
+				if(pb.getType()==PayBack.TYPE_LASTPAY)
+				{
+					continue;
+				}
+				if(pb.getState()==PayBack.STATE_REPAYING)
+				{
+					String emsg = executeStep+"失败：之前还有执行中的还款";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
+				if(pb.getState()!=PayBack.STATE_FINISHREPAY)
+				{
+					String emsg = executeStep+"失败：还有尚未成功的还款";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
+				
+				//统计针对某一次还款的所有执行成功的还款现金流的本金与利息总和
+				CashStreamSum sum=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_REPAY);
+				
+				//存零的金额
+				CashStreamSum sum2=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_STORECHANGE);
+				
+				//实际执行的还款的本金与利息总和与payback的本金与利息总额应该一致
+				if(sum.getChiefAmount().add(sum2.getChiefAmount()).compareTo(pb.getChiefAmount())!=0||sum.getInterest().add(sum2.getInterest()).compareTo(pb.getInterest())!=0)
+				{
+					String emsg = executeStep+"失败：还款[id:"+pb.getId()+"]金额计算不符";
+					log.warn(emsg);
+					throw new CheckException(emsg);
+				}
+				
+				amount=amount.add(pb.getChiefAmount());
+			}
+			if(amount.add(payBack.getChiefAmount()).compareTo(product.getRealAmount())!=0)
+			{
+				String emsg = executeStep+"失败：还款总额与产品不符";
+				log.warn(emsg);
+				throw new CheckException(emsg);
+			}
+		}
+		log.info(executeStep+"成功！");
+		
+		SinglePayBack spb = new SinglePayBack();
+		spb.setToname("总计");
+		spb.setChief(payBack.getChiefAmount());
+		spb.setInterest(payBack.getInterest());
+		spb.setSubmitAmount(product.getRealAmount());
+		spbs.add(spb);
+		
+		return spbs;
+	}
 	
 	public List<SinglePayBack> justCheckOutPayBack(Integer payBackId, boolean isinterrupted, String executeStep) throws CheckException{
 		PayBack payBack=find(payBackId);
@@ -770,9 +976,17 @@ public class PayBackServiceImpl implements IPayBackService {
 				}
 				
 				//统计针对某一次还款的所有执行成功的还款现金流的本金与利息总和
-				CashStreamSum sum=cashStreamDao.sumPayBack(pb.getId());
+				CashStreamSum sum=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_REPAY);
+				
+				//存零的金额
+				CashStreamSum sum2=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_STORECHANGE);
+				if(sum2==null)
+				{
+					sum2 = new CashStreamSum();
+				}
+				
 				//实际执行的还款的本金与利息总和与payback的本金与利息总额应该一致
-				if(sum.getChiefAmount().compareTo(pb.getChiefAmount())!=0||sum.getInterest().compareTo(pb.getInterest())!=0)
+				if(sum.getChiefAmount().add(sum2.getChiefAmount()).compareTo(pb.getChiefAmount())!=0||sum.getInterest().add(sum2.getInterest()).compareTo(pb.getInterest())!=0)
 				{
 					String emsg = executeStep+"失败：还款[id:"+pb.getId()+"]金额计算不符";
 					log.warn(emsg);
@@ -802,21 +1016,24 @@ public class PayBackServiceImpl implements IPayBackService {
 	
 	
 	@Override
-	public List<SinglePayBack> checkoutPayBack(Integer payBackId) throws CheckException {
-		List<SinglePayBack> spbs = justCheckOutPayBack(payBackId, false, "预审核");
+	public List<CashStream> checkoutPayBack(Integer payBackId) throws CheckException {
+		PayBack payback = payBackDao.find(payBackId);
+		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_FREEZE);
+		
+		justCheckOutPayBack(css, payBackId, "预审核");
+		
+		
+		Task task = new Task();
+		task.setCreateTime(System.currentTimeMillis());
+		task.setPayBackId(payBackId);
+		task.setProductId(payback.getProductId());
+		task.setState(Task.STATE_INIT);
+		task.setType(Task.TYPE_CHECK_REPAY);   //审核还款也需要扔到任务中处理
+		
 		payBackDao.changeCheckResult(payBackId, PayBack.CHECK_SUCCESS);
 		
-		PayBack payBack=find(payBackId);
-		Product product=productDao.find(payBack.getProductId());
-		
-		SinglePayBack spb = new SinglePayBack();
-		spb.setToname("总计");
-		spb.setChief(payBack.getChiefAmount());
-		spb.setInterest(payBack.getInterest());
-		spb.setSubmitAmount(product.getRealAmount());
-		spbs.add(spb);
-		
-		return spbs;
+		taskService.submit(task);
+		return css;
 	}
 	
 	@Override

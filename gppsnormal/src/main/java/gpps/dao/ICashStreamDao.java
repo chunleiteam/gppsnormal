@@ -46,6 +46,26 @@ public interface ICashStreamDao {
 	 */
 	public List<CashStream> findRepayCashStream(@Param("submitId")Integer submitId,@Param("payBackId")Integer payBackId);
 	
+	
+	/**
+	 * 找到针对某笔投资的某笔还款的指定状态的现金流
+	 * @param submitId
+	 * @param payBackId null为不限
+	 * @param action 动作
+	 * @return
+	 */
+	public List<CashStream> findRepayCashStreamByAction(@Param("submitId")Integer submitId,@Param("payBackId")Integer payBackId,@Param("action")int action);
+	
+	/**
+	 * 找到针对某一次还款的指定状态的所有现金流
+	 * @param payBackId 还款ID
+	 * @param action 动作
+	 * 
+	 * */
+	public List<CashStream> findByRepayAndAction(@Param("payBackId")Integer payBackId,@Param("action")int action);
+	
+	
+	
 	public void updateLoanNo(@Param("cashStreamId") Integer cashStreamId,@Param("loanNo") String loanNo,@Param("fee")BigDecimal fee);
 	/**
 	 * 根据action及loanNo查找流水
@@ -57,7 +77,7 @@ public interface ICashStreamDao {
 	
 	public CashStreamSum sumCashStream(@Param("lenderAccountId")Integer lenderAccountId,@Param("borrowerAccountId")Integer borrowerAccountId,@Param("actions")List<Integer> actions);
 	public CashStreamSum sumProduct(@Param("productId")Integer productId,@Param("action")int action);
-	public CashStreamSum sumPayBack(@Param("paybackId")Integer paybackId);
+	public CashStreamSum sumPayBackByAction(@Param("paybackId")Integer paybackId, @Param("action")int action);
 	
 	public CashStream findBySubmitAndState(@Param("submitId")Integer submitId,@Param("action")int action);
 	

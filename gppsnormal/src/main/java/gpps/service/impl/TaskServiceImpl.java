@@ -162,6 +162,9 @@ public class TaskServiceImpl implements ITaskService {
 		case Task.TYPE_REPAY:
 			executeRepayTask(task, interrupted);
 			break;
+		case Task.TYPE_CHECK_REPAY:
+			executeRepayCheckTask(task, interrupted);
+			break;
 		default:
 			throw new RuntimeException("不支持的任务类型");
 		}
@@ -228,58 +231,113 @@ public class TaskServiceImpl implements ITaskService {
 		thirdPaySupportService.check(loanNos, 2);
 		logger.info("流标任务["+task.getId()+"]完毕，涉及Submit"+submits.size()+"个");
 	}
-	
-	private void executeRepayTask(Task task,boolean interrupted) throws Exception
-	{
+	private void executeRepayCheckTask(Task task, boolean interrupted) throws Exception{
+		PayBack payback = payBackDao.find(task.getPayBackId());
+		Product product = productDao.find(task.getProductId());
+		Borrower borrower = borrowerDao.findByAccountID(payback.getBorrowerAccountId());
+		
+		
 		//考虑打断情况
-		logger.info("开始执行产品id="+task.getProductId()+"的还款任务taskID="+task.getId());
+		logger.info("开始执行产品id="+task.getProductId()+"的还款校验任务taskID="+task.getId());
 		if(interrupted)
-			logger.info("该支付任务曾被打断过，现在继续执行");
+		logger.info("该校验任务曾被打断过，现在继续执行");
 		
-		//调用paybackService的calculatePayBacks计算还款计划(支持对于被打断还款的计算)
-		List<SinglePayBack> spbs = payBackService.calculatePayBacks(task.getPayBackId(), interrupted);
-		//调用paybackService的justCheckOutPayBack校验还款计划，如果发现有不正常，则抛出异常终止下面的进行
-		payBackService.justCheckOutPayBack(task.getPayBackId(), interrupted, "还款校验");
-		
-		PayBack payBack=payBackService.find(task.getPayBackId());
-		Product product=productDao.find(payBack.getProductId());
+		List<CashStream> css = cashStreamDao.findByRepayAndAction(task.getPayBackId(), CashStream.ACTION_FREEZE);
 		List<LoanJson> loanJsons=new ArrayList<LoanJson>();
 		
-		
-		for(SinglePayBack spb : spbs){
-			//已成功还款的直接跳过
-			if(spb.getState()==SinglePayBack.STATE_REPAY_SUCCESS){
+		for(CashStream cs : css){
+			//已成功通知第三方执行冻结，并保存了第三方返回的loanNo
+			if(cs.getState()==CashStream.STATE_SUCCESS&&(cs.getLoanNo()!=null&&!"".equals(cs))){
 				continue;
 			}
 			
-			//对于非“存零操作”的还款
-			if(spb.getToAccountId()!=-1)
-			{
-				Integer cashStreamId=accountService.repay(spb.getToAccountId(), spb.getFromAccountId(), spb.getChief(), spb.getInterest(), spb.getSubmitId(), payBack.getId(), "还款");
-				LoanJson loadJson=new LoanJson();
-				loadJson.setLoanOutMoneymoremore(spb.getFromMoneyMoreMore());
-				loadJson.setLoanInMoneymoremore(spb.getToMoneyMoreMore());
-				loadJson.setOrderNo(String.valueOf(cashStreamId));
-				loadJson.setBatchNo(String.valueOf(product.getId()));
-				loadJson.setAmount(spb.getChief().add(spb.getInterest()).toString());
-				loanJsons.add(loadJson);
-			}else
-			{
-				//对于“存零操作”的还款，有余额则放入自有账户中
-				Integer cashStreamId=accountService.storeChange(spb.getFromAccountId(),payBack.getId(),spb.getChief(),spb.getInterest(), "存零");
-				LoanJson loadJson=new LoanJson();
-				loadJson.setLoanOutMoneymoremore(spb.getFromMoneyMoreMore());
-				loadJson.setLoanInMoneymoremore(spb.getToMoneyMoreMore());
-				loadJson.setOrderNo(String.valueOf(cashStreamId));
-				loadJson.setBatchNo(String.valueOf(product.getId()));
-				loadJson.setAmount(spb.getChief().add(spb.getInterest()).toString());
-				loanJsons.add(loadJson);
+			String toMoneyMoreMore = null;
+			Submit submit = submitDao.find(cs.getSubmitId());
+			if(submit==null){
+				toMoneyMoreMore = thirdPaySupportService.getPlatformMoneymoremore();
+			}else{
+				Lender lender = lenderDao.find(submit.getLenderId());
+				if(lender==null){
+					throw new Exception("投资无法找到投资人！");
+				}
+				toMoneyMoreMore = lender.getThirdPartyAccount();
 			}
+			
+				LoanJson loadJson=new LoanJson();
+				loadJson.setLoanOutMoneymoremore(borrower.getThirdPartyAccount());
+				loadJson.setLoanInMoneymoremore(toMoneyMoreMore);
+				loadJson.setOrderNo(String.valueOf(cs.getId()));
+				loadJson.setBatchNo(String.valueOf(product.getId()));
+				loadJson.setAmount(cs.getChiefamount().add(cs.getInterest()).negate().toString());
+				loanJsons.add(loadJson);
 		}
+		thirdPaySupportService.submitForCheckRepay(loanJsons, payback);
+	}
+	private void executeRepayTask(Task task,boolean interrupted) throws Exception
+	{
 		
-		thirdPaySupportService.repay(loanJsons, payBack);
-		payBackService.changeState(payBack.getId(), PayBack.STATE_FINISHREPAY);
-		logger.info("还款任务["+task.getId()+"]完毕，涉及"+spbs.size()+"笔");
+		PayBack payback = payBackDao.find(task.getPayBackId());
+		Borrower borrower = borrowerDao.findByAccountID(payback.getBorrowerAccountId());
+
+		//考虑打断情况
+				logger.info("开始执行产品id="+task.getProductId()+"的还款任务taskID="+task.getId());
+				if(interrupted)
+					logger.info("该支付任务曾被打断过，现在继续执行");
+		List<CashStream> css = cashStreamDao.findByRepayAndAction(task.getPayBackId(), CashStream.ACTION_FREEZE);
+		
+		if(css==null||css.size()==0)
+			return;
+		List<String> loanNos=new ArrayList<String>();
+		loop:for(CashStream cs:css)
+		{
+			
+			if(cs.getLoanNo()==null || "".equals(cs.getLoanNo())){
+				continue loop;
+			}
+			
+			CashStream freezeCS=null;
+			List<CashStream> cashStreams=cashStreamDao.findRepayCashStreamByAction(cs.getSubmitId(), task.getPayBackId(), CashStream.ACTION_REPAY);
+			
+			if(cashStreams!=null && !cashStreams.isEmpty()){
+				//如果有购买成功的现金流，跳过
+				continue loop;
+			}
+			
+			loanNos.add(cs.getLoanNo());
+			
+//			Submit submit = submitDao.find(cs.getSubmitId());
+//			Lender lender = lenderDao.find(submit.getLenderId());
+//			
+//			//对于非“存零操作”的还款
+//			if(cs.getSubmitId()!=null)
+//			{
+//				
+//				//TODO：增加一个解冻现金流
+//				Integer cashStreamId=accountService.repay(lender.getAccountId(), borrower.getAccountId(), cs.getChiefamount(), cs.getInterest(), cs.getSubmitId(), task.getPayBackId(), "还款");
+//				LoanJson loadJson=new LoanJson();
+//				loadJson.setLoanOutMoneymoremore(borrower.getThirdPartyAccount());
+//				loadJson.setLoanInMoneymoremore(lender.getThirdPartyAccount());
+//				loadJson.setOrderNo(String.valueOf(cashStreamId));
+//				loadJson.setBatchNo(String.valueOf(task.getProductId()));
+//				loadJson.setAmount(cs.getChiefamount().add(cs.getInterest()).negate().toString());
+//				loanJsons.add(loadJson);
+//			}else
+//			{
+//				//TODO：增加一个解冻现金流
+//				//对于“存零操作”的还款，有余额则放入自有账户中
+//				Integer cashStreamId=accountService.storeChange(borrower.getAccountId(),task.getPayBackId(),cs.getChiefamount(),cs.getInterest(), "存零");
+//				LoanJson loadJson=new LoanJson();
+//				loadJson.setLoanOutMoneymoremore(borrower.getThirdPartyAccount());
+//				loadJson.setLoanInMoneymoremore(thirdPaySupportService.getPlatformMoneymoremore());
+//				loadJson.setOrderNo(String.valueOf(cashStreamId));
+//				loadJson.setBatchNo(String.valueOf(task.getProductId()));
+//				loadJson.setAmount(cs.getChiefamount().add(cs.getInterest()).negate().toString());
+//				loanJsons.add(loadJson);
+//			}
+			
+		}
+		thirdPaySupportService.repay(loanNos, 1);
+		logger.info("还款任务["+task.getId()+"]完毕，涉及还款"+loanNos.size()+"个");
 	}
 	@Override
 	public void submit(Task task) {

@@ -96,7 +96,9 @@ public class CheckProduct {
 		BigDecimal realPayCashAmount = new BigDecimal(0);
 		for(PayBack payback:paybacks){
 			paybackChiefAmount = paybackChiefAmount.add(payback.getChiefAmount());
-			CashStreamSum paysum = cashStreamDao.sumPayBack(payback.getId());
+			
+			//选择用解冻来统计还款的金额
+			CashStreamSum paysum = cashStreamDao.sumPayBackByAction(payback.getId(), CashStream.ACTION_UNFREEZE);
 			realPayCashAmount = realPayCashAmount.add(paysum.getChiefAmount());
 		}
 		
@@ -189,7 +191,7 @@ public class CheckProduct {
 		BigDecimal paybackChiefAmount = new BigDecimal(0);
 		for(PayBack payback:paybacks){
 			if(payback.getState() == PayBack.STATE_FINISHREPAY){
-				CashStreamSum sum = cashStreamDao.sumPayBack(payback.getId());
+				CashStreamSum sum = cashStreamDao.sumPayBackByAction(payback.getId(), CashStream.ACTION_PAY);
 				if(sum.getChiefAmount().compareTo(payback.getChiefAmount())==0 && sum.getInterest().compareTo(payback.getInterest())==0){
 					paybackChiefAmount = paybackChiefAmount.add(payback.getChiefAmount());
 				}else{

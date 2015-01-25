@@ -50,7 +50,7 @@ public interface IAccountService {
 	 * @param amount
 	 * @throws IllegalConvertException 
 	 */
-	public Integer freezeBorrowerAccount(Integer borrowerAccountId,BigDecimal amount,Integer paybackId,String description) throws InsufficientBalanceException;
+	public Integer freezeBorrowerAccount(Integer borrowerAccountId,BigDecimal chiefAmount, BigDecimal interest, Integer submitId,Integer paybackId,String description) throws InsufficientBalanceException;
 	/**
 	 * 借款人账户解冻
 	 * @param borrowerAccountId
@@ -60,7 +60,7 @@ public interface IAccountService {
 	 * @return
 	 * @throws IllegalConvertException
 	 */
-	public Integer unfreezeBorrowerAccount(Integer borrowerAccountId,BigDecimal amount,Integer paybackId,String description) throws IllegalConvertException;
+	public Integer unfreezeBorrowerAccount(Integer borrowerAccountId,BigDecimal amount, Integer submitId,Integer paybackId,String description) throws IllegalConvertException;
 	/**
 	 * 贷款人将冻结资金支付给借款人
 	 * @param amount
@@ -93,7 +93,7 @@ public interface IAccountService {
 	 * @param description
 	 * @return
 	 */
-	public Integer storeChange(Integer borrowerAccountId,Integer paybackId,BigDecimal chiefamount,BigDecimal interest,String description);
+	public Integer storeChange(Integer borrowerAccountId,Integer paybackId,BigDecimal chiefamount,BigDecimal interest,String description) throws IllegalConvertException;
 	/**
 	 * 修改资金流的状态
 	 * 在该方法中实际对账户(借款人/贷款人)进行修改

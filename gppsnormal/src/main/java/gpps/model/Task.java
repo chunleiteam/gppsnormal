@@ -2,8 +2,9 @@ package gpps.model;
 public class Task {
 	private Integer id;
 	public static final int TYPE_PAY=0;//完成融资支付
-	public static final int TYPE_REPAY=1;//还款
+	public static final int TYPE_REPAY=1;//执行还款
 	public static final int TYPE_QUITFINANCING=2;//流标
+	public static final int TYPE_CHECK_REPAY=3; //还款审核
 	private int type;
 	private long createTime=System.currentTimeMillis();
 	public static final int STATE_INIT=0;
