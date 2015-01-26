@@ -1274,6 +1274,19 @@ var letterunread_center = function(container){
 		}
 		result.sEcho = sEcho;
 		fnCallback(result);
+		
+		$('.readletter').click(function(e){
+			
+			var letterService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ILetterService");
+			var id = $(this).attr('id');
+			var letter = letterService.find(parseInt(id));
+			$('#myModalLabel').html(letter.title);
+			$('#ldetail').html(letter.content);
+			$('#letterdetail').modal({
+				  keyboard: false,
+				  backdrop: true
+			});
+		})
 
 		return res;
 	}
@@ -1302,20 +1315,7 @@ var letterunread_center = function(container){
 		fnServerData : fnServerData,
 		oLanguage : _defaultDataTableOLanguage,
 		pagingType: "full"
-	} );
-	
-	$('.readletter').click(function(e){
-		
-		var letterService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ILetterService");
-		var id = $(this).attr('id');
-		var letter = letterService.find(parseInt(id));
-		$('#myModalLabel').html(letter.title);
-		$('#ldetail').html(letter.content);
-		$('#letterdetail').modal({
-			  keyboard: false,
-			  backdrop: true
-		});
-	})	
+	} );	
 	
 }
 

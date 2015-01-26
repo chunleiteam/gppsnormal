@@ -1016,9 +1016,12 @@ public class PayBackServiceImpl implements IPayBackService {
 	
 	
 	@Override
-	public List<CashStream> checkoutPayBack(Integer payBackId) throws CheckException {
+	public List<SinglePayBack> checkoutPayBack(Integer payBackId) throws CheckException {
 		PayBack payback = payBackDao.find(payBackId);
 		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_FREEZE);
+		
+		List<SinglePayBack> spbs = new ArrayList<SinglePayBack>();
+		
 		
 		justCheckOutPayBack(css, payBackId, "预审核");
 		
@@ -1033,7 +1036,46 @@ public class PayBackServiceImpl implements IPayBackService {
 		payBackDao.changeCheckResult(payBackId, PayBack.CHECK_SUCCESS);
 		
 		taskService.submit(task);
-		return css;
+		
+		Borrower borrower = borrowerDao.findByAccountID(payback.getBorrowerAccountId());
+		
+		for(CashStream cs : css){
+			
+			if(cs.getSubmitId()==null){
+				SinglePayBack spb = new SinglePayBack();
+				spb.setChief(cs.getChiefamount());
+				spb.setFromAccountId(cs.getBorrowerAccountId());
+				spb.setFromMoneyMoreMore(borrower.getThirdPartyAccount());
+				spb.setFromname(borrower.getCompanyName());
+				spb.setInterest(cs.getInterest());
+				spb.setSubmitAmount(new BigDecimal(0));
+				spb.setSubmitId(null);
+				spb.setToAccountId(null);
+				spb.setToMoneyMoreMore(thirdPaySupportService.getPlatformMoneymoremore());
+				spb.setToname("政采贷平台");
+				spbs.add(spb);
+			}else{
+			
+			Submit submit = submitDao.find(cs.getSubmitId());
+			
+			Lender lender = lenderDao.find(submit.getLenderId());
+			
+			SinglePayBack spb = new SinglePayBack();
+			spb.setChief(cs.getChiefamount());
+			spb.setFromAccountId(cs.getBorrowerAccountId());
+			spb.setFromMoneyMoreMore(borrower.getThirdPartyAccount());
+			spb.setFromname(borrower.getCompanyName());
+			spb.setInterest(cs.getInterest());
+			spb.setSubmitAmount(submit.getAmount());
+			spb.setSubmitId(submit.getId());
+			spb.setToAccountId(lender.getAccountId());
+			spb.setToMoneyMoreMore(lender.getThirdPartyAccount());
+			spb.setToname(lender.getName());
+			spbs.add(spb);
+			}
+		}
+		
+		return spbs;
 	}
 	
 	@Override

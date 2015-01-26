@@ -836,21 +836,27 @@ var requesttohandle = function(container){
 	});
 	$('button.requestpass').click(function(e){
 		var rid = $(this).attr('id');
+		if(confirm('确认已经审核并创建完毕融资相关资料，要审核通过融资请求？'))
+		{
 		try{
 		bService.passFinancingRequest(parseInt(rid));
 		window.location.href='opadmin.html?fid=request&sid=request-pass';
 		}catch(e){
 			alert(e.message);
 		}
+		}
 	});
 	
 	$('button.requestrefuse').click(function(e){
 		var rid = $(this).attr('id');
+		if(confirm('确认要拒绝融资申请？'))
+		{
 		try{
 		bService.refuseFinancingRequest(parseInt(rid));
 		window.location.href='opadmin.html?fid=request&sid=request-refuse';
 		}catch(e){
 			alert(e.message);
+		}
 		}
 	});
 	
@@ -1179,11 +1185,14 @@ var orderpreview = function(container){
 		
 		$('button.startfinancing').click(function(e){
 			var orderid = parseInt($(this).attr('id'));
+			if(confirm('确定要启动融资吗？'))
+			{
 			try{
 			orderService.startFinancing(orderid);
 			window.location.href="opadmin.html?fid=order&sid=order-financing";
 			}catch(e){
 				alert(e.message);
+			}
 			}
 		});
 		
@@ -1322,10 +1331,6 @@ var orderfinancing = function(container){
 		
 		$('button.startpay').click(function(e){
 			var orderid = parseInt($(this).attr('id'));
-//			var products = productService.findByGovermentOrder(orderid);
-//			for(var i=0; i<products.size(); i++){
-//				productService.startRepaying(products.get(i).id);
-//			}
 			if(confirm('您确认融资完成，要启动还款吗？'))
 				{
 			try{
@@ -1481,10 +1486,10 @@ var paybacktoaudit = function(container){
 		try{
 			var res = paybackService.checkoutPayBack(paybackid);
 			var table = $('<table width="100%"></table>');
-			table.append('<tr><th>投资者账户</th><th>还款本金</th><th>还款利息</th></tr>')
+			table.append('<tr><th>投资者姓名</th><th>还款本金</th><th>还款利息</th><th>投标金额</th></tr>')
 			for(var i=0; i<res.size(); i++){
 				var re = res.get(i);
-				table.append('<tr><td>'+re.lenderAccountId+'</td><td>'+re.chiefamount.value+'</td><td>'+re.interest.value+'</td></tr>');
+				table.append('<tr><td>'+re.toname+'</td><td>'+re.chief.value+'</td><td>'+re.interest.value+'</td><td>'+re.submitAmount.value+'</td></tr>');
 			}
 			$('#paybackDetail').html('');
 			$('#paybackDetail').append(table);

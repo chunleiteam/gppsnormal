@@ -274,7 +274,21 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	@Transactional
 	public void startRepaying(Integer orderId) throws IllegalConvertException,IllegalOperationException, ExistWaitforPaySubmitException, CheckException {
 		
+		GovermentOrder ord = govermentOrderDao.find(orderId);
+		long financingEndtime = ord.getFinancingEndtime();
+		
+		
+		
+		
 		List<Product> pts = productService.findByGovermentOrder(orderId);
+		
+		for(Product product:pts){
+			CashStreamSum sum = cashStreamDao.sumProduct(product.getId(), CashStream.ACTION_FREEZE);
+			if((sum==null||sum.getChiefAmount().negate().compareTo(product.getExpectAmount())<0) && financingEndtime>System.currentTimeMillis()){
+				throw new IllegalOperationException("金额尚未融满，且融资截止时间未到，无法启动还款！");
+			}
+		}
+		
 		for(Product product:pts){
 			if(!contractService.isComplete(product.getId())){
 				throw new IllegalOperationException("合同尚未处理完毕，无法启动融资");

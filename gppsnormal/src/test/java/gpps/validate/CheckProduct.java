@@ -191,7 +191,7 @@ public class CheckProduct {
 		BigDecimal paybackChiefAmount = new BigDecimal(0);
 		for(PayBack payback:paybacks){
 			if(payback.getState() == PayBack.STATE_FINISHREPAY){
-				CashStreamSum sum = cashStreamDao.sumPayBackByAction(payback.getId(), CashStream.ACTION_PAY);
+				CashStreamSum sum = cashStreamDao.sumPayBackByAction(payback.getId(), CashStream.ACTION_UNFREEZE);
 				if(sum.getChiefAmount().compareTo(payback.getChiefAmount())==0 && sum.getInterest().compareTo(payback.getInterest())==0){
 					paybackChiefAmount = paybackChiefAmount.add(payback.getChiefAmount());
 				}else{
