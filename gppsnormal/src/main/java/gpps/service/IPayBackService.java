@@ -140,4 +140,10 @@ public interface IPayBackService {
 	 * 
 	 * */
 	public List<SinglePayBack> justCheckOutPayBack(Integer payBackId, boolean isinterrupted, String executeStep) throws CheckException;
+	
+	/**
+	 * 查询剩余指定天数以内的待还款
+	 * 
+	 * */
+	public List<PayBackToView> getWaitingForPayBacksByLeftDays(int leftDays) throws Exception;
 }

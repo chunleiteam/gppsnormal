@@ -60,6 +60,12 @@
 		borrowerAccountId=#{borrowerAccountId},productId=#{productId},state=#{state},chiefAmount=#{chiefAmount},interest=#{interest},deadline=#{deadline},realtime=#{realtime},type=#{type}
 		where id=#{id}
 	</update>
+	<select id="findByTimeAndState" resultType="gpps.model.PayBack">
+		<![CDATA[
+		select *
+		from PayBack where state = #{state} and deadline >= #{starttime} and deadline <= #{endtime} order by deadline asc
+		]]>
+	</select>
 	<select id="findByBorrowerAndState" resultType="gpps.model.PayBack">
 		select *
 		from PayBack where borrowerAccountId=#{borrowerAccountId}

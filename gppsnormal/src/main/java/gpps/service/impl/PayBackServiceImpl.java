@@ -22,6 +22,7 @@ import gpps.model.ProductSeries;
 import gpps.model.StateLog;
 import gpps.model.Submit;
 import gpps.model.Task;
+import gpps.model.ref.Contactor.Single;
 import gpps.service.CashStreamSum;
 import gpps.service.IAccountService;
 import gpps.service.IBorrowerService;
@@ -29,7 +30,7 @@ import gpps.service.IGovermentOrderService;
 import gpps.service.IPayBackService;
 import gpps.service.IProductService;
 import gpps.service.ITaskService;
-import gpps.service.PayBackDetail;
+import gpps.service.PayBackToView;
 import gpps.service.exception.CheckException;
 import gpps.service.exception.IllegalConvertException;
 import gpps.service.exception.IllegalOperationException;
@@ -43,7 +44,6 @@ import gpps.tools.DateCalculateUtils;
 import gpps.tools.PayBackCalculateUtils;
 import gpps.tools.SinglePayBack;
 
-import java.awt.image.SinglePixelPackedSampleModel;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1215,6 +1215,45 @@ public class PayBackServiceImpl implements IPayBackService {
 			
 		}else{
 			throw new Exception("还款"+payBack.getId()+"金额计算有问题，利息不在合理范围内，请检查！");
+		}
+		
+		return res;
+	}
+	
+	public List<PayBackToView> getWaitingForPayBacksByLeftDays(int leftDays) throws Exception{
+		long n = System.currentTimeMillis();
+		long starttime = 0;
+		long endtime = 0;
+		if(leftDays<=0){
+			starttime = -1;
+		}else{
+			starttime = n;
+		}
+		endtime = n + 24L*3600*1000*leftDays;
+		
+		List<PayBackToView> res = new ArrayList<PayBackToView>();
+		
+		List<PayBack> pbs = payBackDao.findByTimeAndState(starttime, endtime, PayBack.STATE_WAITFORREPAY);
+		if(pbs==null){
+			return res;
+		}
+		for(PayBack pb : pbs){
+			Borrower borrower = borrowerDao.findByAccountID(pb.getBorrowerAccountId());
+			GovermentOrder order = orderSerivce.findGovermentOrderByProduct(pb.getProductId());
+			Product product = productService.find(pb.getProductId());
+			PayBackToView pbtv = new PayBackToView();
+			pbtv.setBorrowerid(borrower.getId());
+			pbtv.setBorrowerName(borrower.getCompanyName());
+			pbtv.setChief(pb.getChiefAmount());
+//			pbtv.setContactor(borrowerService.findContactor(borrower.getId()));
+			pbtv.setDeadline(pb.getDeadline());
+			pbtv.setInterest(pb.getInterest());
+			pbtv.setOrderTitle(order.getTitle());
+			pbtv.setSeriesTitle(product.getProductSeries().getTitle());
+			pbtv.setTel(borrower.getTel());
+			pbtv.setId(pb.getId());
+			pbtv.setProductid(pb.getProductId());
+			res.add(pbtv);
 		}
 		
 		return res;

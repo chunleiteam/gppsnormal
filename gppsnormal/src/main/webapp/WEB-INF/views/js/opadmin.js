@@ -129,6 +129,13 @@ var createAdminNavLevel2 = function(nav){
 		ul.append(li4);
 		ul.append(li5);
 		ul.append(li6);
+	}else if(nav=='payback'){
+		var li1 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="left7">7日内还款</a></li>');
+		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="left3">3日内还款</a></li>');
+		var li3 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="left1">1日内还款</a></li>');
+		ul.append(li1);
+		ul.append(li2);
+		ul.append(li3);
 	}
 	else if(nav=='borrower'){
 		var li1 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="borrower-all">全部企业</a></li>');
@@ -1416,10 +1423,101 @@ var orderfinancing = function(container){
 }
 
 var orderpaying = function(container){
-	ordershow(4, container)
+	ordershow(4, container);
 }
-
-
+var left7 = function(container){
+	leftd(container, 180);
+}
+var left3 = function(container){
+	leftd(container, 80);
+}
+var left1 = function(container){
+	leftd(container, 40);
+}
+var leftd = function(container, d){
+	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
+	var borrowerService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IBorrowerService");
+	var columns = [ {
+		"sTitle" : "项目名称",
+			"code" : "product"
+	}, {
+		"sTitle" : "借款方",
+		"code" : "total"
+	}, {
+		"sTitle" : "应还本金",
+		"code" : "bj"
+	}, {
+		"sTitle" : "应还利息",
+		"code" : "lx"
+	}, {
+		"sTitle" : "还款期限",
+		"code" : "time"
+	},{
+		"sTitle" : "联系电话",
+		"code" : "check"
+	},{
+		"sTitle" : "查看详细",
+		"code" : "audit"
+	},{
+		"sTitle" : "操作",
+		"code" : "audit"
+	}
+	];
+	var datas = null;
+	datas = paybackService.getWaitingForPayBacksByLeftDays(d);
+	var aaData = new Array();
+	for(var i=0; i<datas.size(); i++){
+		var data=datas.get(i);
+		aaData.push(["<a href='productdetail.html?pid="+data.productid+"' target='_blank'>"+data.orderTitle+"("+data.seriesTitle+")</a>",
+	                 data.borrowerName,   
+		             data.chief.value,
+	                    data.interest.value,
+	                    formatDateToDay(data.deadline),
+	                    data.tel,
+	                    "<button id='"+data.borrowerid+"' class='viewcontactor' value='查看'>查看</button>",
+	                    "<button id='"+data.id+"' class='sendmessage' value='发送短信'>发送短信</button>"]);
+	}
+	
+	var mySettings = $.extend({}, defaultSettings_noCallBack, {
+		"aoColumns" : columns,
+		"aaData" : aaData
+	});
+	var content = $('<div></div>');
+	var table = $('<table class="table table-striped table-hover" style="min-width:300px;"></table>').appendTo(content);
+	container.append(content);
+	table.dataTable(mySettings);
+	
+	
+	$('button.viewcontactor').click(function(e){
+		var id = $(this).attr('id');
+		
+		
+		var ntr = $(this).parents('tr').next('tr');
+		if(ntr.prop("className")=='information'){
+			ntr.remove();
+			return;
+		}
+		
+		var contactor = borrowerService.findContactor(parseInt(id));
+		var str = "";
+		if(contactor!=null)
+		for(var i=0; i<contactor.size(); i++){
+			str += contactor.get(i).name;
+			str += contactor.get(i).phone;
+			str += contactor.get(i).note;
+			str += '<br>';
+		}
+		
+		var ftr = $('<tr class="information"></tr>');
+		var ftd = $('<td align=center colspan=8></td>');
+		ftr.append(ftd);
+		ftd.html(str);
+		
+		$(this).parents('tr').after(ftr);
+	});
+	
+	
+}
 var paybacktoaudit = function(container){
 
 	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
@@ -2452,5 +2550,8 @@ var nav2funtion = {
 		"help-answered" : helpanswered,
 		"activity" : activity,
 		"validate-tp" : validatetp,
-		"message" : message
+		"message" : message,
+		"left7" : left7,
+		"left3" : left3,
+		"left1" : left1
 }
