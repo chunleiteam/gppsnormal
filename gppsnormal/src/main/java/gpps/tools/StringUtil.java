@@ -7,14 +7,14 @@ public class StringUtil {
 			throw new IllegalArgumentException(name + "must not be null");
 		return value;
 	}
-	public static String strFormat(String value)
+	public static String strFormat(Object value)
 	{
 		if(isEmpty(value))
 			return "";
-		return value.trim();
+		return value.toString().trim();
 	}
-	public static boolean isEmpty(String value) {
-		return (value == null || value.trim().length() == 0);
+	public static boolean isEmpty(Object value) {
+		return (value == null || value.toString().trim().length() == 0);
 	}
 
 	public static boolean isDigit(String value) {
