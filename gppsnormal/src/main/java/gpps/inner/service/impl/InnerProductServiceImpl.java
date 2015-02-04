@@ -88,6 +88,25 @@ public class InnerProductServiceImpl implements IInnerProductService {
 	}
 	
 	@Override
+	public void quitFinancing(int productId) throws IllegalConvertException{
+		changeState(productId, Product.STATE_QUITFINANCING);
+		Product product = productDao.find(productId);
+		
+		// 查询本产品对应订单下面的所有产品，如果状态均改为“流标”，则说明本订单对应所有产品状态都修改完毕，则将订单状态修改为“流标”
+		List<Product> pros = productDao.findByGovermentOrder(product.getGovermentorderId());
+				boolean doneFlag = true;
+				for (Product pro : pros) {
+					if (pro.getState() != Product.STATE_QUITFINANCING) {
+						doneFlag = false;
+						break;
+					}
+				}
+				if (doneFlag == true) {
+					innerOrderService.quitFinancing(product.getGovermentorderId());
+				}
+	}
+	
+	@Override
 	public void create(Product product) throws IllegalArgumentException{
 		checkNullObject("orderId", product.getGovermentorderId());
 		GovermentOrder order=orderDao.find(product.getGovermentorderId());

@@ -58,7 +58,7 @@ public class InnerGovermentOrderServiceImpl implements
 		}
 		throw new IllegalConvertException();
 	}
-	
+	@Override
 	public void startRepaying(int orderId) throws IllegalConvertException{
 		// 修改订单状态，记录状态日志
 		changeState(orderId, GovermentOrder.STATE_REPAYING);
@@ -83,5 +83,26 @@ public class InnerGovermentOrderServiceImpl implements
 		
 		
 		//TODO：给投资者发送短信与站内信
+	}
+	
+	@Override
+	public void quitFinancing(int orderId) throws IllegalConvertException{
+		// 修改订单状态，记录状态日志
+		changeState(orderId,GovermentOrder.STATE_QUITFINANCING);
+		
+		GovermentOrder order = govermentOrderDao.find(orderId);
+
+		// 给融资方发送短信与站内信
+		Map<String, String> param = new HashMap<String, String>();
+		param.put(IMessageService.PARAM_ORDER_NAME, order.getTitle());
+		param.put(ILetterSendService.PARAM_TITLE, "产品流标");
+		try{
+			letterSendService.sendMessage(ILetterSendService.MESSAGE_TYPE_FINANCINGFAIL, ILetterSendService.USERTYPE_BORROWER, order.getBorrowerId(), param);
+			messageService.sendMessage(IMessageService.MESSAGE_TYPE_FINANCINGFAIL, IMessageService.USERTYPE_BORROWER, order.getBorrowerId(), param);
+		}catch(SMSException e){
+			log.error(e.getMessage());
+		}
+		
+		// TODO：给投资者发送短信与站内信
 	}
 }

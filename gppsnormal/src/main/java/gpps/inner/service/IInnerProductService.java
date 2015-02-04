@@ -29,4 +29,12 @@ public interface IInnerProductService {
 	 * 
 	 * */
 	public void startRepaying(int productId) throws IllegalConvertException;
+	
+	/**
+	 * 将产品状态从融资中修改为流标，并执行相应的附带操作：创建状态转换日志、写日志、判断所在的订单对应的产品是否全部改变完毕，如果完毕的话调用innerorderservice修改订单状态
+	 * 
+	 * @param productId
+	 * 
+	 * */
+	public void quitFinancing(int productId) throws IllegalConvertException;
 }

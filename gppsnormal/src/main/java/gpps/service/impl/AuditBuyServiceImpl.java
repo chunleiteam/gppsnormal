@@ -176,7 +176,6 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 			
 			try {
 				Integer cashStreamId=null;
-//				cashStreamId=accountService.pay(cashStream.getLenderAccountId(), borrower.getAccountId(),cashStream.getChiefamount().negate(),cashStream.getSubmitId(), "支付");
 				cashStreamId=accountService.unfreezeLenderAccount(cashStream.getLenderAccountId(), cashStream.getChiefamount().negate(), cashStream.getSubmitId(), "流标");
 				cashStreamDao.updateLoanNo(cashStreamId, loanNo,null);
 			} catch (IllegalConvertException e) {
@@ -189,36 +188,8 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		if(sum.getChiefAmount().negate().compareTo(product.getRealAmount())!=0)
 			throw new CheckException("流标解冻总金额与产品实际融资金额不符，查看是否有尚未审核完毕的投标");
 		
-		// 修改产品状态,记录状态日志
-		innerProductService
-				.changeState(product.getId(), Product.STATE_QUITFINANCING);
-
-		// 查询本产品对应订单下面的所有产品，如果状态均改为“还款中”，则说明本订单对应所有产品状态都修改完毕，则将订单状态修改为“还款中”
-		List<Product> pros = productDao.findByGovermentOrder(order.getId());
-		boolean doneFlag = true;
-		for (Product pro : pros) {
-			if (pro.getState() != Product.STATE_QUITFINANCING) {
-				doneFlag = false;
-				break;
-			}
-		}
-		if (doneFlag == true) {
-			// 修改订单状态，记录状态日志
-			innerOrderService.changeState(order.getId(),
-					GovermentOrder.STATE_QUITFINANCING);
-
-			// 给融资方发送短信与站内信
-			Map<String, String> param = new HashMap<String, String>();
-			param.put(IMessageService.PARAM_ORDER_NAME, order.getTitle());
-			param.put(ILetterSendService.PARAM_TITLE, "产品流标");
-//			try{
-//				letterSendService.sendMessage(ILetterSendService.MESSAGE_TYPE_FINANCINGFAIL, ILetterSendService.USERTYPE_BORROWER, order.getBorrowerId(), param);
-//				messageService.sendMessage(IMessageService.MESSAGE_TYPE_FINANCINGFAIL, IMessageService.USERTYPE_BORROWER, order.getBorrowerId(), param);
-//			}catch(SMSException e){
-//				log.error(e.getMessage());
-//			}
-			// TODO：给投资者发送短信与站内信
-		}
+		//状态转换为流标，及一系列后续操作
+		innerProductService.quitFinancing(product.getId());
 	}
 	
 	//每一次批量提交的投标审核一定是针对同一个产品，因此不会出现一批投标购买针对不同产品的情况

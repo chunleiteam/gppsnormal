@@ -21,4 +21,12 @@ public interface IInnerGovermentOrderService {
 	 * 
 	 * */
 	public void startRepaying(int orderId) throws IllegalConvertException;
+	
+	/**
+	 * 将订单状态从融资中修改为流标，并执行相应的附带操作：创建状态转换日志、写日志、发送短信和站内信
+	 * 
+	 * @param productId
+	 * 
+	 * */
+	public void quitFinancing(int OrderId) throws IllegalConvertException;
 }
