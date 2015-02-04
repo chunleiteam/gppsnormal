@@ -22,5 +22,5 @@ public interface IInnerPayBackService {
 	 * @param productId
 	 * 
 	 * */
-	public void refreshPayBack(int productId);
+	public void refreshPayBack(int productId, boolean startrepay) throws Exception;
 }

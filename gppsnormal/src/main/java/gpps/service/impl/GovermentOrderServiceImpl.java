@@ -432,7 +432,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	
 	
 	@Override
-	public void reCalculateRepayPlan(Integer orderId) throws IllegalOperationException{
+	public void reCalculateRepayPlan(Integer orderId) throws IllegalOperationException, Exception{
 		
 		GovermentOrder order = govermentOrderDao.find(orderId);
 		if(order.getState()!=GovermentOrder.STATE_PREPUBLISH && order.getState()!=GovermentOrder.STATE_UNPUBLISH){
@@ -445,13 +445,51 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 		for(Product product : products)
 		{
 		//重新计算payback
-		innerPayBackService.refreshPayBack(product.getId());
+		innerPayBackService.refreshPayBack(product.getId(), false);
 		}
 	}
 	
-	
 	@Override
-	public void quitFinancing(Integer orderId) throws IllegalConvertException, IllegalOperationException, ExistWaitforPaySubmitException, CheckException {
+	public void quitFinancing(Integer orderId) throws IllegalConvertException, IllegalOperationException, ExistWaitforPaySubmitException, CheckException, Exception{
+		GovermentOrder order=null;
+		try
+		{
+			order=applyFinancingOrder(orderId);
+			
+			if(order==null){
+				throw new CheckException("内存中没有对应的融资中订单！");
+			}
+			List<Product> pts = order.getProducts();
+		
+			if(pts==null || pts.isEmpty()){
+				throw new CheckException("融资中订单没有找到对应的产品");
+			}
+			
+			for(Product product:pts)
+			{
+				
+				if(product.getState()==Product.STATE_QUITFINANCING){
+					continue;
+				}
+				
+				List<Submit> submits=submitDao.findAllByProductAndState(product.getId(), Submit.STATE_COMPLETEPAY);
+				List<String> loanNos = new ArrayList<String>();
+				for(Submit submit : submits){
+					List<CashStream> cs = cashStreamDao.findBySubmitAndActionAndState(submit.getId(), CashStream.ACTION_FREEZE, CashStream.STATE_SUCCESS);
+					if(cs==null || cs.isEmpty()){
+						throw new CheckException("已支付的投标【"+submit.getId()+"】没有对应的冻结现金流！");
+					}
+					loanNos.add(cs.get(0).getLoanNo());
+				}
+				auditBuyService.auditBuy(loanNos, 2);
+			}
+		}finally
+		{
+			releaseFinancingOrder(order);
+		}
+	}
+	
+	public void quitFinancingOld(Integer orderId) throws IllegalConvertException, IllegalOperationException, ExistWaitforPaySubmitException, CheckException {
 		GovermentOrder order=null;
 		try
 		{

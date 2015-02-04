@@ -74,7 +74,7 @@ public interface IGovermentOrderService {
 	public void startRepaying(Integer orderId)throws IllegalConvertException, IllegalOperationException, ExistWaitforPaySubmitException, CheckException, Exception;//启动还款
 	
 	
-	public void reCalculateRepayPlan(Integer orderId) throws IllegalOperationException;
+	public void reCalculateRepayPlan(Integer orderId) throws IllegalOperationException, Exception;
 	
 	
 	
@@ -86,7 +86,7 @@ public interface IGovermentOrderService {
 	 * @throws ExistWaitforPaySubmitException
 	 * @throws CheckException
 	 */
-	public void quitFinancing(Integer orderId)throws IllegalConvertException, IllegalOperationException, ExistWaitforPaySubmitException, CheckException;//放弃融资（流标）
+	public void quitFinancing(Integer orderId)throws IllegalConvertException, IllegalOperationException, ExistWaitforPaySubmitException, CheckException, Exception;//放弃融资（流标）
 	/**
 	 * 系统自查后关闭融资
 	 * @param orderId

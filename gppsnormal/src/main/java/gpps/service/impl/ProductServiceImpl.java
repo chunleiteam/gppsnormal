@@ -84,11 +84,11 @@ public class ProductServiceImpl implements IProductService {
 	Logger logger=Logger.getLogger(this.getClass());
 	@Override
 	@Transactional
-	public void create(Product product) {
+	public void create(Product product) throws Exception{
 		//创建产品
 		innerProductService.create(product);
 		//创建还款计划
-		innerPayBackService.refreshPayBack(product.getId());
+		innerPayBackService.refreshPayBack(product.getId(), false);
 	}
 	static int[][] validConverts={
 		{Product.STATE_UNPUBLISH,Product.STATE_FINANCING},

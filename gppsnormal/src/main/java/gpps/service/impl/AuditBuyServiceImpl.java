@@ -185,7 +185,7 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		
 		//校验 Product实际流标解冻额=所有Lender的支付资金流之和
 		CashStreamSum sum=cashStreamDao.sumProduct(product.getId(), CashStream.ACTION_UNFREEZE);
-		if(sum.getChiefAmount().negate().compareTo(product.getRealAmount())!=0)
+		if(sum.getChiefAmount().compareTo(product.getRealAmount())!=0)
 			throw new CheckException("流标解冻总金额与产品实际融资金额不符，查看是否有尚未审核完毕的投标");
 		
 		//状态转换为流标，及一系列后续操作
@@ -239,7 +239,7 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 			throw new CheckException("投标购买审核完成总金额与产品实际融资金额不符，查看是否有尚未审核完毕的投标");
 		
 		//根据产品实际融资额度重新计算并更新还款计划
-		innerPayBackService.refreshPayBack(product.getId());
+		innerPayBackService.refreshPayBack(product.getId(),true);
 		
 		//状态转换为还款中，及一系列后续操作
 		innerProductService.startRepaying(product.getId());

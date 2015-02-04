@@ -25,7 +25,7 @@ public interface IProductService {
 	 * 创建一个产品，同时创建payback
 	 * @param product
 	 */
-	public void create(Product product);
+	public void create(Product product) throws Exception;
 	/**
 	 * 更新产品状态
 	 * @param productId

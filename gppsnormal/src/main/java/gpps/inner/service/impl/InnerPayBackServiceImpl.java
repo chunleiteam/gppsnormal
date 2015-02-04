@@ -15,6 +15,7 @@ import gpps.model.ProductSeries;
 import gpps.model.StateLog;
 import gpps.tools.PayBackCalculateUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 		return payBacks;
 	}
 	@Override
-	public void refreshPayBack(int productId) {
+	public void refreshPayBack(int productId, boolean startrepay) throws Exception{
 		// 重新计算payback
 		// 删除
 		payBackDao.deleteByProduct(productId);
@@ -62,7 +63,16 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 		
 		// 创建还款计划
 		ProductSeries productSeries = productSeriesDao.find(product.getProductseriesId());
-		List<PayBack> payBacks = generatePayBacks(product.getRealAmount().intValue(), product.getRate().doubleValue(),productSeries.getType(), order.getIncomeStarttime(), product.getIncomeEndtime());
+		List<PayBack> payBacks = null;
+		if(startrepay==true)
+		{
+			if(product.getRealAmount().compareTo(new BigDecimal(0))==0){
+				throw new Exception("本产品实际融资额度为0");
+			}
+			payBacks = generatePayBacks(product.getRealAmount().intValue(), product.getRate().doubleValue(),productSeries.getType(), order.getIncomeStarttime(), product.getIncomeEndtime());
+		}else{
+			payBacks = generatePayBacks(product.getExpectAmount().intValue(), product.getRate().doubleValue(),productSeries.getType(), order.getIncomeStarttime(), product.getIncomeEndtime());
+		}
 		for (PayBack payBack : payBacks) {
 			payBack.setBorrowerAccountId(borrower.getAccountId());
 			payBack.setProductId(product.getId());

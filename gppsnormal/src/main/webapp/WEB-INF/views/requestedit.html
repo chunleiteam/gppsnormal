@@ -494,8 +494,12 @@ $(document).ready(function () {
 				'miniAdd' : minadd,
 				'incomeEndtime':incomeendtime
 				}
+			try{
 			productService.create(nproduct);
 			alert('产品创建成功！');
+			}catch(e){
+				alert(e.message);
+			}
 		}
 		refreshInfo();
 	});
