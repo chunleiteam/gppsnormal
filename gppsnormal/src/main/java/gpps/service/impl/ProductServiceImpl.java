@@ -11,6 +11,9 @@ import gpps.dao.IProductDao;
 import gpps.dao.IProductSeriesDao;
 import gpps.dao.IStateLogDao;
 import gpps.dao.ISubmitDao;
+import gpps.inner.service.IInnerPayBackService;
+import gpps.inner.service.IInnerProductService;
+import gpps.inner.service.impl.InnerProductServiceImpl;
 import gpps.model.Borrower;
 import gpps.model.CashStream;
 import gpps.model.GovermentOrder;
@@ -62,15 +65,15 @@ public class ProductServiceImpl implements IProductService {
 	@Autowired
 	IProductDao productDao;
 	@Autowired
+	IInnerProductService innerProductService;
+	@Autowired
 	ITaskService taskService;
 	@Autowired
 	IProductActionDao productActionDao;
 	@Autowired
 	IBorrowerDao borrowerDao;
 	@Autowired
-	IPayBackDao payBackDao;
-	@Autowired
-	IPayBackService payBackService;
+	IInnerPayBackService innerPayBackService;
 	@Autowired
 	IStateLogDao stateLogDao;
 	@Autowired
@@ -82,51 +85,10 @@ public class ProductServiceImpl implements IProductService {
 	@Override
 	@Transactional
 	public void create(Product product) {
-		checkNullObject("orderId", product.getGovermentorderId());
-		GovermentOrder order=govermentOrderDao.find(product.getGovermentorderId());
-		checkNullObject(GovermentOrder.class, order);
-		if(order.getState()!=GovermentOrder.STATE_UNPUBLISH)
-			throw new IllegalArgumentException("只能为未发布的订单添加产品");
-		product.setState(Product.STATE_UNPUBLISH);
-		product.setCreatetime(System.currentTimeMillis());
-		checkNullObject("productseriesId", product.getProductseriesId());
-		ProductSeries productSeries=productSeriesDao.find(product.getProductseriesId());
-		checkNullObject(ProductSeries.class,productSeries);
-		checkNullObject("expectAmount", product.getExpectAmount());
-		checkNullObject("rate", product.getRate());
-		product.setRealAmount(BigDecimal.ZERO);
-		
-		long start = order.getIncomeStarttime();
-		
-		long end = DateCalculateUtils.getStartTime(product.getIncomeEndtime());
-		product.setIncomeEndtime(end);
-		
-		productDao.create(product);
-		StateLog productStateLog=new StateLog();
-		productStateLog.setCreatetime(System.currentTimeMillis());
-		productStateLog.setRefid(product.getId());
-		productStateLog.setTarget(product.getState());
-		productStateLog.setType(productStateLog.TYPE_PRODUCT);
-		stateLogDao.create(productStateLog);
-		
-		Borrower borrower=borrowerDao.find(order.getBorrowerId());
-		// 创建还款计划
-		List<PayBack> payBacks=payBackService.generatePayBacks(product.getExpectAmount().intValue(), product.getRate().doubleValue(),productSeries.getType(), start, end);
-		if(payBacks==null||payBacks.size()==0)
-			throw new RuntimeException("未生成还款计划");
-		for(PayBack payBack:payBacks)
-		{
-			payBack.setBorrowerAccountId(borrower.getAccountId());
-			payBack.setProductId(product.getId());
-			payBackDao.create(payBack);
-			
-			StateLog stateLog=new StateLog();
-			stateLog.setCreatetime(System.currentTimeMillis());
-			stateLog.setRefid(payBack.getId());
-			stateLog.setTarget(payBack.getState());
-			stateLog.setType(stateLog.TYPE_PAYBACK);
-			stateLogDao.create(stateLog);
-		}
+		//创建产品
+		innerProductService.create(product);
+		//创建还款计划
+		innerPayBackService.refreshPayBack(product.getId());
 	}
 	static int[][] validConverts={
 		{Product.STATE_UNPUBLISH,Product.STATE_FINANCING},

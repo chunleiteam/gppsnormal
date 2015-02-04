@@ -32,17 +32,7 @@ public interface IPayBackService {
 	 * @param payBackId
 	 */
 	public void delay(Integer payBackId);
-	/**
-	 * 生成还款计划
-	 * @param amount 贷款金额
-	 * @param rate 年利率
-	 * @param payBackModel 还款模型{@link ProductSeries.type}
-	 * @param from 起始时间
-	 * @param to 结束时间
-	 * @return
-	 */
-	public List<PayBack> generatePayBacks(int amount,double rate,int payBackModel,
-			long from, long to);
+	
 	/**
 	 * 根据产品生成还款计划
 	 * @param productId

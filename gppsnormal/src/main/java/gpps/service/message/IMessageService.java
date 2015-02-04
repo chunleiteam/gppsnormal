@@ -53,4 +53,6 @@ public interface IMessageService {
 	
 	
 	public void sendMessage(int messageType, int userType, Integer userId, Map<String, String> param) throws SMSException;
+	
+	public void sendMessage(Map<String, String> phone_messages) throws SMSException;
 }

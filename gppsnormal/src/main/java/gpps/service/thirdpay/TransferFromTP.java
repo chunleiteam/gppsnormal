@@ -1,4 +1,4 @@
-package gpps.test.check;
+package gpps.service.thirdpay;
 
 import gpps.tools.StringUtil;
 
@@ -12,14 +12,10 @@ import com.google.gson.Gson;
  * 从第三方返回的账单（现金流）列表
  * 
  * */
-public class LoanFromTP {
+public class TransferFromTP extends LoanFromTP{
 	String LoanOutMoneymoremore;
 	String LoanInMoneymoremore;
-	String LoanNo;
-	String OrderNo;
 	String BatchNo;
-	String Amount;
-	String PlatformMoneymoremore;
 	String TransferAction;
 	String Action;
 	String TransferType;
@@ -30,11 +26,11 @@ public class LoanFromTP {
 	String ActNo;
 	String TransferName;
 	
-	public LoanFromTP(){
+	public TransferFromTP(){
 		
 	}
 	
-	public LoanFromTP(Map<String, Object> param){
+	public TransferFromTP(Map<String, Object> param){
 		init(param);
 	}
 	
@@ -50,36 +46,13 @@ public class LoanFromTP {
 	public void setLoanInMoneymoremore(String loanInMoneymoremore) {
 		LoanInMoneymoremore = loanInMoneymoremore;
 	}
-	public String getLoanNo() {
-		return LoanNo;
-	}
-	public void setLoanNo(String loanNo) {
-		LoanNo = loanNo;
-	}
-	public String getOrderNo() {
-		return OrderNo;
-	}
-	public void setOrderNo(String orderNo) {
-		OrderNo = orderNo;
-	}
 	public String getBatchNo() {
 		return BatchNo;
 	}
 	public void setBatchNo(String batchNo) {
 		BatchNo = batchNo;
 	}
-	public String getAmount() {
-		return Amount;
-	}
-	public void setAmount(String amount) {
-		Amount = amount;
-	}
-	public String getPlatformMoneymoremore() {
-		return PlatformMoneymoremore;
-	}
-	public void setPlatformMoneymoremore(String platformMoneymoremore) {
-		PlatformMoneymoremore = platformMoneymoremore;
-	}
+	
 	public String getTransferAction() {
 		return TransferAction;
 	}
@@ -136,17 +109,14 @@ public class LoanFromTP {
 	}
 	
 	public void init(Map<String, Object> param){
+		super.init(param);
 		this.Action = StringUtil.strFormat(param.get("Action"));
 		this.ActNo = StringUtil.strFormat(param.get("ActNo"));
 		this.ActState = StringUtil.strFormat(param.get("ActState"));
 		this.ActTime = StringUtil.strFormat(param.get("ActTime"));
-		this.Amount = StringUtil.strFormat(param.get("Amount"));
 		this.BatchNo = StringUtil.strFormat(param.get("BatchNo"));
 		this.LoanInMoneymoremore = StringUtil.strFormat(param.get("LoanInMoneymoremore"));
-		this.LoanNo = StringUtil.strFormat(param.get("LoanNo"));
 		this.LoanOutMoneymoremore = StringUtil.strFormat(param.get("LoanOutMoneymoremore"));
-		this.OrderNo = StringUtil.strFormat(param.get("OrderNo"));
-		this.PlatformMoneymoremore = StringUtil.strFormat(param.get("PlatformMoneymoremore"));
 		this.TransferAction = StringUtil.strFormat(param.get("TransferAction"));
 		this.TransferName = StringUtil.strFormat(param.get("TransferName"));
 		this.TransferState = StringUtil.strFormat(param.get("TransferState"));

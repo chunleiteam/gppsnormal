@@ -71,7 +71,7 @@ public interface IGovermentOrderService {
 	 * @throws ExistWaitforPaySubmitException 
 	 * @throws CheckException 
 	 */
-	public void startRepaying(Integer orderId)throws IllegalConvertException, IllegalOperationException, ExistWaitforPaySubmitException, CheckException;//启动还款
+	public void startRepaying(Integer orderId)throws IllegalConvertException, IllegalOperationException, ExistWaitforPaySubmitException, CheckException, Exception;//启动还款
 	
 	
 	public void reCalculateRepayPlan(Integer orderId) throws IllegalOperationException;

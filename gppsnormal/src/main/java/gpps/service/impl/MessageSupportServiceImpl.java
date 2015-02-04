@@ -202,6 +202,8 @@ public class MessageSupportServiceImpl implements IMessageSupportService {
 		
 		//如果用户设置close=1则说明关掉短信发送功能
 		if("1".equals(close)){
+			System.out.println("短信发送功能已关闭： "+tels);
+			System.out.println("短信发送功能已关闭： "+content);
 			return;
 		}
 		

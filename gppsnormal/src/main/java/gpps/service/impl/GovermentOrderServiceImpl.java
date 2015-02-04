@@ -14,6 +14,8 @@ import gpps.dao.IProductDao;
 import gpps.dao.IProductSeriesDao;
 import gpps.dao.IStateLogDao;
 import gpps.dao.ISubmitDao;
+import gpps.inner.service.IInnerGovermentOrderService;
+import gpps.inner.service.IInnerPayBackService;
 import gpps.model.Borrower;
 import gpps.model.CashStream;
 import gpps.model.FinancingRequest;
@@ -41,6 +43,7 @@ import gpps.service.exception.IllegalOperationException;
 import gpps.service.exception.SMSException;
 import gpps.service.message.ILetterSendService;
 import gpps.service.message.IMessageService;
+import gpps.service.thirdpay.IAuditBuyService;
 import gpps.tools.DateCalculateUtils;
 import gpps.tools.StringUtil;
 
@@ -89,7 +92,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	@Autowired
 	ICashStreamDao cashStreamDao;
 	@Autowired
-	IPayBackService payBackService;
+	IInnerPayBackService innerPayBackService;
 	@Autowired
 	IPayBackDao payBackDao;
 	@Autowired
@@ -100,6 +103,10 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	IMessageService messageService;
 	@Autowired
 	ILetterSendService letterSendService;
+	@Autowired
+	IInnerGovermentOrderService innerOrderService;
+	@Autowired
+	IAuditBuyService auditBuyService;
 	Logger log = Logger.getLogger(GovermentOrderServiceImpl.class);
 	private static final IEasyObjectXMLTransformer xmlTransformer=new EasyObjectXMLTransformerImpl(); 
 	static int[] orderStates={
@@ -199,33 +206,6 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 		return govermentOrders;
 	}
 
-	static int[][] validConverts={
-		{GovermentOrder.STATE_UNPUBLISH,GovermentOrder.STATE_PREPUBLISH},
-		{GovermentOrder.STATE_PREPUBLISH,GovermentOrder.STATE_FINANCING},
-		{GovermentOrder.STATE_FINANCING,GovermentOrder.STATE_QUITFINANCING},
-		{GovermentOrder.STATE_FINANCING,GovermentOrder.STATE_REPAYING},
-		{GovermentOrder.STATE_REPAYING,GovermentOrder.STATE_WAITINGCLOSE},
-		{GovermentOrder.STATE_WAITINGCLOSE,GovermentOrder.STATE_CLOSE}};
-	private void changeState(int orderId, int state) throws IllegalConvertException {
-		GovermentOrder order = govermentOrderDao.find(orderId);
-		if (order == null)
-			throw new RuntimeException("order is not existed");
-		for(int[] validStateConvert:validConverts)
-		{
-			if(order.getState()==validStateConvert[0]&&state==validStateConvert[1])
-			{
-				govermentOrderDao.changeState(orderId, state,System.currentTimeMillis());
-				StateLog stateLog=new StateLog();
-				stateLog.setSource(order.getState());
-				stateLog.setTarget(state);
-				stateLog.setType(StateLog.TYPE_GOVERMENTORDER);
-				stateLog.setRefid(orderId);
-				stateLogDao.create(stateLog);
-				return;
-			}
-		}
-		throw new IllegalConvertException();
-	}
 //	@Override
 //	public void passApplying(Integer orderId) throws IllegalConvertException {
 //		changeState(orderId, GovermentOrder.STATE_PREPUBLISH);
@@ -256,7 +236,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 			throw new IllegalOperationException("借款方尚未开通第三方账户");
 		
 		
-		changeState(orderId, GovermentOrder.STATE_FINANCING);
+		innerOrderService.changeState(orderId, GovermentOrder.STATE_FINANCING);
 		order.setState(GovermentOrder.STATE_FINANCING);
 		insertGovermentOrderToFinancing(order);
 		
@@ -270,9 +250,75 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 			log.error(e.getMessage());
 		}
 	}
+	
 	@Override
 	@Transactional
-	public void startRepaying(Integer orderId) throws IllegalConvertException,IllegalOperationException, ExistWaitforPaySubmitException, CheckException {
+	public void startRepaying(Integer orderId)  throws IllegalConvertException,IllegalOperationException, ExistWaitforPaySubmitException, CheckException, Exception{
+		GovermentOrder order = govermentOrderDao.find(orderId);
+		
+		if(order==null){
+			throw new IllegalOperationException("无效订单！");
+		}
+		
+		long financingEndtime = order.getFinancingEndtime();
+		
+		List<Product> products = productService.findByGovermentOrder(orderId);
+		
+		for(Product product:products){
+			CashStreamSum sum = cashStreamDao.sumProduct(product.getId(), CashStream.ACTION_FREEZE);
+			if((sum==null||sum.getChiefAmount().negate().compareTo(product.getExpectAmount())<0) && financingEndtime>System.currentTimeMillis()){
+				throw new IllegalOperationException("金额尚未融满，且融资截止时间未到，无法启动还款！");
+			}
+		}
+		
+		for(Product product:products){
+			if(!contractService.isComplete(product.getId())){
+				throw new IllegalOperationException("合同尚未处理完毕，无法启动融资");
+			}
+		}
+		
+		
+		Borrower borrower = borrowerDao.find(order.getBorrowerId());
+		if(borrower==null){
+			throw new IllegalOperationException("订单没有融资方！");
+		}else if(borrower.getAuthorizeTypeOpen()!=Borrower.AUTHORIZETYPEOPEN_RECHARGE){
+			throw new IllegalOperationException("融资方尚未授权平台自动还款！");
+		}
+		
+		
+		try{
+			order=applyFinancingOrder(orderId);
+			if(order==null){
+				throw new CheckException("内存中没有对应的融资中订单！");
+			}
+		List<Product> pts = order.getProducts();
+		
+		if(pts==null || pts.isEmpty()){
+			throw new CheckException("融资中订单没有找到对应的产品");
+		}
+		
+		for(Product product:pts){
+			List<Submit> submits=submitDao.findAllByProductAndState(product.getId(), Submit.STATE_COMPLETEPAY);
+			List<String> loanNos = new ArrayList<String>();
+			for(Submit submit : submits){
+				List<CashStream> cs = cashStreamDao.findBySubmitAndActionAndState(submit.getId(), CashStream.ACTION_FREEZE, CashStream.STATE_SUCCESS);
+				if(cs==null || cs.isEmpty()){
+					throw new CheckException("已支付的投标【"+submit.getId()+"】没有对应的冻结现金流！");
+				}
+				loanNos.add(cs.get(0).getLoanNo());
+			}
+			auditBuyService.auditBuy(loanNos, 1);
+		}
+		}finally
+		{
+			releaseFinancingOrder(order);
+		}
+		
+	}
+	
+//	@Override
+//	@Transactional
+	public void startRepayingOld(Integer orderId) throws IllegalConvertException,IllegalOperationException, ExistWaitforPaySubmitException, CheckException {
 		
 		GovermentOrder ord = govermentOrderDao.find(orderId);
 		long financingEndtime = ord.getFinancingEndtime();
@@ -343,7 +389,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 						payBackDao.deleteByProduct(product.getId());
 						// 创建还款计划
 						ProductSeries productSeries=productSeriesDao.find(product.getProductseriesId());
-						List<PayBack> payBacks=payBackService.generatePayBacks(product.getRealAmount().intValue(), product.getRate().doubleValue(),productSeries.getType(), order.getIncomeStarttime(), product.getIncomeEndtime());
+						List<PayBack> payBacks=innerPayBackService.generatePayBacks(product.getRealAmount().intValue(), product.getRate().doubleValue(),productSeries.getType(), order.getIncomeStarttime(), product.getIncomeEndtime());
 						for(PayBack payBack:payBacks)
 						{
 							payBack.setBorrowerAccountId(borrower.getAccountId());
@@ -363,7 +409,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 						taskService.submit(task);
 					}
 				}
-				changeState(orderId, GovermentOrder.STATE_REPAYING);
+				innerOrderService.changeState(orderId, GovermentOrder.STATE_REPAYING);
 				order=financingOrders.remove(orderId.toString());
 				order.setState(GovermentOrder.STATE_REPAYING);
 				
@@ -389,7 +435,6 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	public void reCalculateRepayPlan(Integer orderId) throws IllegalOperationException{
 		
 		GovermentOrder order = govermentOrderDao.find(orderId);
-		Borrower borrower = borrowerDao.find(order.getBorrowerId());
 		if(order.getState()!=GovermentOrder.STATE_PREPUBLISH && order.getState()!=GovermentOrder.STATE_UNPUBLISH){
 			throw new IllegalOperationException("当前状态下的订单无法重新计算还款计划！");
 		}
@@ -400,24 +445,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 		for(Product product : products)
 		{
 		//重新计算payback
-		//删除
-		payBackDao.deleteByProduct(product.getId());
-		// 创建还款计划
-		ProductSeries productSeries=productSeriesDao.find(product.getProductseriesId());
-		List<PayBack> payBacks=payBackService.generatePayBacks(product.getExpectAmount().intValue(), product.getRate().doubleValue(),productSeries.getType(), order.getIncomeStarttime(), product.getIncomeEndtime());
-		for(PayBack payBack:payBacks)
-		{
-			payBack.setBorrowerAccountId(borrower.getAccountId());
-			payBack.setProductId(product.getId());
-			payBackDao.create(payBack);
-			
-			StateLog stateLog=new StateLog();
-			stateLog.setCreatetime(System.currentTimeMillis());
-			stateLog.setRefid(payBack.getId());
-			stateLog.setTarget(payBack.getState());
-			stateLog.setType(stateLog.TYPE_PAYBACK);
-			stateLogDao.create(stateLog);
-		}
+		innerPayBackService.refreshPayBack(product.getId());
 		}
 	}
 	
@@ -457,7 +485,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 						taskService.submit(task);
 					}
 				}
-				changeState(orderId, GovermentOrder.STATE_QUITFINANCING);
+				innerOrderService.changeState(orderId, GovermentOrder.STATE_QUITFINANCING);
 				order=financingOrders.remove(orderId.toString());
 				order.setState(GovermentOrder.STATE_QUITFINANCING);
 				
@@ -478,7 +506,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	}
 	@Override
 	public void closeFinancing(Integer orderId) throws IllegalConvertException {
-		changeState(orderId, GovermentOrder.STATE_WAITINGCLOSE);		
+		innerOrderService.changeState(orderId, GovermentOrder.STATE_WAITINGCLOSE);		
 	}
 	@Override
 	public Product applyFinancingProduct(Integer productId, Integer orderId) {
@@ -520,7 +548,6 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 			return;
 		GovermentOrder order=financingOrders.get(product.getGovermentorderId().toString());
 		order.lock.unlock();
-		
 	}
 	public static void main(String[] args)
 	{
@@ -627,7 +654,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	@Override
 	@Transactional
 	public void closeComplete(Integer orderId) throws IllegalConvertException {
-		changeState(orderId, GovermentOrder.STATE_CLOSE);
+		innerOrderService.changeState(orderId, GovermentOrder.STATE_CLOSE);
 		GovermentOrder order=govermentOrderDao.find(orderId);
 		List<Product> products=productDao.findByGovermentOrder(orderId);
 		int creditValue=0;
@@ -730,7 +757,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	public void publish(Integer orderId) throws IllegalConvertException {
 		checkNullObject("orderId", orderId);
 		GovermentOrder order=checkNullObject(GovermentOrder.class, govermentOrderDao.find(orderId));
-		changeState(orderId, GovermentOrder.STATE_PREPUBLISH);
+		innerOrderService.changeState(orderId, GovermentOrder.STATE_PREPUBLISH);
 		financingRequestDao.changeState(order.getFinancingRequestId(), FinancingRequest.STATE_PROCESSED, System.currentTimeMillis());
 		List<Product> products=productDao.findByGovermentOrder(orderId);
 		if(products==null||products.size()==0)

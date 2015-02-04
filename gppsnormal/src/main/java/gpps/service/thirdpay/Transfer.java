@@ -1,5 +1,8 @@
 package gpps.service.thirdpay;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import gpps.tools.RsaHelper;
 import gpps.tools.StringUtil;
 
@@ -24,6 +27,34 @@ public class Transfer {
 	private String returnURL;//	页面返回网址	手动转账必填
 	private String notifyURL;//	后台通知网址	必填
 	private String signInfo;//	签名信息	必填
+	
+	
+	
+	public Map<String, String> getParams(){
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("PlatformMoneymoremore", platformMoneymoremore);
+		params.put("LoanJsonList", loanJsonList);
+		params.put("TransferAction", transferAction);
+		params.put("Action", action);
+		params.put("TransferType", transferType);
+		params.put("NeedAudit", needAudit);
+		if(randomTimeStamp!=null)
+		params.put("RandomTimeStamp", randomTimeStamp);
+		if(remark1!=null)
+		params.put("Remark1", remark1);
+		if(remark2!=null)
+		params.put("Remark2", remark2);
+		if(remark3!=null)
+		params.put("Remark3", remark3);
+		if(returnURL!=null)
+		params.put("ReturnURL", returnURL);
+		params.put("NotifyURL", notifyURL);
+		params.put("SignInfo", signInfo);
+		return params;
+	}
+	
+	
+	
 	public String getBaseUrl() {
 		return baseUrl;
 	}

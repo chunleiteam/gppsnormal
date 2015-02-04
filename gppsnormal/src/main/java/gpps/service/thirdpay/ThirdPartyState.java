@@ -1,4 +1,4 @@
-package gpps.test.check;
+package gpps.service.thirdpay;
 
 public class ThirdPartyState {
 	/**
@@ -79,5 +79,25 @@ public class ThirdPartyState {
 	 * 
 	 * */
 	public static final int THIRD_AUDITTYPE_RETURN = 2;
+	
+	
+	
+	
+	
+	
+	public static final int LOAN_STATE_TRANSFER_APPLY = 1;
+	public static final int LOAN_STATE_TRANSFER_AUDIT_PASS = 2;
+	public static final int LOAN_STATE_TRANSFER_AUDIT_RETURN = 3;
+	public static final int LOAN_STATE_RECHARGE = 4;
+	
+	
+	/**
+	 * 判断资金转账是否仅仅申请，尚未审核
+	 * 
+	 * */
+	public static boolean isTransferApply(TransferFromTP loan){
+		//转账状态为“1”（已转账），并且操作状态为“0”（未操作）
+		return THIRD_TRANSFERSTATE_DONE.equals(loan.getTransferState()) && THIRD_ACTSTATE_NOTOPERATE.equals(loan.getActState());
+	}
 	
 }

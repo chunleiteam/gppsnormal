@@ -84,6 +84,20 @@ private static final IEasyObjectXMLTransformer xmlTransformer=new EasyObjectXMLT
 		
 	}
 	
+	public void sendMessage(Map<String, String> phone_messages) throws SMSException{
+		if(phone_messages==null || phone_messages.isEmpty())
+		{
+			return;
+		}
+		for(String phone : phone_messages.keySet())
+		{
+			List<String> phs = new ArrayList<String>();
+			phs.add(phone);
+			supportService.sendSMS(phs, phone_messages.get(phone));
+		}
+	}
+	
+	
 	private String getMessage(int messageType, int userType, Map<String, String> param) throws SMSException{
 		String result = "";
 		Calendar cal = Calendar.getInstance();
