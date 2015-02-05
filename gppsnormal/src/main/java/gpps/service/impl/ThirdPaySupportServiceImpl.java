@@ -5,6 +5,7 @@ import gpps.dao.ICardBindingDao;
 import gpps.dao.ICashStreamDao;
 import gpps.dao.ILenderDao;
 import gpps.dao.IPayBackDao;
+import gpps.inner.service.IInnerThirdPaySupportService;
 import gpps.model.Borrower;
 import gpps.model.CashStream;
 import gpps.model.GovermentOrder;
@@ -57,38 +58,14 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.google.gson.Gson;
+
+@Service
 public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
-	public static final String ACTION_REGISTACCOUNT="0";
-	public static final String ACTION_RECHARGE="1";
-	public static final String ACTION_TRANSFER="2";
-	public static final String ACTION_CHECK="3";
-	public static final String ACTION_CARDBINDING="4";
-	public static final String ACTION_CASH="5";
-	public static final String ACTION_AUTHORIZE="6";
-	public static final String ACTION_ORDERQUERY="7";
-	public static final String ACTION_BALANCEQUERY="8";
-	private static Map<String, String> urls=new HashMap<String, String>();
-	static {
-		urls.put(ACTION_REGISTACCOUNT, "/loan/toloanregisterbind.action");
-		urls.put(ACTION_RECHARGE, "/loan/toloanrecharge.action");
-		urls.put(ACTION_TRANSFER, "/loan/loan.action");
-		urls.put(ACTION_CHECK, "/loan/toloantransferaudit.action");
-		urls.put(ACTION_CARDBINDING, "/loan/toloanfastpay.action");
-		urls.put(ACTION_CASH, "/loan/toloanwithdraws.action");
-		urls.put(ACTION_AUTHORIZE, "/loan/toloanauthorize.action");
-		urls.put(ACTION_ORDERQUERY, "/loan/loanorderquery.action");
-		urls.put(ACTION_BALANCEQUERY, "/loan/balancequery.action");
-	}
-	private String url="";
-	private String platformMoneymoremore;
-	private String privateKey;
-	private String publicKey;
-	private String serverHost;
-	private String serverPort;
 	@Autowired
 	IAccountService accountService;
 	@Autowired
@@ -117,65 +94,14 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	IMessageService messageService;
 	@Autowired
 	ILetterSendService letterSendService;
+	@Autowired
+	IInnerThirdPaySupportService innerThirdPaySupportService;
 	private Logger log=Logger.getLogger(ThirdPaySupportServiceImpl.class);
-	public String getPublicKey() {
-		return publicKey;
-	}
-
-	public void setPublicKey(String publicKey) {
-		this.publicKey = publicKey;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	@Override
-	public String getBaseUrl(String action) {
-		return url+urls.get(action);
-	}
-	
-	public String getPlatformMoneymoremore() {
-		return platformMoneymoremore;
-	}
-
-	public void setPlatformMoneymoremore(String platformMoneymoremore) {
-		this.platformMoneymoremore = platformMoneymoremore;
-	}
-	
-	public String getServerHost() {
-		return serverHost;
-	}
-
-	public void setServerHost(String serverHost) {
-		this.serverHost = serverHost;
-	}
-
-	public String getServerPort() {
-		return serverPort;
-	}
-
-	public void setServerPort(String serverPort) {
-		this.serverPort = serverPort;
-	}
-
-	@Override
-	public String getPrivateKey() {
-		return privateKey;
-	}
-
-	public void setPrivateKey(String privateKey) {
-		this.privateKey = privateKey;
-	}
 
 	@Override
 	public RegistAccount getRegistAccount() throws LoginException {
 		RegistAccount registAccount=new RegistAccount();
-		registAccount.setBaseUrl(getBaseUrl(ACTION_REGISTACCOUNT));
+		registAccount.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_REGISTACCOUNT));
 		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpSession session=req.getSession();
 		Object currentUser=session.getAttribute(ILoginService.SESSION_ATTRIBUTENAME_USER);
@@ -204,15 +130,15 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		}
 		registAccount.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/thirdPartyRegist/response");
 		registAccount.setNotifyURL(registAccount.getReturnURL()+"/bg");
-		registAccount.setPlatformMoneymoremore(platformMoneymoremore);
-		registAccount.setSignInfo(registAccount.getSign(privateKey));
+		registAccount.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
+		registAccount.setSignInfo(registAccount.getSign(innerThirdPaySupportService.getPrivateKey()));
 		return registAccount;
 	}
 
 	@Override
 	public Recharge getRecharge(String amount) throws LoginException {
 		Recharge recharge=new Recharge();
-		recharge.setBaseUrl(getBaseUrl(ACTION_RECHARGE));
+		recharge.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_RECHARGE));
 		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpSession session=req.getSession();
 		Object currentUser=session.getAttribute(ILoginService.SESSION_ATTRIBUTENAME_USER);
@@ -221,8 +147,8 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		recharge.setAmount(amount);
 		recharge.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/recharge/response");
 		recharge.setNotifyURL(recharge.getReturnURL()+"/bg");
-		recharge.setPlatformMoneymoremore(platformMoneymoremore);
-		recharge.setSignInfo(recharge.getSign(privateKey));
+		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
+		recharge.setSignInfo(recharge.getSign(innerThirdPaySupportService.getPrivateKey()));
 		Integer cashStreamId = null;
 		if(currentUser instanceof Lender)
 		{
@@ -238,14 +164,14 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 			throw new RuntimeException("不支持该用户充值");
 		}
 		recharge.setOrderNo(String.valueOf(cashStreamId));
-		recharge.setSignInfo(recharge.getSign(privateKey));
+		recharge.setSignInfo(recharge.getSign(innerThirdPaySupportService.getPrivateKey()));
 		return recharge;
 	}
 
 	@Override
 	public Transfer getTransferToBuy(Integer submitId,String pid) throws InsufficientBalanceException, LoginException {
 		Transfer transfer=new Transfer();
-		transfer.setBaseUrl(getBaseUrl(ACTION_TRANSFER));
+		transfer.setBaseUrl(innerThirdPaySupportService.getBaseUrl(innerThirdPaySupportService.ACTION_TRANSFER));
 		
 		Lender lender=lenderService.getCurrentUser();
 		if(lender==null)
@@ -264,7 +190,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		transfer.setNeedAudit(null);//空.需要审核
 		transfer.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/buy/response");
 		transfer.setNotifyURL(transfer.getReturnURL()+"/bg");
-		transfer.setPlatformMoneymoremore(platformMoneymoremore);
+		transfer.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		transfer.setRemark1(pid);
 		transfer.setTransferAction("1");//投标
 		transfer.setTransferType("2");//直连
@@ -291,7 +217,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		loanJson.setSecondaryJsonList("");
 		loanJsons.add(loanJson);
 		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
-		transfer.setSignInfo(transfer.getSign(privateKey));
+		transfer.setSignInfo(transfer.getSign(innerThirdPaySupportService.getPrivateKey()));
 		try {
 			transfer.setLoanJsonList(URLEncoder.encode(transfer.getLoanJsonList(),"UTF-8"));
 		} catch (UnsupportedEncodingException e) {
@@ -306,12 +232,12 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 
 		if(loanNos==null||loanNos.size()==0)
 			return;
-		String baseUrl=getBaseUrl(ACTION_CHECK);
+		String baseUrl=innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_CHECK);
 		StringBuilder loanNoSBuilder=new StringBuilder();
 		Map<String,String> params=new HashMap<String, String>();
-		params.put("PlatformMoneymoremore", platformMoneymoremore);
+		params.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
-		params.put("ReturnURL", "http://" + serverHost + ":" + serverPort + "/account/repay/response/bg");
+		params.put("ReturnURL", "http://" + innerThirdPaySupportService.getServerHost() + ":" + innerThirdPaySupportService.getServerPort() + "/account/repay/response/bg");
 		params.put("NotifyURL", params.get("ReturnURL"));
 		for(int i=0;i<loanNos.size();i++)
 		{
@@ -345,7 +271,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		sBuilder.append(StringUtil.strFormat(params.get("ReturnURL")));
 		sBuilder.append(StringUtil.strFormat(params.get("NotifyURL")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		String signInfo=rsa.signData(sBuilder.toString(), privateKey);
+		String signInfo=rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey());
 		params.put("SignInfo", signInfo);
 		String body=httpClientService.post(baseUrl, params);
 		Gson gson = new Gson();
@@ -465,12 +391,12 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	public void check(List<String> loanNos,int auditType) {
 		if(loanNos==null||loanNos.size()==0)
 			return;
-		String baseUrl=getBaseUrl(ACTION_CHECK);
+		String baseUrl=innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_CHECK);
 		StringBuilder loanNoSBuilder=new StringBuilder();
 		Map<String,String> params=new HashMap<String, String>();
-		params.put("PlatformMoneymoremore", platformMoneymoremore);
+		params.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
-		params.put("ReturnURL", "http://" + serverHost + ":" + serverPort + "/account/checkBuy/response/bg");
+		params.put("ReturnURL", "http://" + innerThirdPaySupportService.getServerHost() + ":" + innerThirdPaySupportService.getServerPort() + "/account/checkBuy/response/bg");
 		params.put("NotifyURL", params.get("ReturnURL"));
 		for(int i=0;i<loanNos.size();i++)
 		{
@@ -508,7 +434,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		sBuilder.append(StringUtil.strFormat(params.get("ReturnURL")));
 		sBuilder.append(StringUtil.strFormat(params.get("NotifyURL")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		String signInfo=rsa.signData(sBuilder.toString(), privateKey);
+		String signInfo=rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey());
 		params.put("SignInfo", signInfo);
 		String body=httpClientService.post(baseUrl, params);
 		Gson gson = new Gson();
@@ -536,7 +462,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		sBuilder.append(StringUtil.strFormat(paramsRollback.get("Remark3")));
 		sBuilder.append(StringUtil.strFormat(paramsRollback.get("ResultCode")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		String signInfo=rsa.signData(sBuilder.toString(), privateKey);
+		String signInfo=rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey());
 		paramsRollback.put("SignInfo", signInfo);
 		String body=httpClientService.post(params.get("NotifyURL"), paramsRollback);
 		log.info(body);
@@ -544,13 +470,13 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	@Override
 	public CardBinding getCardBinding() throws LoginException {
 		CardBinding cardBinding=new CardBinding();
-		cardBinding.setBaseUrl(getBaseUrl(ACTION_CARDBINDING));
+		cardBinding.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_CARDBINDING));
 		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpSession session=req.getSession();
 		Object currentUser=session.getAttribute(ILoginService.SESSION_ATTRIBUTENAME_USER);
 		if(currentUser==null)
 			throw new LoginException("未找到用户信息，请重新登录");
-		cardBinding.setPlatformMoneymoremore(platformMoneymoremore);
+		cardBinding.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		cardBinding.setAction("2");
 //		RsaHelper rsa = RsaHelper.getInstance();
 //		cardBinding.setCardNo(cardNo);
@@ -567,7 +493,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		else {
 			throw new RuntimeException("不支持该用户开户");
 		}
-		cardBinding.setSignInfo(cardBinding.getSign(privateKey));
+		cardBinding.setSignInfo(cardBinding.getSign(innerThirdPaySupportService.getPrivateKey()));
 //		cardBinding.setCardNo(rsa.encryptData(cardNo, publicKey));
 		return cardBinding;
 	}
@@ -575,13 +501,13 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	@Override
 	public Cash getCash(String amount) throws InsufficientBalanceException, LoginException, IllegalOperationException {
 		Cash cash=new Cash();
-		cash.setBaseUrl(getBaseUrl(ACTION_CASH));
+		cash.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_CASH));
 		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpSession session=req.getSession();
 		Object currentUser=session.getAttribute(ILoginService.SESSION_ATTRIBUTENAME_USER);
 		if(currentUser==null)
 			throw new LoginException("未找到用户信息，请重新登录");
-		cash.setPlatformMoneymoremore(platformMoneymoremore);
+		cash.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		cash.setAmount(amount);
 		Integer cashStreamId = null;
 		String cardNo=null;
@@ -620,9 +546,9 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		cash.setOrderNo(String.valueOf(cashStreamId));
 		cash.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() +"/account/cash/response");
 		cash.setNotifyURL(cash.getReturnURL()+"/bg");
-		cash.setSignInfo(cash.getSign(privateKey));
+		cash.setSignInfo(cash.getSign(innerThirdPaySupportService.getPrivateKey()));
 		RsaHelper rsa = RsaHelper.getInstance();
-		cash.setCardNo(rsa.encryptData(cardNo, publicKey));
+		cash.setCardNo(rsa.encryptData(cardNo, innerThirdPaySupportService.getPublicKey()));
 		return cash;
 	}
 
@@ -633,23 +559,23 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		if(borrower==null)
 			throw new LoginException("未找到用户信息，请重新登录");
 		Authorize authorize=new Authorize();
-		authorize.setBaseUrl(getBaseUrl(ACTION_AUTHORIZE));
+		authorize.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_AUTHORIZE));
 		
 		authorize.setMoneymoremoreId(borrower.getThirdPartyAccount());
-		authorize.setPlatformMoneymoremore(platformMoneymoremore);
+		authorize.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		authorize.setAuthorizeTypeOpen("2");
 		authorize.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() +"/account/authorize/response");
 		authorize.setNotifyURL(authorize.getReturnURL()+"/bg");
-		authorize.setSignInfo(authorize.getSign(privateKey));
+		authorize.setSignInfo(authorize.getSign(innerThirdPaySupportService.getPrivateKey()));
 		return authorize;
 	}
 	@Override
 	public void submitForCheckRepay(List<LoanJson> loanJsons, PayBack payback){
 		if(loanJsons==null||loanJsons.size()==0)
 			return;
-		String baseUrl=getBaseUrl(ACTION_TRANSFER);
+		String baseUrl=innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_TRANSFER);
 		Map<String,String> params=new HashMap<String,String>();
-		params.put("PlatformMoneymoremore", platformMoneymoremore);
+		params.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		params.put("TransferAction", "2");
 		params.put("Action", "2");
 		params.put("TransferType", "2");
@@ -660,7 +586,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		//将还款改为需要审核
 		params.put("NeedAudit", null);
 		
-		params.put("NotifyURL", "http://"+serverHost+":"+serverPort+"/account/repay/response/bg");
+		params.put("NotifyURL", "http://"+innerThirdPaySupportService.getServerHost()+":"+innerThirdPaySupportService.getServerPort()+"/account/repay/response/bg");
 		List<LoanJson> temp=new ArrayList<LoanJson>();
 		
 		Product product = productService.find(payback.getProductId());
@@ -696,7 +622,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		sBuilder.append(StringUtil.strFormat(params.get("NeedAudit")));
 		sBuilder.append(StringUtil.strFormat(params.get("NotifyURL")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		String signInfo=rsa.signData(sBuilder.toString(), privateKey);
+		String signInfo=rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey());
 		params.put("SignInfo", signInfo);
 		try {
 			params.put("LoanNoList",URLEncoder.encode(params.get("LoanJsonList"),"UTF-8"));
@@ -738,7 +664,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		paramsRollback.put("PlatformMoneymoremore", platformMoneymoremore);
+		paramsRollback.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		paramsRollback.put("ResultCode", "88");
 		paramsRollback.put("Message", "成功");
 		StringBuilder sBuilder=new StringBuilder();
@@ -747,7 +673,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		sBuilder.append(StringUtil.strFormat(paramsRollback.get("ResultCode")));
 //		sBuilder.append(StringUtil.strFormat(paramsRollback.get("Message")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		String signInfo=rsa.signData(sBuilder.toString(), privateKey);
+		String signInfo=rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey());
 		paramsRollback.put("SignInfo", signInfo);
 		String body=httpClientService.post(notifyURL, paramsRollback);
 		log.info(body);
@@ -763,7 +689,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 			sBuilder.append(StringUtil.strFormat(params.get(str)));
 		}
 		RsaHelper rsa = RsaHelper.getInstance();
-		String sign=rsa.signData(sBuilder.toString(), privateKey);
+		String sign=rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey());
 		if(!sign.replaceAll("\r", "").equals(params.get("SignInfo").replaceAll("\r", "")))
 			throw new SignatureException("非法的签名");
 	}
@@ -895,9 +821,9 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 			throw new IllegalOperationException("只验证提现");
 		if(cashStream.getState()!=CashStream.STATE_SUCCESS)
 			throw new IllegalOperationException("只验证已提现的流水");
-		String baseUrl=getBaseUrl(ACTION_ORDERQUERY);
+		String baseUrl=innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
-		params.put("PlatformMoneymoremore", platformMoneymoremore);
+		params.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		params.put("Action", "2");
 		params.put("LoanNo", cashStream.getLoanNo());
 		StringBuilder sBuilder=new StringBuilder();
@@ -905,7 +831,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		sBuilder.append(StringUtil.strFormat(params.get("Action")));
 		sBuilder.append(StringUtil.strFormat(params.get("LoanNo")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		params.put("SignInfo", rsa.signData(sBuilder.toString(), privateKey));
+		params.put("SignInfo", rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey()));
 		String body=httpClientService.post(baseUrl, params);
 		Gson gson = new Gson();
 		Map<String,String> returnParams=gson.fromJson(body, Map.class);
@@ -928,17 +854,17 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	public String balanceQuery(String thirdPartyAccount) {
 		Map<String, String> params=new HashMap<String, String>();
 		params.put("PlatformId", thirdPartyAccount);
-		params.put("PlatformMoneymoremore", platformMoneymoremore);
+		params.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		StringBuilder sBuilder=new StringBuilder();
 		sBuilder.append(thirdPartyAccount);
-		sBuilder.append(platformMoneymoremore);
+		sBuilder.append(innerThirdPaySupportService.getPlatformMoneymoremore());
 		RsaHelper rsa = RsaHelper.getInstance();
-		String signInfo=rsa.signData(sBuilder.toString(), privateKey);
+		String signInfo=rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey());
 		params.put("SignInfo", signInfo);
 		String body=null;
 		try
 		{
-			body=httpClientService.post(getBaseUrl(ACTION_BALANCEQUERY), params);
+			body=httpClientService.post(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_BALANCEQUERY), params);
 		}catch(Throwable e)
 		{
 			e.printStackTrace();
@@ -956,9 +882,9 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 			return;
 		if(cashStream.getState()==CashStream.STATE_SUCCESS&&(cashStream.getAction()==CashStream.ACTION_FREEZE||cashStream.getAction()==CashStream.ACTION_RECHARGE))
 			return;
-		String baseUrl=getBaseUrl(ACTION_ORDERQUERY);
+		String baseUrl=innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
-		params.put("PlatformMoneymoremore", platformMoneymoremore);
+		params.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		if(cashStream.getAction()==CashStream.ACTION_CASH)
 			params.put("Action", "2");
 		else if(cashStream.getAction()==CashStream.ACTION_RECHARGE)
@@ -969,7 +895,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		sBuilder.append(StringUtil.strFormat(params.get("Action")));
 		sBuilder.append(StringUtil.strFormat(params.get("OrderNo")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		params.put("SignInfo", rsa.signData(sBuilder.toString(), privateKey));
+		params.put("SignInfo", rsa.signData(sBuilder.toString(), innerThirdPaySupportService.getPrivateKey()));
 		String body=httpClientService.post(baseUrl, params);
 		Gson gson = new Gson();
 		Map<String,String> returnParams=(Map<String, String>) (gson.fromJson(body, List.class).get(0));

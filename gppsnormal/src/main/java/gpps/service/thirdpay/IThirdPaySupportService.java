@@ -15,17 +15,6 @@ import java.util.Map;
 
 public interface IThirdPaySupportService {
 	/**
-	 * 根据行为获取url
-	 * @param action
-	 * @return
-	 */
-	public String getBaseUrl(String action);
-	/**
-	 * 返回第三方平台账户,内部调用 
-	 * @return
-	 */
-	public String getPlatformMoneymoremore();
-	/**
 	 * 返回开户表单提交信息
 	 * @return
 	 * @throws LoginException
@@ -47,11 +36,7 @@ public interface IThirdPaySupportService {
 	 * @throws LoginException
 	 */
 	public Transfer getTransferToBuy(Integer submitId,String pid) throws InsufficientBalanceException, LoginException;
-	/**
-	 * 返回第三方私钥，内部调用
-	 * @return
-	 */
-	public String getPrivateKey();
+	
 	/**
 	 * 后台审核服务
 	 * @param loanNos 所有流水号用英文逗号(,)连成一个字符串

@@ -9,6 +9,7 @@ import gpps.dao.IPayBackDao;
 import gpps.dao.IProductDao;
 import gpps.dao.ISubmitDao;
 import gpps.dao.ITaskDao;
+import gpps.inner.service.IInnerThirdPaySupportService;
 import gpps.model.Borrower;
 import gpps.model.CashStream;
 import gpps.model.GovermentOrder;
@@ -70,6 +71,8 @@ public class TaskServiceImpl implements ITaskService {
 	IPayBackService payBackService;
 	@Autowired
 	IThirdPaySupportService thirdPaySupportService;
+	@Autowired
+	IInnerThirdPaySupportService innerThirdPaySupportService;
 	@Autowired
 	IBorrowerAccountDao borrowerAccountDao;
 	@PostConstruct
@@ -254,7 +257,7 @@ public class TaskServiceImpl implements ITaskService {
 			String toMoneyMoreMore = null;
 			Submit submit = submitDao.find(cs.getSubmitId());
 			if(submit==null){
-				toMoneyMoreMore = thirdPaySupportService.getPlatformMoneymoremore();
+				toMoneyMoreMore = innerThirdPaySupportService.getPlatformMoneymoremore();
 			}else{
 				Lender lender = lenderDao.find(submit.getLenderId());
 				if(lender==null){

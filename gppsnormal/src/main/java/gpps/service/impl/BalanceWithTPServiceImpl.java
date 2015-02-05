@@ -1,8 +1,8 @@
 package gpps.service.impl;
 
+import gpps.inner.service.IInnerThirdPaySupportService;
 import gpps.service.thirdpay.IBalanceWithTPService;
 import gpps.service.thirdpay.IHttpClientService;
-import gpps.service.thirdpay.IThirdPaySupportService;
 import gpps.service.thirdpay.LoanFromTP;
 import gpps.service.thirdpay.LoanHelper;
 import gpps.service.thirdpay.ThirdPartyAssistent;
@@ -19,14 +19,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class BalanceWithTPServiceImpl implements IBalanceWithTPService {
 @Autowired
-IThirdPaySupportService thirdPayService;
+IInnerThirdPaySupportService innerThirdPayService;
 @Autowired
 IHttpClientService httpClientService;
 	@Override
 	public LoanFromTP viewByOrderNo(String orderNo, String action) throws Exception {
-		String baseUrl=thirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_ORDERQUERY);
+		String baseUrl=innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
-		params.put("PlatformMoneymoremore", thirdPayService.getPlatformMoneymoremore());
+		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 			params.put("Action", action);
 		StringBuilder sBuilder=new StringBuilder();
 		sBuilder.append(StringUtil.strFormat(params.get("PlatformMoneymoremore")));
@@ -34,7 +34,7 @@ IHttpClientService httpClientService;
 		params.put("OrderNo", orderNo);
 		sBuilder.append(StringUtil.strFormat(params.get("OrderNo")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		params.put("SignInfo", rsa.signData(sBuilder.toString(), thirdPayService.getPrivateKey()));
+		params.put("SignInfo", rsa.signData(sBuilder.toString(), innerThirdPayService.getPrivateKey()));
 		String body=httpClientService.post(baseUrl, params);
 		
 		List<LoanFromTP> tps = LoanHelper.parseJSON(body, action);
@@ -46,9 +46,9 @@ IHttpClientService httpClientService;
 
 	@Override
 	public LoanFromTP viewByLoanNo(String loanNo, String action) throws Exception {
-		String baseUrl=thirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_ORDERQUERY);
+		String baseUrl=innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
-		params.put("PlatformMoneymoremore", thirdPayService.getPlatformMoneymoremore());
+		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 			params.put("Action", action);
 		StringBuilder sBuilder=new StringBuilder();
 		sBuilder.append(StringUtil.strFormat(params.get("PlatformMoneymoremore")));
@@ -56,7 +56,7 @@ IHttpClientService httpClientService;
 		params.put("LoanNo", loanNo);
 		sBuilder.append(StringUtil.strFormat(params.get("LoanNo")));
 		RsaHelper rsa = RsaHelper.getInstance();
-		params.put("SignInfo", rsa.signData(sBuilder.toString(), thirdPayService.getPrivateKey()));
+		params.put("SignInfo", rsa.signData(sBuilder.toString(), innerThirdPayService.getPrivateKey()));
 		String body=httpClientService.post(baseUrl, params);
 		List<LoanFromTP> tps = LoanHelper.parseJSON(body, action);
 		if(tps==null || tps.isEmpty()){

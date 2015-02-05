@@ -24,6 +24,7 @@ import gpps.dao.IStateLogDao;
 import gpps.inner.service.IInnerGovermentOrderService;
 import gpps.inner.service.IInnerPayBackService;
 import gpps.inner.service.IInnerProductService;
+import gpps.inner.service.IInnerThirdPaySupportService;
 import gpps.model.Borrower;
 import gpps.model.CashStream;
 import gpps.model.GovermentOrder;
@@ -51,7 +52,7 @@ import gpps.service.thirdpay.ThirdPartyAssistent;
 @Service
 public class AuditBuyServiceImpl implements IAuditBuyService {
 	@Autowired
-	IThirdPaySupportService thirdPayService;
+	IInnerThirdPaySupportService innerThirdPayService;
 	@Autowired
 	IHttpClientService httpClientService;
 	@Autowired
@@ -92,10 +93,10 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		if(loanNos==null||loanNos.size()==0)
 			throw new Exception("无效的审核列表！");
 		
-		String baseUrl=thirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_CHECK);
+		String baseUrl=innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_CHECK);
 		StringBuilder loanNoSBuilder=new StringBuilder();
 		Map<String,String> params=new HashMap<String, String>();
-		params.put("PlatformMoneymoremore", thirdPayService.getPlatformMoneymoremore());
+		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
 		params.put("ReturnURL", "http://www.aaccbb.com/account/checkBuy/response/bg");
 		params.put("NotifyURL", params.get("ReturnURL"));
@@ -109,7 +110,7 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		params.put("LoanNoList", loanNoSBuilder.toString());
 		
 		//签名
-		String signInfo = ThirdPartyAssistent.signForAudit(params, thirdPayService.getPrivateKey());
+		String signInfo = ThirdPartyAssistent.signForAudit(params, innerThirdPayService.getPrivateKey());
 		params.put("SignInfo", signInfo);
 				
 		//将处理好的参数post到第三方，并接受其马上返回的参数

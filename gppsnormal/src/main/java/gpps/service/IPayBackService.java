@@ -15,7 +15,6 @@ import java.util.Map;
 
 public interface IPayBackService {
 	public void create(PayBack payback);
-	public List<PayBack> findAll(Integer productId);
 	public void changeState(Integer paybackId,int state);
 	public PayBack find(Integer id);
 //	public List<PayBackDetail> getMyPaybackDetail(int paybackState);
@@ -92,7 +91,7 @@ public interface IPayBackService {
 	 * @throws InsufficientBalanceException
 	 * @throws IllegalConvertException
 	 */
-	public void repay(Integer payBackId) throws IllegalStateException, IllegalOperationException, InsufficientBalanceException, IllegalConvertException;
+	public void repay(Integer payBackId) throws IllegalStateException, IllegalOperationException, InsufficientBalanceException, IllegalConvertException, CheckException;
 	/**
 	 * 管理员验证通过还款
 	 * @param payBackId
@@ -111,25 +110,6 @@ public interface IPayBackService {
 	 * @return
 	 */
 	public List<PayBack> findWaitforCheckPayBacks();
-	
-	/**
-	 * 根据payBackId计算出本次还款的具体详情
-	 * 
-	 * @param payBackId
-	 * @param interrupted 还款任务执行时是否被打断过
-	 * 
-	 * */
-	public List<SinglePayBack> calculatePayBacks(Integer payBackId, boolean interrupted) throws Exception;
-	
-	/**
-	 * 单纯的对还款计划（被打断过或者没被打断过）进行校验，并返回校验报告
-	 * @param payBackId
-	 * @param interrupted 还款任务执行时是否被打断过
-	 * @param executeStep 生成日志和报告时，显示校验执行步骤
-	 * 
-	 * 
-	 * */
-	public List<SinglePayBack> justCheckOutPayBack(Integer payBackId, boolean isinterrupted, String executeStep) throws CheckException;
 	
 	/**
 	 * 查询剩余指定天数以内的待还款

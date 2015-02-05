@@ -1,9 +1,13 @@
 package gpps.service.impl;
 
+import gpps.dao.ICashStreamDao;
+import gpps.dao.IPayBackDao;
+import gpps.inner.service.IInnerThirdPaySupportService;
+import gpps.model.CashStream;
 import gpps.model.PayBack;
+import gpps.service.exception.CheckException;
 import gpps.service.thirdpay.AlreadyDoneException;
 import gpps.service.thirdpay.IHttpClientService;
-import gpps.service.thirdpay.IThirdPaySupportService;
 import gpps.service.thirdpay.ITransferApplyService;
 import gpps.service.thirdpay.LoanFromTP;
 import gpps.service.thirdpay.LoanHelper;
@@ -25,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,20 +37,23 @@ import com.google.gson.Gson;
 @Service
 public class TransferApplyServiceImpl implements ITransferApplyService {
 	@Autowired
-	IThirdPaySupportService thirdPayService;
+	IInnerThirdPaySupportService innerThirdPayService;
 	@Autowired
 	IHttpClientService httpClientService;
+	@Autowired
+	IPayBackDao payBackDao;
+	@Autowired
+	ICashStreamDao cashStreamDao;
+	Logger log = Logger.getLogger(TransferApplyServiceImpl.class);
 	@Override
 	public void repayApply(List<LoanJson> loanJsons, PayBack payback)
-			throws Exception {
+			throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException {
 		if(loanJsons==null || loanJsons.isEmpty()){
-			throw new Exception("无效的转账列表！");
+			throw new CheckException("无效的转账列表！");
 		}
 		
-		List<TransferFromTP> result = new ArrayList<TransferFromTP>();
-		
 		Transfer transfer = new Transfer();
-		transfer.setPlatformMoneymoremore(thirdPayService.getPlatformMoneymoremore());
+		transfer.setPlatformMoneymoremore(innerThirdPayService.getPlatformMoneymoremore());
 		transfer.setTransferAction(ThirdPartyState.THIRD_TRANSFERACTION_REPAY);
 		transfer.setAction(ThirdPartyState.THIRD_ACTION_AUTO);
 		transfer.setTransferType(ThirdPartyState.THIRD_TRANSFERTYPE_DIRECT);
@@ -58,7 +66,7 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		
 		//签名
 		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
-		transfer.setSignInfo(transfer.getSign(thirdPayService.getPrivateKey()));
+		transfer.setSignInfo(transfer.getSign(innerThirdPayService.getPrivateKey()));
 		
 		//将转账列表编码
 		try {
@@ -70,7 +78,7 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		Map<String,String> params=transfer.getParams();
 		
 		
-		String baseUrl = thirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_TRANSFER);
+		String baseUrl = innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_TRANSFER);
 		
 		//将处理好的参数post到第三方，并接受其马上返回的参数
 		String body=httpClientService.post(baseUrl, params);
@@ -82,24 +90,16 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 	@Override
 	public void repayApplyProcessor(String retJson)
 			throws AlreadyDoneException, ResultCodeException,
-			SignatureException, Exception {
+			SignatureException, CheckException{
 			//校验返回结果签名，并解析返回参数
-				List<LoanFromTP> result = handleReturnParams(retJson);
+			List<LoanFromTP> result = handleReturnParams(retJson);
 				
-				//根据返回参数处理平台相关信息，维护与第三方的一致性
-				Map<String, String> messageToSend = null;
-				messageToSend = repayApplyHandle(result);
-				
-				//如果messageToSend不为空，说明有需要发送短信和站内信的内容
-				if(messageToSend!=null && !messageToSend.isEmpty()){
-//					messageService.sendMessage(messageToSend);
-					System.out.println(messageToSend);
-				}
-
+			//根据返回参数处理平台相关信息，维护与第三方的一致性
+			repayApplyHandle(result);
 	}
 	
 	
-	public static List<LoanFromTP> handleReturnParams(String retJson) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception
+	public static List<LoanFromTP> handleReturnParams(String retJson) throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException
 	{
 		Gson gson = new Gson();
 		
@@ -128,21 +128,63 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		List<LoanFromTP> result = LoanHelper.parseJSON(loanJonListStr, null);
 		
 		if(result==null || result.isEmpty()){
-			throw new Exception("无效的转账列表！");
+			throw new CheckException("无效的转账列表！");
 		}
 		
 		return result;
 	}
 	
 	
-	// 审核提交给第三方后，对第三方返回的执行结果参数的后续处理，并将需要发送的短信信息返回
-	private static Map<String, String> repayApplyHandle(List<LoanFromTP> loanNos) {
-		// TODO: 首先判断是否已经执行了相应的操作，如果是的话，直接返回null
-		Map<String, String> result = new HashMap<String, String>();
-		for (LoanFromTP loanNo : loanNos) {
-			result.put(loanNo.getLoanNo(), "还款申请完毕");
+	// 审核提交给第三方后，对第三方返回的执行结果参数的后续处理
+	private void repayApplyHandle(List<LoanFromTP> loanNos) throws CheckException{
+		//首先判断是否已经执行了相应的操作，如果是的话，直接返回
+		if(loanNos==null || loanNos.isEmpty()){
+			throw new CheckException("本次返回参数没有有效的转账记录！");
 		}
-		return result;
+		LoanFromTP eloanNo = loanNos.get(0);
+		String eorderNo = eloanNo.getOrderNo();
+		
+		if(eorderNo==null || "".equals(eorderNo)){
+			throw new CheckException("返回参数中，现金流ID异常");
+		}
+		int ecashStreamId = 0;
+		try{
+			ecashStreamId = Integer.parseInt(eorderNo);
+		}catch(Exception e){
+			throw new CheckException("返回参数中，现金流ID异常:"+e.getMessage());
+		}
+		CashStream ecash = cashStreamDao.find(ecashStreamId);
+		PayBack payBack = payBackDao.find(ecash.getPaybackId());
+		if(payBack.getCheckResult()==PayBack.CHECK_SUCCESS){
+			return;
+		}
+		
+		for (LoanFromTP loanNo : loanNos) {
+			String orderNo = loanNo.getOrderNo();
+			
+			if(orderNo==null || "".equals(orderNo)){
+				throw new CheckException("返回参数中，现金流ID异常");
+			}
+			
+			int cashStreamId = 0;
+			try{
+				cashStreamId = Integer.parseInt(orderNo);
+			}catch(Exception e){
+				throw new CheckException("返回参数中，现金流ID异常:"+e.getMessage());
+			}
+			
+			CashStream cashStream = cashStreamDao.find(cashStreamId);
+			if(cashStream.getState()==CashStream.STATE_SUCCESS && loanNo.equals(cashStream.getLoanNo()))
+			{
+				log.debug("回款现金流【"+cashStreamId+"】:已执行完毕，重复提交");
+				continue;
+			}
+			//修改现金流的LoanNo,表示本次转账冻结已经与第三方一致
+			cashStreamDao.updateLoanNo(cashStreamId, loanNo.getLoanNo(),null);
+		}
+		
+		//现金流全部处理完毕后，将对应的还款的审核状态设置为“审核通过”
+		payBackDao.changeCheckResult(payBack.getId(), PayBack.CHECK_SUCCESS);
 	}
 
 }

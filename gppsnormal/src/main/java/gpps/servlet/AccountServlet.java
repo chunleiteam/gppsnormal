@@ -5,6 +5,7 @@ import gpps.dao.ICardBindingDao;
 import gpps.dao.ICashStreamDao;
 import gpps.dao.ILenderDao;
 import gpps.dao.IProductSeriesDao;
+import gpps.inner.service.IInnerThirdPaySupportService;
 import gpps.model.Borrower;
 import gpps.model.CardBinding;
 import gpps.model.CashStream;
@@ -74,6 +75,8 @@ public class AccountServlet {
 	IBorrowerService borrowerService;
 	@Autowired
 	IThirdPaySupportService thirdPaySupportService;
+	@Autowired
+	IInnerThirdPaySupportService innerThirdPaySupportService;
 	@Autowired
 	ICardBindingDao cardBindingDao;
 	@Autowired
@@ -543,7 +546,7 @@ public class AccountServlet {
 				"Province","City","WithholdBeginDate","WithholdEndDate","SingleWithholdLimit","TotalWithholdLimit+ "
 						+ "RandomTimeStamp","Remark1","Remark2","Remark3","ResultCode"};
 		RsaHelper rsa = RsaHelper.getInstance();
-		String cardNo=rsa.decryptData(params.get("CardNo"), thirdPaySupportService.getPrivateKey());
+		String cardNo=rsa.decryptData(params.get("CardNo"), innerThirdPaySupportService.getPrivateKey());
 		params.put("CardNo", cardNo);
 		thirdPaySupportService.checkRollBack(params, signStrs);
 		String moneymoremoreId=params.get("MoneymoremoreId");

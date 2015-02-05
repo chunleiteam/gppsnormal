@@ -1,5 +1,7 @@
 package gpps.service.thirdpay;
 
+import gpps.service.exception.CheckException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,12 +9,12 @@ import java.util.Map;
 import com.google.gson.Gson;
 
 public class LoanHelper {
-	public static List<LoanFromTP> parseJSON(String json, String action) throws Exception{
+	public static List<LoanFromTP> parseJSON(String json, String action) throws CheckException{
 		List<LoanFromTP> loans = new ArrayList<LoanFromTP>();
 		Gson gson = new Gson();
 		List returnParams=gson.fromJson(json, List.class);
 		if(returnParams==null || returnParams.isEmpty()){
-			throw new Exception("找不到对应的转账信息");
+			throw new CheckException("找不到对应的转账信息");
 		}
 		for(Object obj : returnParams){
 			Map<String, Object> temp = (Map<String, Object>)obj;
