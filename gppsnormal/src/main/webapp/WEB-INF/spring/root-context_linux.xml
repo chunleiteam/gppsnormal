@@ -34,7 +34,7 @@
     <bean id="contractService" class="gpps.service.impl.ContractServiceImpl">
         <property name="contractDir" value="file:/root/install/data/contractDir"></property>
     </bean>
-    <bean id="chinanprSupportService" class="gpps.service.impl.ThirdPaySupportServiceImpl">
+    <bean id="chinanprSupportService" class="gpps.inner.service.impl.InnerThirdPaySupportServiceImpl">
         <property name="url" value="${pay.url}"></property>
         <property name="privateKey" value="${privateKey}"></property>
         <property name="publicKey" value="${publicKey}"></property>
