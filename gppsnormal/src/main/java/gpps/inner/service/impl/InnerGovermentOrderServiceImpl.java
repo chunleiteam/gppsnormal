@@ -105,4 +105,10 @@ public class InnerGovermentOrderServiceImpl implements
 		
 		// TODO：给投资者发送短信与站内信
 	}
+	
+	@Override
+	public void finishRepay(int orderId) throws IllegalConvertException{
+		// 修改订单状态，记录状态日志
+		changeState(orderId,GovermentOrder.STATE_WAITINGCLOSE);
+	}
 }

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,6 +76,7 @@ public class AccountServiceImpl implements IAccountService {
 	IStateLogDao stateLogDao;
 	@Autowired
 	IMessageService messageService;
+	Logger log = Logger.getLogger(AccountServiceImpl.class);
 	@Override
 	public Integer rechargeLenderAccount(Integer lenderAccountId, BigDecimal amount, String description) {
 		checkNullObject(LenderAccount.class, lenderAccountDao.find(lenderAccountId));
@@ -287,7 +289,7 @@ public class AccountServiceImpl implements IAccountService {
 		checkNullObject(CashStream.class, cashStream);
 		for (int[] validStateConvert : validConverts) {
 			if (cashStream.getState() == validStateConvert[0] && state == validStateConvert[1]) {
-				cashStreamDao.changeCashStreamState(cashStreamId, state);
+				
 				StateLog stateLog=new StateLog();
 				stateLog.setCreatetime(System.currentTimeMillis());
 				stateLog.setRefid(cashStreamId);
@@ -295,6 +297,8 @@ public class AccountServiceImpl implements IAccountService {
 				stateLog.setTarget(state);
 				stateLog.setType(StateLog.TYPE_CASHSTREAM);
 				stateLogDao.create(stateLog);
+				log.info("现金流【"+cashStreamId+"】:状态由【"+cashStream.getState()+"】变为【"+state+"】");
+				cashStreamDao.changeCashStreamState(cashStreamId, state);
 				if(state!=CashStream.STATE_SUCCESS)
 					return;
 				switch (cashStream.getAction()) {
@@ -699,5 +703,6 @@ public class AccountServiceImpl implements IAccountService {
 		stateLog.setTarget(cashStream.getState());
 		stateLog.setType(stateLog.TYPE_CASHSTREAM);
 		stateLogDao.create(stateLog);
+		log.info("现金流【"+cashStream.getId()+"】变为状态【"+cashStream.getState()+"】");
 	}
 }

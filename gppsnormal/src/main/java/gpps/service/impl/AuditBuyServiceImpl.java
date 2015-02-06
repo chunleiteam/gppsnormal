@@ -21,6 +21,7 @@ import gpps.dao.IPayBackDao;
 import gpps.dao.IProductDao;
 import gpps.dao.IProductSeriesDao;
 import gpps.dao.IStateLogDao;
+import gpps.dao.ISubmitDao;
 import gpps.inner.service.IInnerGovermentOrderService;
 import gpps.inner.service.IInnerPayBackService;
 import gpps.inner.service.IInnerProductService;
@@ -57,8 +58,10 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 	IHttpClientService httpClientService;
 	@Autowired
 	ICashStreamDao cashStreamDao;
+//	@Autowired
+//	ISubmitService submitService;
 	@Autowired
-	ISubmitService submitService;
+	ISubmitDao submitDao;
 	@Autowired
 	IGovermentOrderDao orderDao;
 	@Autowired
@@ -155,7 +158,7 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		List<CashStream> eCashStreams = cashStreamDao
 				.findSuccessByActionAndLoanNo(-1, eLoanNo);
 		CashStream eCashStream = eCashStreams.get(0);
-		Submit eSubmit = submitService.find(eCashStream.getSubmitId());
+		Submit eSubmit = submitDao.find(eCashStream.getSubmitId());
 		Product product = productDao.find(eSubmit.getProductId());
 		GovermentOrder order = orderDao.find(product.getGovermentorderId());
 
@@ -204,7 +207,7 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		String eLoanNo = loanNos.get(0);
 		List<CashStream> eCashStreams=cashStreamDao.findSuccessByActionAndLoanNo(-1, eLoanNo);
 		CashStream eCashStream=eCashStreams.get(0);
-		Submit eSubmit=submitService.find(eCashStream.getSubmitId());
+		Submit eSubmit=submitDao.find(eCashStream.getSubmitId());
 		Product product = productDao.find(eSubmit.getProductId());
 		GovermentOrder order=orderDao.find(product.getGovermentorderId());
 		

@@ -29,4 +29,10 @@ public interface IInnerGovermentOrderService {
 	 * 
 	 * */
 	public void quitFinancing(int OrderId) throws IllegalConvertException;
+	
+	/**
+	 * 将订单状态从还款中改为待关闭，并执行相应的附带操作：创建状态转换日志、写日志
+	 * 
+	 * */
+	public void finishRepay(int orderId) throws IllegalConvertException;
 }

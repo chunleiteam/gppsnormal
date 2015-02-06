@@ -107,6 +107,25 @@ public class InnerProductServiceImpl implements IInnerProductService {
 	}
 	
 	@Override
+	public void finishRepay(int productId) throws IllegalConvertException{
+		changeState(productId, Product.STATE_FINISHREPAY);
+		Product product = productDao.find(productId);
+		
+		//查询本产品对应订单下面的所有产品，如果状态均改为“还款完毕”，则说明本订单对应的所有产品状态都修改完毕，则将订单状态修改为“待关闭”
+		List<Product> pros = productDao.findByGovermentOrder(product.getGovermentorderId());
+		boolean doneFlag = true;
+		for (Product pro : pros) {
+			if (pro.getState() != Product.STATE_FINISHREPAY) {
+				doneFlag = false;
+				break;
+			}
+		}
+		if (doneFlag == true) {
+			innerOrderService.finishRepay(product.getGovermentorderId());
+		}
+	}
+	
+	@Override
 	public void create(Product product) throws IllegalArgumentException{
 		checkNullObject("orderId", product.getGovermentorderId());
 		GovermentOrder order=orderDao.find(product.getGovermentorderId());

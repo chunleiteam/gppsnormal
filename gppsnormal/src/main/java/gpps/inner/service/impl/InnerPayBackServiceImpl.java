@@ -10,6 +10,7 @@ import gpps.dao.IProductSeriesDao;
 import gpps.dao.IStateLogDao;
 import gpps.dao.ISubmitDao;
 import gpps.inner.service.IInnerPayBackService;
+import gpps.inner.service.IInnerProductService;
 import gpps.inner.service.IInnerThirdPaySupportService;
 import gpps.model.Borrower;
 import gpps.model.CashStream;
@@ -22,6 +23,7 @@ import gpps.model.StateLog;
 import gpps.model.Submit;
 import gpps.service.CashStreamSum;
 import gpps.service.exception.CheckException;
+import gpps.service.exception.IllegalConvertException;
 import gpps.service.exception.IllegalOperationException;
 import gpps.tools.PayBackCalculateUtils;
 import gpps.tools.SinglePayBack;
@@ -53,6 +55,8 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 	ICashStreamDao cashStreamDao;
 	@Autowired
 	IInnerThirdPaySupportService innerThirdPayService;
+	@Autowired
+	IInnerProductService innerProductService;
 	@Autowired
 	IStateLogDao stateLogDao;
 	Logger log = Logger.getLogger(InnerPayBackServiceImpl.class);
@@ -567,5 +571,36 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 //		spbs.add(spb);
 		
 		return spbs;
+	}
+	
+	@Override
+	public void changeState(Integer paybackId, int state) {
+		PayBack payBack=payBackDao.find(paybackId);
+		payBackDao.changeState(paybackId, state,System.currentTimeMillis());
+		StateLog stateLog=new StateLog();
+		stateLog.setSource(payBack.getState());
+		stateLog.setTarget(state);
+		stateLog.setType(StateLog.TYPE_PAYBACK);
+		stateLog.setRefid(paybackId);
+		stateLogDao.create(stateLog);
+		log.info("修改还款【"+paybackId+"】的状态为"+state);
+	}
+	
+	@Override
+	public void finishPayBack(Integer payBackId) throws IllegalConvertException{
+		PayBack payBack = payBackDao.find(payBackId);
+		
+		if(payBack==null || payBack.getState()!=PayBack.STATE_WAITFORCHECK || payBack.getCheckResult()!=PayBack.CHECK_SUCCESS){
+			throw new IllegalConvertException("还款状态转换有问题！");
+		}
+		
+		changeState(payBackId, PayBack.STATE_FINISHREPAY);
+		
+		//如果是最后一笔还款
+		if(payBack.getType()==PayBack.TYPE_LASTPAY){
+			innerProductService.finishRepay(payBack.getProductId());
+		}
+		
+		//TODO:发送短信与站内信
 	}
 }

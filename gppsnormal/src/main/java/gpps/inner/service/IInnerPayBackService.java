@@ -4,6 +4,7 @@ import gpps.model.CashStream;
 import gpps.model.PayBack;
 import gpps.model.ProductSeries;
 import gpps.service.exception.CheckException;
+import gpps.service.exception.IllegalConvertException;
 import gpps.service.exception.IllegalOperationException;
 import gpps.tools.SinglePayBack;
 
@@ -37,6 +38,15 @@ public interface IInnerPayBackService {
 	 * 
 	 * */
 	public List<PayBack> findAll(Integer productId);
+	
+	/**
+	 * 修改还款的状态，以及后续的操作：状态转换记录及日志
+	 * 
+	 * @param paybackId
+	 * @param state
+	 * 
+	 * */
+	public void changeState(Integer paybackId,int state);
 	
 	
 	/**
@@ -75,4 +85,12 @@ public interface IInnerPayBackService {
 	 * 
 	 * */
 	public List<SinglePayBack> justCheckOutPayBackBySPB(List<SinglePayBack> spbs, Integer payBackId, String executeStep) throws CheckException;
+	
+	/**
+	 * 单笔还款执行完毕，以及后续的操作：创建状态转换日志、写日志、发送短信与站内信、判断是否是产品的最后一笔还款，如果是的话调用innerProductService修改产品状态为“还款完毕”
+	 * 
+	 * @param payBackId
+	 * 
+	 * */
+	public void finishPayBack(Integer payBackId) throws IllegalConvertException;
 }

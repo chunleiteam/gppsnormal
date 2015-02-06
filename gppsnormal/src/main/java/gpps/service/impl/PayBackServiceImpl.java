@@ -40,6 +40,7 @@ import gpps.service.exception.SMSException;
 import gpps.service.exception.UnSupportRepayInAdvanceException;
 import gpps.service.message.ILetterSendService;
 import gpps.service.message.IMessageService;
+import gpps.service.thirdpay.IAuditRepayService;
 import gpps.service.thirdpay.ITransferApplyService;
 import gpps.service.thirdpay.Transfer.LoanJson;
 import gpps.tools.DateCalculateUtils;
@@ -99,6 +100,8 @@ public class PayBackServiceImpl implements IPayBackService {
 	@Autowired
 	ITransferApplyService transferApplyService;
 	@Autowired
+	IAuditRepayService auditRepayService;
+	@Autowired
 	IInnerThirdPaySupportService innerThirdPaySupportService;
 	Logger log=Logger.getLogger(PayBackServiceImpl.class);
 	@Override
@@ -112,17 +115,6 @@ public class PayBackServiceImpl implements IPayBackService {
 		stateLogDao.create(stateLog);
 	}
 
-	@Override
-	public void changeState(Integer paybackId, int state) {
-		PayBack payBack=payBackDao.find(paybackId);
-		payBackDao.changeState(paybackId, state,System.currentTimeMillis());
-		StateLog stateLog=new StateLog();
-		stateLog.setSource(payBack.getState());
-		stateLog.setTarget(state);
-		stateLog.setType(StateLog.TYPE_PAYBACK);
-		stateLog.setRefid(paybackId);
-		stateLogDao.create(stateLog);
-	}
 
 	@Override
 	public PayBack find(Integer id) {
@@ -183,7 +175,7 @@ public class PayBackServiceImpl implements IPayBackService {
 					lastRepaytime=pb.getDeadline();
 				continue;
 			}
-			changeState(pb.getId(), PayBack.STATE_INVALID);
+			innerPayBackService.changeState(pb.getId(), PayBack.STATE_INVALID);
 		}
 		//重新计算最后还款
 		Calendar lastCal=Calendar.getInstance();
@@ -202,7 +194,7 @@ public class PayBackServiceImpl implements IPayBackService {
 	@Transactional
 	public void delay(Integer payBackId) {
 		PayBack payBack=payBackDao.find(payBackId);
-		changeState(payBackId, PayBack.STATE_DELAY);
+		innerPayBackService.changeState(payBackId, PayBack.STATE_DELAY);
 		productDao.changeState(payBack.getProductId(), Product.STATE_POSTPONE,System.currentTimeMillis());
 	}
 
@@ -499,21 +491,54 @@ public class PayBackServiceImpl implements IPayBackService {
 		}
 		
 		//最后将payback的状态修改为"待审核"
-		changeState(payBack.getId(), PayBack.STATE_WAITFORCHECK);
+		innerPayBackService.changeState(payBack.getId(), PayBack.STATE_WAITFORCHECK);
 		
 		log.debug("申请还款：borroweraccountid="+borrower.getAccountId()+" amount=" + payBack.getChiefAmount().add(payBack.getInterest()) + ",共涉及冻结了"+spbs.size()+"笔还款");
 	}
 
 	@Override
+	public void check(Integer payBackId) throws IllegalConvertException, IllegalOperationException, CheckException{
+		PayBack payback=find(payBackId);
+		if(payback==null)
+		{
+			throw new CheckException("无效的还款！");
+		}
+		if(payback.getState()!=PayBack.STATE_WAITFORCHECK){
+			throw new CheckException("还款状态无效，不处于待审核状态！");
+		}
+		if(payback.getCheckResult()!=PayBack.CHECK_SUCCESS)
+		{
+			throw new IllegalOperationException("请先验证成功再审核");
+		}
+		
+		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_FREEZE);
+		
+		//根据融资方申请还款时创建的冻结现金流来校验本次还款
+		innerPayBackService.justCheckOutPayBackByCS(css, payBackId, "正式还款审核");
+		
+		List<String> loans=new ArrayList<String>();
+		for(CashStream cs : css){
+			loans.add(cs.getLoanNo());
+		}
+		
+		//还款转账审核
+		try{
+			auditRepayService.auditRepay(loans, 1);
+		}catch(Exception e){
+			throw new CheckException(e.getMessage());
+		}
+	}
+	
+	
 	@Transactional
-	public void check(Integer payBackId) throws IllegalConvertException, IllegalOperationException {
+	public void checkOld(Integer payBackId) throws IllegalConvertException, IllegalOperationException {
 		PayBack payback=find(payBackId);
 		if(payback==null||payback.getState()!=PayBack.STATE_WAITFORCHECK)
 			return;
 		if(payback.getCheckResult()!=PayBack.CHECK_SUCCESS)
 			throw new IllegalOperationException("请先验证成功再审核");
 		// 增加还款任务
-		changeState(payback.getId(), PayBack.STATE_REPAYING);
+		innerPayBackService.changeState(payback.getId(), PayBack.STATE_REPAYING);
 		Task task = new Task();
 		task.setCreateTime(System.currentTimeMillis());
 		task.setPayBackId(payback.getId());
@@ -528,7 +553,7 @@ public class PayBackServiceImpl implements IPayBackService {
 		taskService.submit(task);
 		
 		// 添加进任务以后，任务已经执行成功，就修改payback的状态为成功
-		changeState(payback.getId(), PayBack.STATE_FINISHREPAY);
+		innerPayBackService.changeState(payback.getId(), PayBack.STATE_FINISHREPAY);
 		
 		
 //		accountService.unfreezeBorrowerAccount(payback.getBorrowerAccountId(),payback.getChiefAmount().add(payback.getInterest()), 10, payback.getId(), "还款解冻");
@@ -595,6 +620,19 @@ public class PayBackServiceImpl implements IPayBackService {
 	@Override
 	public List<SinglePayBack> checkoutPayBack(Integer payBackId) throws CheckException {
 		PayBack payback = payBackDao.find(payBackId);
+		
+		if(payback==null)
+		{
+			throw new CheckException("无效的还款！");
+		}
+		if(payback.getState()!=PayBack.STATE_WAITFORCHECK){
+			throw new CheckException("还款状态无效，不处于待审核状态！");
+		}
+		if(payback.getCheckResult()!=PayBack.CHECK_NOT)
+		{
+			throw new CheckException("本次还款已经审核过了");
+		}
+		
 		Product product = productDao.find(payback.getProductId());
 		Borrower borrower = borrowerDao.findByAccountID(payback.getBorrowerAccountId());
 		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_FREEZE);
@@ -776,5 +814,10 @@ public class PayBackServiceImpl implements IPayBackService {
 		}
 		
 		return res;
+	}
+	
+	@Override
+	public List<PayBack> findAll(Integer productId) {
+		return innerPayBackService.findAll(productId);
 	}
 }

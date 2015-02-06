@@ -15,7 +15,6 @@ import java.util.Map;
 
 public interface IPayBackService {
 	public void create(PayBack payback);
-	public void changeState(Integer paybackId,int state);
 	public PayBack find(Integer id);
 //	public List<PayBackDetail> getMyPaybackDetail(int paybackState);
 	/**
@@ -98,7 +97,7 @@ public interface IPayBackService {
 	 * @throws IllegalConvertException
 	 * @throws IllegalOperationException
 	 */
-	public void check(Integer payBackId) throws IllegalConvertException, IllegalOperationException;
+	public void check(Integer payBackId) throws IllegalConvertException, IllegalOperationException, CheckException;
 	/**
 	 * 对该次还款进行校验,校验通过才可调用check方法
 	 * @param payBackId
@@ -116,4 +115,11 @@ public interface IPayBackService {
 	 * 
 	 * */
 	public List<PayBackToView> getWaitingForPayBacksByLeftDays(int leftDays) throws Exception;
+	
+	/**
+	 * 找到产品对应的所有还款实体
+	 * @param productId
+	 * 
+	 * */
+	public List<PayBack> findAll(Integer productId);
 }
