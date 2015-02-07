@@ -121,11 +121,105 @@ public class PayBackServiceImpl implements IPayBackService {
 		PayBack payBack=payBackDao.find(id);
 		return payBack;
 	}
-
+	
+	public static final int ADVANCE_DAY = 3;
 	@Override
 	@Transactional
-	public void applyRepayInAdvance(Integer payBackId)
-			throws UnSupportRepayInAdvanceException {
+	public void applyRepayInAdvance(Integer payBackId, long repayDate) throws UnSupportRepayInAdvanceException{
+		PayBack payBack=find(payBackId);
+		if(payBack.getState()!=PayBack.STATE_WAITFORREPAY)
+			throw new UnSupportRepayInAdvanceException("本次还款不处于待还款状态！");
+		if(payBack.getType()!=PayBack.TYPE_LASTPAY)
+			throw new UnSupportRepayInAdvanceException("只有最后一次还款允许提前");
+		Product product=productDao.find(payBack.getProductId());
+		ProductSeries productSeries=productSeriesDao.find(product.getProductseriesId());
+		if(productSeries.getType()==ProductSeries.TYPE_AVERAGECAPITALPLUSINTEREST)
+			throw new UnSupportRepayInAdvanceException("当前产品不支持提前还贷");
+		
+		Calendar cal=Calendar.getInstance();
+		cal.setTimeInMillis(repayDate);
+		cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), 0, 0, 0);
+		if(cal.getTimeInMillis()>payBack.getDeadline())
+			throw new UnSupportRepayInAdvanceException("时间非法,申请还款时间比最迟还款时间还要晚！");
+		
+		Calendar today = Calendar.getInstance();
+		today.setTimeInMillis(System.currentTimeMillis());
+		today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE), 0, 0, 0);
+		
+		//必须提前ADVANCE_DAY天申请提前还款
+		if(cal.getTimeInMillis()<(today.getTimeInMillis()+24L*3600*1000*ADVANCE_DAY)){
+			throw new UnSupportRepayInAdvanceException("时间非法,最少提前"+ADVANCE_DAY+"天申请提前还款！");
+		}
+		
+		
+		GovermentOrder order=orderSerivce.findGovermentOrderByProduct(payBack.getProductId());
+		List<Product> products=order.getProducts();
+		//验证先还完稳健型或平衡型
+		for(Product pro:products)
+		{
+			if(pro.getId()==(int)(product.getId()))
+					continue;
+			ProductSeries proSeries=productSeriesDao.find(pro.getProductseriesId());
+			if(proSeries.getType()==ProductSeries.TYPE_AVERAGECAPITALPLUSINTEREST&&(pro.getState()==Product.STATE_REPAYING||pro.getState()==Product.STATE_POSTPONE))
+				throw new UnSupportRepayInAdvanceException("必须先还完稳健型产品，才允许该产品提前还贷");
+			else if(proSeries.getType()==ProductSeries.TYPE_FIRSTINTERESTENDCAPITAL&&(pro.getState()==Product.STATE_REPAYING||pro.getState()==Product.STATE_POSTPONE))
+				throw new UnSupportRepayInAdvanceException("必须先还完平衡型产品，才允许该产品提前还贷");
+		}
+		List<PayBack> payBacks=innerPayBackService.findAll(product.getId());
+		for(PayBack pb:payBacks)
+		{
+			if(pb.getId()==(int)(payBack.getId()))
+				continue;
+			if(pb.getState()==PayBack.STATE_FINISHREPAY||pb.getState()==PayBack.STATE_REPAYING)
+				continue;
+			if(pb.getState()==PayBack.STATE_DELAY||pb.getDeadline()<=cal.getTimeInMillis())
+				throw new UnSupportRepayInAdvanceException("请先将前面的还款还清才允许提前还贷");
+		}
+		
+		long lastRepaytime=order.getIncomeStarttime();
+		for(PayBack pb:payBacks)
+		{
+			if(pb.getId()==(int)(payBack.getId()))
+				continue;
+			if(pb.getState()==PayBack.STATE_FINISHREPAY||pb.getState()==PayBack.STATE_REPAYING)
+			{
+				if(pb.getDeadline()>lastRepaytime)
+					lastRepaytime=pb.getDeadline();
+				continue;
+			}
+			innerPayBackService.changeState(pb.getId(), PayBack.STATE_INVALID);
+		}
+		
+		
+		//重新计算最后还款
+		Calendar lastCal=Calendar.getInstance();
+		lastCal.setTimeInMillis(lastRepaytime);
+		int days=DateCalculateUtils.getDays(lastCal, cal);
+		if(days<0)
+			days=0;
+		payBack.setInterest(product.getRealAmount().multiply(product.getRate()).multiply(new BigDecimal(days)).divide(new BigDecimal(365),2,BigDecimal.ROUND_UP));
+		payBack.setDeadline(cal.getTimeInMillis());
+		payBack.setChiefAmount(product.getRealAmount());
+		payBackDao.update(payBack);
+		//修改本次还款的状态为“申请提前还款”,以及后续的日志和状态转换记录
+		innerPayBackService.changeState(payBackId, PayBack.STATE_APPLYREPAYINADVANCE);
+	}
+	
+	@Override
+	public void auditRepayInAdvance(Integer payBackId) throws CheckException{
+		PayBack payBack=find(payBackId);
+		if(payBack.getState()!=PayBack.STATE_APPLYREPAYINADVANCE)
+		{
+			throw new CheckException("不处于申请提前还款的状态！");
+		}
+		innerPayBackService.changeState(payBackId, PayBack.STATE_WAITFORREPAY);
+	}
+	
+	
+	
+
+	@Transactional
+	public void applyRepayInAdvance(Integer payBackId) throws UnSupportRepayInAdvanceException {
 		PayBack payBack=find(payBackId);
 		if(payBack.getState()!=PayBack.STATE_WAITFORREPAY)
 			return;
@@ -184,7 +278,6 @@ public class PayBackServiceImpl implements IPayBackService {
 		if(days<0)
 			days=0;
 		payBack.setInterest(product.getRealAmount().multiply(product.getRate()).multiply(new BigDecimal(days)).divide(new BigDecimal(365),2,BigDecimal.ROUND_UP));
-//		payBack.setRealtime(cal.getTimeInMillis());
 		payBack.setDeadline(cal.getTimeInMillis());
 		payBack.setChiefAmount(product.getRealAmount());
 		payBackDao.update(payBack);
@@ -600,6 +693,20 @@ public class PayBackServiceImpl implements IPayBackService {
 		}
 	}
 
+	@Override
+	public List<PayBack> findApplyToRepayInAdvance(){
+		List<PayBack> paybacks = payBackDao.findByProductsAndState(null, PayBack.STATE_APPLYREPAYINADVANCE);
+		for(PayBack payBack:paybacks)
+		{
+			Product product=productDao.find(payBack.getProductId());
+			
+			payBack.setProduct(product);
+			product.setGovermentOrder(govermentOrderDao.find(product.getGovermentorderId()));
+			product.setProductSeries(productSeriesDao.find(product.getProductseriesId()));
+		}
+		return paybacks;
+	}
+	
 	@Override
 	public List<PayBack> findWaitforCheckPayBacks() {
 		List<PayBack> paybacks = payBackDao.findByProductsAndState(null, PayBack.STATE_WAITFORCHECK);

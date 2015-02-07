@@ -123,12 +123,15 @@ var createAdminNavLevel2 = function(nav){
 		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="tohandle-order-toclose">待关闭订单<font color=red>('+tclo+')</font></a></li>');
 		var taud = res.toAuditPaybackCount;
 		var li6 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="payback-toaudit">待审核还款<font color=red>('+taud+')</font></a></li>');
+		
+		var li7 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="payback-inadvance">待审核提前还款<font color=red>(-)</font></a></li>');
 		ul.append(li1);
 		ul.append(li2);
 		ul.append(li3);
 		ul.append(li4);
 		ul.append(li5);
 		ul.append(li6);
+		ul.append(li7);
 	}else if(nav=='payback'){
 		var li1 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="left7">7日内还款</a></li>');
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="left3">3日内还款</a></li>');
@@ -1518,6 +1521,63 @@ var leftd = function(container, d){
 	
 	
 }
+
+var paybackinadvance = function(container){
+
+	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
+	var columns = [ {
+		"sTitle" : "项目信息",
+			"code" : "product"
+	}, {
+		"sTitle" : "还款额",
+		"code" : "total"
+	}, {
+		"sTitle" : "本金",
+		"code" : "bj"
+	}, {
+		"sTitle" : "利息",
+		"code" : "lx"
+	}, {
+		"sTitle" : "申请还款时间",
+		"code" : "time"
+	},{
+		"sTitle" : "审核",
+		"code" : "check"
+	}
+	];
+	var datas = null;
+	datas = paybackService.findApplyToRepayInAdvance();
+	var aaData = new Array();
+	for(var i=0; i<datas.size(); i++){
+		var data=datas.get(i);
+		aaData.push(["<a href='productdetail.html?pid="+data.product.id+"' target='_blank'>"+data.product.govermentOrder.title+"("+data.product.productSeries.title+")</a>",
+	                    (parseFloat(data.chiefAmount.value)+parseFloat(data.interest.value)).toFixed(2),
+	                    data.chiefAmount.value,
+	                    data.interest.value,
+	                    formatDateToDay(data.deadline),
+	                    '<button class="inadvancecheck" id="'+data.id+'">审核通过</button>']);
+	}
+	var mySettings = $.extend({}, defaultSettings_noCallBack, {
+		"aoColumns" : columns,
+		"aaData" : aaData
+	});
+	var content = $('<div></div>');
+	var table = $('<table class="table table-striped table-hover" style="min-width:300px;"></table>').appendTo(content);
+	container.append(content);
+	table.dataTable(mySettings);
+	
+	$('button.inadvancecheck').click(function(e){
+		var id = parseInt($(this).attr('id'));
+		try{
+			paybackService.auditRepayInAdvance(id);
+			alert('提前还款审核通过！');
+			window.location.href="opadmin.html?fid=tohandle&sid=payback-inadvance";
+		}catch(e){
+			alert(e.message);
+		}
+	});
+}
+
 var paybacktoaudit = function(container){
 
 	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
@@ -2538,6 +2598,7 @@ var nav2funtion = {
 		"order-toclose" : ordertoclose,
 		'tohandle-order-toclose' : ordertoclose,
 		"payback-toaudit" : paybacktoaudit,
+		"payback-inadvance" : paybackinadvance,
 		"order-closed" : orderclosed,
 		"order-quit" : orderquit,
 		"notice-write" : noticewrite,

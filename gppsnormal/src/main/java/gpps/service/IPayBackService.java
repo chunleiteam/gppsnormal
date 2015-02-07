@@ -18,13 +18,22 @@ public interface IPayBackService {
 	public PayBack find(Integer id);
 //	public List<PayBackDetail> getMyPaybackDetail(int paybackState);
 	/**
-	 * 申请延期
+	 * 申请提前还款
 	 * @param payBackId
-	 * @param delayTo
+	 * @param repayDate
 	 * @return
 	 * @throws UnSupportDelayException
 	 */
-	public void applyRepayInAdvance(Integer payBackId) throws UnSupportRepayInAdvanceException;
+	public void applyRepayInAdvance(Integer payBackId, long repayDate) throws UnSupportRepayInAdvanceException;
+	
+	/**
+	 * 提前还款审核
+	 * @param payBackId
+	 * 
+	 * @throws CheckException
+	 * */
+	public void auditRepayInAdvance(Integer payBackId) throws CheckException;
+	
 	/**
 	 * 设置payback 延时
 	 * @param payBackId
@@ -109,6 +118,13 @@ public interface IPayBackService {
 	 * @return
 	 */
 	public List<PayBack> findWaitforCheckPayBacks();
+	
+	/**
+	 * 返回所有申请提前的还款
+	 * 
+	 * */
+	public List<PayBack> findApplyToRepayInAdvance();
+	
 	
 	/**
 	 * 查询剩余指定天数以内的待还款

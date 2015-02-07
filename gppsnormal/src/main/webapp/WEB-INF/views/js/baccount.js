@@ -97,19 +97,6 @@ var defaultSettings_noCallBack = {
 			32:"已关闭"
 	}
 	
-var apply = function(id){
-	if(confirm('提前还款一旦确认就无法更改，确认要提前本产品的还款？')){
-	try{
-		paybackService.applyRepayInAdvance(parseInt(id));
-		window.location.href="baccountdetail.html?fid=payback&sid=payback-canpay";
-	}catch(e){
-		alert(e.message);
-		window.location.href="baccountdetail.html?fid=payback&sid=payback-canapply";
-	}
-	}
-	
-}
-
 
 var myscore = function(container){
 	var bService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IBorrowerService");
@@ -935,7 +922,7 @@ var paybackcanapply = function(container){
 	                    data.chiefAmount.value,
 	                    data.interest.value,
 	                    formatDateToDay(data.deadline),
-	                    "<a class='apply' onclick='apply("+data.id+")' id="+data.id+">申请提前</a>"
+	                    "<a class='apply' id="+data.id+">申请提前</a>"
 	                    ]);
 	}
 	var table = $('<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="99%" cellspacing="0"></table>');
@@ -964,6 +951,47 @@ var paybackcanapply = function(container){
 		oLanguage : _defaultDataTableOLanguage,
 		pagingType: "full"
 	} );
+	
+	$('a.apply').click(function(e){
+
+		var id = $(this).attr('id');
+		
+		
+		var ntr = $(this).parents('tr').next('tr');
+		if(ntr.prop("className")=='applyadvance'){
+			ntr.remove();
+			return;
+		}
+		
+		var letterdiv1 = $('<div class="row" style="max-width:500px;"></div>');
+		letterdiv1.append('<div class="col-md-3">申请还款时间</div>');
+		var applyDate = $('<input type="text" id="applyDate" style="width:100%;"></input>');
+		$('<div class="col-md-9"></div>').append(applyDate).appendTo(letterdiv1);
+		var letterdiv2 = $('<div class="row" style="max-width:500px; margin-top:20px;"></div>');
+		applyDate.datepicker();
+		var button = $('<button style="width:50%;">确定</button>');
+		letterdiv2.append(button);
+		button.click(function(){
+			var applyDateLong = new Date(Date.parse(applyDate.val())).getTime();
+			try{
+			paybackService.applyRepayInAdvance(parseInt(id), applyDateLong);
+			alert("提前还款申请成功，请注意查看审核结果！");
+			window.location.href="baccountdetail.html?fid=payback&sid=payback-canapply";
+			}catch(e){
+				alert(e.message);
+			}
+		})
+		
+		
+		var ftr = $('<tr class="applyadvance"></tr>');
+		var ftd = $('<td align=center colspan=6></td>');
+		ftr.append(ftd);
+		ftd.append(letterdiv1);
+		ftd.append(letterdiv2);
+		
+		$(this).parents('tr').after(ftr);
+	});
+	
 }
 var paybacktoaudit = function(container){
 	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
