@@ -26,4 +26,12 @@ public interface IAuditBuyService {
 	 * 
 	 * */
 	public void auditBuyProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
+	
+	/**
+	 * 审核通过的购买转账流水的后续处理，专门供系统管理员使用的
+	 * 
+	 * @param loanNos
+	 * 
+	 * */
+	public void buyAuditSuccessHandle(List<String> loanNos) throws Exception;
 }

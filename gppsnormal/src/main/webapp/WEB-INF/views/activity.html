@@ -37,6 +37,8 @@
 				src="/easyservice/gpps.service.IActivityService?json"></script>
 <script type="text/javascript"
 				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.INoticeService?json"></script>
 <script src="js/tool.js"></script>
 <script src="js/getuser.js"></script>
 </head>
@@ -132,12 +134,6 @@
  
                 <div class="news-notice-body">
                     <ul class="news-notice-list faq-list" id="actnotice">
-                                    <li><b></b><a href="#" target="_blank">活动公告一</a></li>
-                                    <li><b></b><a href="#" target="_blank">活动公告二</a></li>
-                                    <li><b></b><a href="#" target="_blank">活动公告三</a></li>
-                                    <li><b></b><a href="#" target="_blank">活动公告四</a></li>
-                                    <li><b></b><a href="#" target="_blank">活动公告五</a></li>
-                                    <li><b></b><a href="#" target="_blank">活动公告六</a></li>
                    </ul>
                 </div>
             </div>
@@ -195,6 +191,7 @@
 $(document).ready(function() {
 	header('activity');
 	var actService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IActivityService");
+	var noticeService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.INoticeService");
 	var notices = noticeService.findAll(2,0,6);
 	
 	 var nts = notices.get('result');

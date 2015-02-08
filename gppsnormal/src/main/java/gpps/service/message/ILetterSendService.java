@@ -51,6 +51,7 @@ public interface ILetterSendService {
 	public static final String PHONE = "13581532923";
 	public static final String WEBADDR = "http://www.zhengcaidai.com";
 	
+	public void sendMessage(int userType, Integer userId, String title, String message);
 	
 	public void sendMessage(int messageType, int userType, Integer userId, Map<String, String> param);
 }

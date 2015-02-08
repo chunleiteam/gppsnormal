@@ -32,6 +32,40 @@ IBorrowerDao borrowerDao;
 @Autowired
 IMessageSupportService supportService;
 private static final IEasyObjectXMLTransformer xmlTransformer=new EasyObjectXMLTransformerImpl(); 
+
+
+	@Override
+	public void sendMessage(int userType, Integer userId, String message) throws SMSException{
+		List<String> phones = new ArrayList<String>();
+		if(userType==IMessageService.USERTYPE_BORROWER){
+			Borrower borrower = borrowerDao.find(userId);
+			if(borrower==null){
+				throw new SMSException("企业用户不存在："+userId);
+			}
+			phones.add(borrower.getTel());
+			try{
+			String contactor = borrower.getContactor();
+			if(contactor!=null && !"".equals(contactor)){
+			
+			Contactor con = xmlTransformer.parse(borrower.getContactor(), Contactor.class);
+			List<Single> cs = con.getContactors();
+			for(Single c:cs){
+				phones.add(c.getPhone());
+			}
+			}
+			}catch(XMLParseException e){
+				
+			}
+		}else if(userType==IMessageService.USERTYPE_LENDER){
+			Lender lender = lenderDao.find(userId);
+			if(lender==null){
+				throw new SMSException("用户不存在："+userId);
+			}
+			phones.add(lender.getTel());
+		}
+		supportService.sendSMS(phones, message);
+	}
+
 	@Override
 	public void sendMessage(int messageType, int userType, Integer userId,
 			Map<String, String> param) throws SMSException {
@@ -39,13 +73,13 @@ private static final IEasyObjectXMLTransformer xmlTransformer=new EasyObjectXMLT
 		String message = null;
 		
 		
-		if(messageType==this.MESSAGE_TYPE_SENDVALIDATECODE){
+		if(messageType==IMessageService.MESSAGE_TYPE_SENDVALIDATECODE){
 			message = getMessage(messageType, userType, param);
-			phones.add(param.get(this.PARAM_PHONE));
+			phones.add(param.get(IMessageService.PARAM_PHONE));
 		}else{
 		
 		
-		if(userType==this.USERTYPE_BORROWER){
+		if(userType==IMessageService.USERTYPE_BORROWER){
 			Borrower borrower = borrowerDao.find(userId);
 			if(borrower==null){
 				throw new SMSException("企业用户不存在："+userId);
@@ -78,12 +112,11 @@ private static final IEasyObjectXMLTransformer xmlTransformer=new EasyObjectXMLT
 		message = getMessage(messageType, userType, param);
 		}
 		
-//		System.out.println(phones);
-//		System.out.println(message);
 		supportService.sendSMS(phones, message);
 		
 	}
 	
+	@Override
 	public void sendMessage(Map<String, String> phone_messages) throws SMSException{
 		if(phone_messages==null || phone_messages.isEmpty())
 		{

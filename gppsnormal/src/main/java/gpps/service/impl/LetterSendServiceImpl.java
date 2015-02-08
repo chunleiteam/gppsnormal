@@ -23,6 +23,26 @@ ILetterService letterService;
 ILenderDao lenderDao;
 @Autowired
 IBorrowerDao borrowerDao;
+
+	@Override
+	public void sendMessage(int userType, Integer userId, String title, String message){
+		Letter letter = new Letter();
+		if(userType==this.USERTYPE_BORROWER){
+			Borrower borrower = borrowerDao.find(userId);
+			letter.setReceiverId(userId);
+			letter.setReceivertype(Letter.RECEIVERTYPE_BORROWER);
+		}else if(userType==this.USERTYPE_LENDER){
+			Lender lender = lenderDao.find(userId);
+			letter.setReceiverId(userId);
+			letter.setReceivertype(Letter.RECEIVERTYPE_LENDER);
+		}
+		letter.setContent(message);
+		letter.setCreatetime((new Date()).getTime());
+		letter.setMarkRead(Letter.MARKREAD_NO);
+		letter.setTitle(title);
+		letterService.create(letter);
+	}
+
 	@Override
 	public void sendMessage(int messageType, int userType, Integer userId,
 			Map<String, String> param){

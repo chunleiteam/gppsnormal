@@ -52,6 +52,8 @@ public interface IMessageService {
 	public static final String WEBADDR = "http://www.zhengcaidai.com";
 	
 	
+	public void sendMessage(int userType, Integer userId, String message) throws SMSException;
+	
 	public void sendMessage(int messageType, int userType, Integer userId, Map<String, String> param) throws SMSException;
 	
 	public void sendMessage(Map<String, String> phone_messages) throws SMSException;

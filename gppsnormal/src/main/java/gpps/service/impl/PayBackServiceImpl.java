@@ -166,17 +166,8 @@ public class PayBackServiceImpl implements IPayBackService {
 				throw new UnSupportRepayInAdvanceException("必须先还完平衡型产品，才允许该产品提前还贷");
 		}
 		List<PayBack> payBacks=innerPayBackService.findAll(product.getId());
-		for(PayBack pb:payBacks)
-		{
-			if(pb.getId()==(int)(payBack.getId()))
-				continue;
-			if(pb.getState()==PayBack.STATE_FINISHREPAY||pb.getState()==PayBack.STATE_REPAYING)
-				continue;
-			if(pb.getState()==PayBack.STATE_DELAY||pb.getDeadline()<=cal.getTimeInMillis())
-				throw new UnSupportRepayInAdvanceException("请先将前面的还款还清才允许提前还贷");
-		}
-		
 		long lastRepaytime=order.getIncomeStarttime();
+		long nextRepaytime=product.getIncomeEndtime(); 
 		for(PayBack pb:payBacks)
 		{
 			if(pb.getId()==(int)(payBack.getId()))
@@ -185,6 +176,28 @@ public class PayBackServiceImpl implements IPayBackService {
 			{
 				if(pb.getDeadline()>lastRepaytime)
 					lastRepaytime=pb.getDeadline();
+				continue;
+			}
+			if(pb.getState()==PayBack.STATE_WAITFORREPAY){
+				if(pb.getDeadline()<nextRepaytime){
+					nextRepaytime=pb.getDeadline();
+				}
+			}
+			if(pb.getState()==PayBack.STATE_DELAY|| pb.getState()==PayBack.STATE_WAITFORCHECK || pb.getDeadline()<=cal.getTimeInMillis())
+				throw new UnSupportRepayInAdvanceException("请先将前面的还款还清才允许提前还贷");
+		}
+		
+		if(cal.getTimeInMillis()>nextRepaytime || cal.getTimeInMillis()<lastRepaytime){
+			throw new UnSupportRepayInAdvanceException("申请提前还款日期不能小于上次还款日期，也不能晚于下一次还款日期！");
+		}
+		
+		
+		for(PayBack pb:payBacks)
+		{
+			if(pb.getId()==(int)(payBack.getId()))
+				continue;
+			if(pb.getState()==PayBack.STATE_FINISHREPAY||pb.getState()==PayBack.STATE_REPAYING)
+			{
 				continue;
 			}
 			innerPayBackService.changeState(pb.getId(), PayBack.STATE_INVALID);

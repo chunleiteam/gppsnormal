@@ -25,12 +25,18 @@ import gpps.service.CashStreamSum;
 import gpps.service.exception.CheckException;
 import gpps.service.exception.IllegalConvertException;
 import gpps.service.exception.IllegalOperationException;
+import gpps.service.exception.SMSException;
+import gpps.service.message.ILetterSendService;
+import gpps.service.message.IMessageService;
 import gpps.tools.PayBackCalculateUtils;
 import gpps.tools.SinglePayBack;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +63,10 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 	IInnerThirdPaySupportService innerThirdPayService;
 	@Autowired
 	IInnerProductService innerProductService;
+	@Autowired
+	IMessageService messageService;
+	@Autowired
+	ILetterSendService letterSendService;
 	@Autowired
 	IStateLogDao stateLogDao;
 	Logger log = Logger.getLogger(InnerPayBackServiceImpl.class);
@@ -596,11 +606,100 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 		
 		changeState(payBackId, PayBack.STATE_FINISHREPAY);
 		
+		
+		Product product = productDao.find(payBack.getProductId());
+		ProductSeries productSeries = productSeriesDao.find(product.getProductseriesId());
+		GovermentOrder order = orderDao.find(product.getGovermentorderId());
+		Borrower borrower = borrowerDao.find(order.getBorrowerId());
+		
 		//如果是最后一笔还款
 		if(payBack.getType()==PayBack.TYPE_LASTPAY){
+			//修改产品状态
 			innerProductService.finishRepay(payBack.getProductId());
+		
+			Map<String, String> param = new HashMap<String, String>();
+			param.put(IMessageService.PARAM_ORDER_NAME, order.getTitle());
+			param.put(IMessageService.PARAM_PRODUCT_SERIES_NAME, productSeries.getTitle());
+			param.put(IMessageService.PARAM_AMOUNT, payBack.getChiefAmount().add(payBack.getInterest()).toString());
+			param.put(ILetterSendService.PARAM_TITLE, "产品最后一笔还款完成");
+			try{
+				letterSendService.sendMessage(ILetterSendService.MESSAGE_TYPE_LASTPAYBACKSUCCESS, ILetterSendService.USERTYPE_BORROWER, borrower.getId(), param);
+				messageService.sendMessage(IMessageService.MESSAGE_TYPE_LASTPAYBACKSUCCESS, IMessageService.USERTYPE_BORROWER, borrower.getId(), param);
+			}catch(SMSException e){
+				log.error(e.getMessage());
+			}
+		}else{
+			Map<String, String> param = new HashMap<String, String>();
+			param.put(IMessageService.PARAM_ORDER_NAME, order.getTitle());
+			param.put(IMessageService.PARAM_PRODUCT_SERIES_NAME, productSeries.getTitle());
+			param.put(IMessageService.PARAM_AMOUNT, payBack.getChiefAmount().add(payBack.getInterest()).toString());
+			param.put(ILetterSendService.PARAM_TITLE, "还款完成");
+			try{
+			letterSendService.sendMessage(ILetterSendService.MESSAGE_TYPE_PAYBACKSUCCESS, ILetterSendService.USERTYPE_BORROWER, borrower.getId(), param);
+			messageService.sendMessage(IMessageService.MESSAGE_TYPE_PAYBACKSUCCESS, IMessageService.USERTYPE_BORROWER, borrower.getId(), param);
+			}catch(SMSException e){
+				log.error(e.getMessage());
+			}
 		}
 		
-		//TODO:发送短信与站内信
+		Map<Integer, List<CashStream>> messages = new HashMap<Integer, List<CashStream>>();
+		
+		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_REPAY);
+		for(CashStream cs : css){
+			if(messages.containsKey(cs.getLenderAccountId()))
+			{
+				messages.get(cs.getLenderAccountId()).add(cs);
+			}else{
+				List<CashStream> lcss = new ArrayList<CashStream>();
+				lcss.add(cs);
+				messages.put(cs.getLenderAccountId(), lcss);
+			}
+		}
+		
+		Calendar cal = Calendar.getInstance();
+		String dateStr = cal.get(Calendar.YEAR)+"年"+(cal.get(Calendar.MONTH)+1)+"月"+cal.get(Calendar.DAY_OF_MONTH)+"日";
+		
+		String dateStrMS = dateStr+cal.get(Calendar.HOUR_OF_DAY)+"时"+cal.get(Calendar.MINUTE)+"分";
+		String help = " 客服电话："+IMessageService.PHONE;
+		
+		if(payBack.getType()==PayBack.TYPE_LASTPAY){
+		String title = "产品最后一笔还款完成";
+		for(Integer accountid : messages.keySet()){
+			Lender lender = lenderDao.findByAccountID(accountid);
+			
+			List<CashStream> cs = messages.get(accountid);
+			BigDecimal total = new BigDecimal(0);
+			for(CashStream c : cs){
+				total = total.add(c.getChiefamount().add(c.getInterest()));
+			}
+			
+			String message = "【春蕾政采贷】尊敬的"+lender.getName()+"，您于"+dateStrMS+"收到"+order.getTitle()+"【"+productSeries.getTitle()+"】项目的最后一次收益，总金额为"+total.floatValue()+"，本产品已经还款完毕。"+help;
+			try {
+				letterSendService.sendMessage(ILetterSendService.USERTYPE_LENDER,lender.getId(), title, message);
+				messageService.sendMessage(ILetterSendService.USERTYPE_LENDER, lender.getId(), message);
+			} catch (SMSException e) {
+				log.error(e.getMessage());
+			}
+		}
+		}else{
+			String title = "还款完成";
+			for(Integer accountid : messages.keySet()){
+				Lender lender = lenderDao.findByAccountID(accountid);
+				
+				List<CashStream> cs = messages.get(accountid);
+				BigDecimal total = new BigDecimal(0);
+				for(CashStream c : cs){
+					total = total.add(c.getChiefamount().add(c.getInterest()));
+				}
+				
+				String message = "【春蕾政采贷】尊敬的"+lender.getName()+"，您于"+dateStrMS+"收到"+order.getTitle()+"【"+productSeries.getTitle()+"】项目的收益，总金额为"+total.floatValue()+"。"+help;
+				try {
+					letterSendService.sendMessage(ILetterSendService.USERTYPE_LENDER,lender.getId(), title, message);
+					messageService.sendMessage(ILetterSendService.USERTYPE_LENDER, lender.getId(), message);
+				} catch (SMSException e) {
+					log.error(e.getMessage());
+				}
+			}
+		}
 	}
 }

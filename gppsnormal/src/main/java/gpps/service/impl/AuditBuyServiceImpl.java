@@ -213,7 +213,8 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 	
 	//每一次批量提交的投标审核一定是针对同一个产品，因此不会出现一批投标购买针对不同产品的情况
 	//审核提交给第三方后，对第三方返回的执行结果参数的后续处理
-	private void buyAuditSuccessHandle(List<String> loanNos) throws Exception{
+	@Override
+	public void buyAuditSuccessHandle(List<String> loanNos) throws Exception{
 		if(loanNos==null || loanNos.isEmpty()){
 			throw new Exception("审核返回列表为空");
 		}
