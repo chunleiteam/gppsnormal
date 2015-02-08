@@ -5,6 +5,7 @@ import gpps.service.thirdpay.Transfer.LoanJson;
 
 import java.security.SignatureException;
 import java.util.List;
+import java.util.Map;
 
 public interface IThirdPaySupportNewService {
 	/**
@@ -49,7 +50,7 @@ public interface IThirdPaySupportNewService {
 	 * 
 	 * 
 	 * */
-	public void auditBuyProcessor(String retJson) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
+	public void auditBuyProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
 
 	
 	/**
@@ -59,7 +60,7 @@ public interface IThirdPaySupportNewService {
 	 * @param retJson 第三方返回的JSON格式的结果参数
 	 * 
 	 * */
-	public void auditRepayProcessor(String retJson) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
+	public void auditRepayProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
 	
 	
 	/**
@@ -68,7 +69,7 @@ public interface IThirdPaySupportNewService {
 	 * @param retJson 第三方返回的JSON格式的结果参数
 	 * 
 	 * */
-	public void repayApplyProcessor(String retJson) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
+	public void repayApplyProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
 	
 	/**
 	 * 根据平台现金流ID（第三方平台上记录为orderNo）查询转账记录

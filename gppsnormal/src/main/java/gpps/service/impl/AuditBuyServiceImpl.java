@@ -7,9 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.google.gson.Gson;
 
@@ -96,12 +100,15 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		if(loanNos==null||loanNos.size()==0)
 			throw new Exception("无效的审核列表！");
 		
+		
+		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		
 		String baseUrl=innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_CHECK);
 		StringBuilder loanNoSBuilder=new StringBuilder();
 		Map<String,String> params=new HashMap<String, String>();
 		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
-		params.put("ReturnURL", "http://www.aaccbb.com/account/checkBuy/response/bg");
+		params.put("ReturnURL", req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/buyaudit/response/bg");
 		params.put("NotifyURL", params.get("ReturnURL"));
 		for(int i=0;i<loanNos.size();i++)
 		{
@@ -125,20 +132,19 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 	}
 
 	@Override
-	public void auditBuyProcessor(String retJson) throws AlreadyDoneException,
-			ResultCodeException, SignatureException, Exception {
-		//校验返回结果签名，并解析返回参数
-		List<String> loanNos = ThirdPartyAssistent.handleAuditReturnParams(retJson);
+	public void auditBuyProcessor(Map<String, String> returnParams) throws AlreadyDoneException,
+	ResultCodeException, SignatureException, Exception{
 		
-		Gson gson = new Gson();
-		Map<String,String> returnParams=gson.fromJson(retJson, Map.class);
+		//校验返回结果签名，并解析返回参数
+		List<String> loanNos = ThirdPartyAssistent.handleAuditReturnParams(returnParams);
+		
 		//得到审核操作的类型：1为通过，2为退回
 		String auditType=returnParams.get("AuditType");
-		
+				
 		if(!"1".equals(auditType) && !"2".equals(auditType)){
 			throw new Exception("审核状态出了问题，必须是1：通过；或2：退回");
 		}
-		
+				
 		//根据返回参数处理平台相关信息，维护与第三方的一致性
 		if(auditType.equals("1"))
 		{
@@ -146,6 +152,15 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		}else if(auditType.equals("2")){
 			buyAuditReturnHandle(loanNos);
 		}
+	}
+	
+	
+	public void auditBuyProcessor(String retJson) throws AlreadyDoneException,
+			ResultCodeException, SignatureException, Exception {
+		Gson gson = new Gson();
+		Map<String,String> returnParams=gson.fromJson(retJson, Map.class);
+		
+		auditBuyProcessor(returnParams);
 	}
 	
 	private void buyAuditReturnHandle(List<String> loanNos) throws Exception{

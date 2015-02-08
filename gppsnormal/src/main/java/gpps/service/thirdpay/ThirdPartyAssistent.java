@@ -116,12 +116,10 @@ public abstract class ThirdPartyAssistent {
 	}
 	
 	// 解析并校验审核返回结果参数
-	public static List<String> handleAuditReturnParams(String retJson)
+	public static List<String> handleAuditReturnParams(Map<String, String> returnParams)
 			throws AlreadyDoneException, ResultCodeException,
 			SignatureException {
 		List<String> result = new ArrayList<String>();
-		Gson gson = new Gson();
-		Map<String, String> returnParams = gson.fromJson(retJson, Map.class);
 		try {
 			checkAuditReturnParams(returnParams);
 		} catch (SignatureException e) {

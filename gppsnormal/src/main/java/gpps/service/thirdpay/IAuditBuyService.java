@@ -2,6 +2,7 @@ package gpps.service.thirdpay;
 
 import java.security.SignatureException;
 import java.util.List;
+import java.util.Map;
 
 public interface IAuditBuyService {
 	/**
@@ -24,5 +25,5 @@ public interface IAuditBuyService {
 	 * 
 	 * 
 	 * */
-	public void auditBuyProcessor(String retJson) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
+	public void auditBuyProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
 }

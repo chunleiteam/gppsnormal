@@ -2,6 +2,7 @@ package gpps.service.thirdpay;
 
 import java.security.SignatureException;
 import java.util.List;
+import java.util.Map;
 
 public interface IAuditRepayService {
 	/**
@@ -20,5 +21,5 @@ public interface IAuditRepayService {
 	 * @param retJson 第三方返回的JSON格式的结果参数
 	 * 
 	 * */
-	public void auditRepayProcessor(String retJson) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
+	public void auditRepayProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, Exception;
 }

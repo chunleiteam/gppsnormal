@@ -13,6 +13,7 @@ import gpps.service.thirdpay.Transfer.LoanJson;
 
 import java.security.SignatureException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,23 +58,23 @@ IBalanceWithTPService balanceWithTPService;
 	}
 
 	@Override
-	public void auditBuyProcessor(String retJson) throws AlreadyDoneException,
+	public void auditBuyProcessor(Map<String, String> returnParams) throws AlreadyDoneException,
 			ResultCodeException, SignatureException, Exception {
-		auditBuyService.auditBuyProcessor(retJson);
+		auditBuyService.auditBuyProcessor(returnParams);
 	}
 
 	@Override
-	public void auditRepayProcessor(String retJson)
+	public void auditRepayProcessor(Map<String, String> returnParams)
 			throws AlreadyDoneException, ResultCodeException,
 			SignatureException, Exception {
-		auditRepayService.auditRepayProcessor(retJson);
+		auditRepayService.auditRepayProcessor(returnParams);
 		
 	}
 
 	@Override
-	public void repayApplyProcessor(String retJson)
+	public void repayApplyProcessor(Map<String, String> returnParams)
 			throws AlreadyDoneException, ResultCodeException,
 			SignatureException, Exception {
-		transferApplyService.repayApplyProcessor(retJson);
+		transferApplyService.repayApplyProcessor(returnParams);
 	}
 }

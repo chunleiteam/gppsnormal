@@ -29,9 +29,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.google.gson.Gson;
 @Service
@@ -61,8 +65,10 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		//转账设置为需要审核
 		transfer.setNeedAudit(null);
 		
+		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		
 		//非手动转账，不需要returnURL,只需要提供后台处理页面
-		transfer.setNotifyURL("http://www.aaabbc.com/account/repay/response/bg");
+		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
 		
 		//签名
 		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
@@ -88,24 +94,30 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 	}
 
 	@Override
+	public void repayApplyProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException,
+	SignatureException, CheckException{
+		//校验返回结果签名，并解析返回参数
+		List<LoanFromTP> result = handleReturnParams(returnParams);
+						
+		//根据返回参数处理平台相关信息，维护与第三方的一致性
+		repayApplyHandle(result);
+	}
+	
 	public void repayApplyProcessor(String retJson)
 			throws AlreadyDoneException, ResultCodeException,
 			SignatureException, CheckException{
-			//校验返回结果签名，并解析返回参数
-			List<LoanFromTP> result = handleReturnParams(retJson);
-				
-			//根据返回参数处理平台相关信息，维护与第三方的一致性
-			repayApplyHandle(result);
-	}
-	
-	
-	public static List<LoanFromTP> handleReturnParams(String retJson) throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException
-	{
+		
 		Gson gson = new Gson();
 		
 		//自动、需要审核转账(Action=2  NeedAudit=null)，只包含一个json，记录了具体的转账信息
 		Map returnParams=gson.fromJson(retJson, Map.class);
 		
+		repayApplyProcessor(returnParams);
+	}
+	
+	
+	public static List<LoanFromTP> handleReturnParams(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException
+	{
 		try{
 			ThirdPartyAssistent.checkTransferReturnParams(returnParams);
 		}

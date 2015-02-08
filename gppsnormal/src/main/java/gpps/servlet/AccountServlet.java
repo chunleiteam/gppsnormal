@@ -25,6 +25,8 @@ import gpps.service.exception.IllegalConvertException;
 import gpps.service.exception.SMSException;
 import gpps.service.message.ILetterSendService;
 import gpps.service.message.IMessageService;
+import gpps.service.thirdpay.AlreadyDoneException;
+import gpps.service.thirdpay.IThirdPaySupportNewService;
 import gpps.service.thirdpay.IThirdPaySupportService;
 import gpps.service.thirdpay.ResultCodeException;
 import gpps.service.thirdpay.Transfer.LoanJson;
@@ -77,6 +79,8 @@ public class AccountServlet {
 	IThirdPaySupportService thirdPaySupportService;
 	@Autowired
 	IInnerThirdPaySupportService innerThirdPaySupportService;
+	@Autowired
+	IThirdPaySupportNewService thirdPaySupportNewService;
 	@Autowired
 	ICardBindingDao cardBindingDao;
 	@Autowired
@@ -405,105 +409,71 @@ public class AccountServlet {
 		}
 	}
 	
-//	@RequestMapping(value = { "/account/checkBuy/response/bg" })
-//	public void checkBuyBg(HttpServletRequest req,HttpServletResponse resp)
-//	{
-//		try {
-//			log.debug("购买确认回调:"+req.getRequestURI());
-//			Map<String,String> params=getAllParams(req);
-//			thirdPaySupportService.checkBuyProcessor(params);
-//		} catch (SignatureException e) {
-//			e.printStackTrace();
-//			return;
-//		} catch (ResultCodeException e) {
-//			e.printStackTrace();
-//			return;
-//		}
-//		writeSuccess(resp);
-//	}
-//	@RequestMapping(value = { "/account/repay/request" })
-//	public void repay(HttpServletRequest req, HttpServletResponse resp) {
-//		// HttpSession session=req.getSession();
-//		// Object
-//		// user=session.getAttribute(ILoginService.SESSION_ATTRIBUTENAME_USER);
-//		// if(user==null)
-//		// {
-//		// try {
-//		// resp.sendError(403,"未找到用户信息，请重新登录");
-//		// } catch (IOException e) {
-//		// e.printStackTrace();
-//		// }
-//		// return;
-//		// }
-//		// 测试暂时借款人账户ID不从Session取,而从payback中取
-//		Integer payBackId = Integer.parseInt(StringUtil.checkNullAndTrim(PAYBACKID, req.getParameter(PAYBACKID)));
-//		PayBack payBack = payBackService.find(payBackId);
-//		Product currentProduct = productService.find(payBack.getProductId());
-//		if (currentProduct.getState() != Product.STATE_REPAYING) {
-//			write(resp, "该产品尚未进入还款阶段");
-//			return;
-//		}
-//		// 验证还款顺序
-//		List<Product> products = productService.findByGovermentOrder(currentProduct.getGovermentorderId());
-//		for (Product product : products) {
-//			if (product.getId() == (int) (currentProduct.getId())) {
-//				List<PayBack> payBacks = payBackService.findAll(product.getId());
-//				for (PayBack pb : payBacks) {
-//					if (pb.getState() == PayBack.STATE_FINISHREPAY || pb.getState() == PayBack.STATE_REPAYING)
-//						continue;
-//					if (pb.getDeadline() < payBack.getDeadline()) {
-//						write(resp, "请按时间顺序进行还款");
-//						return;
-//					}
-//				}
-//				continue;
-//			}
-//			product.setProductSeries(productSeriesDao.find(product.getProductseriesId()));
-//			if (product.getProductSeries().getType() < currentProduct.getProductSeries().getType()) {
-//				List<PayBack> payBacks = payBackService.findAll(product.getId());
-//				for (PayBack pb : payBacks) {
-//					if (pb.getState() == PayBack.STATE_FINISHREPAY || pb.getState() == PayBack.STATE_REPAYING)
-//						continue;
-//					if (pb.getDeadline() <= payBack.getDeadline()) {
-//						write(resp, "请先还完稳健型/平衡型产品再进行此次还款");
-//						return;
-//					}
-//				}
-//			}
-//		}
-//
-//		Integer cashStreamId = null;
-//		try {
-//			cashStreamId = accountService.freezeBorrowerAccount(payBack.getBorrowerAccountId(), payBack.getChiefAmount().add(payBack.getInterest()), payBack.getId(), "冻结");
-//		} catch (InsufficientBalanceException e) {
-//			try {
-//				resp.sendError(400, "余额不足");
-//			} catch (IOException e1) {
-//				e1.printStackTrace();
-//			}
-//			log.debug(e.getMessage(), e);
-//			return;
-//		}
-//		log.debug("还款：amount=" + payBack.getChiefAmount().add(payBack.getInterest()) + ",cashStreamId=" + cashStreamId);
-//		log.debug("跳转到第三方进行还款");
-//		writeThirdParty(resp, "说明：该步骤跳转到第三方平台,借款人输入第三方平台账户密码完成还款.<p><a href='/account/repay/response?cashStreamId=" + cashStreamId + "'>还款成功</a><p><a href='javascript:window.close()'>还款失败</a>");
-//	}
-
-//	@RequestMapping(value = { "/account/repay/response/bg" })
-//	public void completeRepayBg(HttpServletRequest req, HttpServletResponse resp) {
-//		try {
-//			log.debug("还款回调:"+req.getRequestURI());
-//			Map<String,String> params=getAllParams(req);
-//			thirdPaySupportService.repayProcessor(params);
-//		} catch (SignatureException e) {
-//			e.printStackTrace();
-//			return;
-//		} catch (ResultCodeException e) {
-//			e.printStackTrace();
-//			return;
-//		}
-//		writeSuccess(resp);
-//	}
+	@RequestMapping(value = { "/account/buyaudit/response/bg" })
+	public void checkBuyBg(HttpServletRequest req,HttpServletResponse resp)
+	{
+		try {
+			log.debug("购买审核确认回调:"+req.getRequestURI());
+			Map<String,String> params=getAllParams(req);
+			thirdPaySupportNewService.auditBuyProcessor(params);;
+		} catch (SignatureException e) {
+			log.info("购买审核确认回调执行有问题："+e.getMessage());
+			return;
+		} catch (ResultCodeException e) {
+			log.info("购买审核确认回调执行有问题："+e.getMessage());
+			return;
+		} catch (AlreadyDoneException e){
+			log.info("购买审核确认回调重复执行："+e.getMessage());
+		} catch(Exception e){
+			log.info("购买审核确认回调执行有问题："+e.getMessage());
+			return;
+		}
+		writeSuccess(resp);
+	}
+	
+	@RequestMapping(value = { "/account/repayaudit/response/bg" })
+	public void checkRepayBg(HttpServletRequest req,HttpServletResponse resp)
+	{
+		try {
+			log.debug("还款审核确认回调:"+req.getRequestURI());
+			Map<String,String> params=getAllParams(req);
+			thirdPaySupportNewService.auditRepayProcessor(params);;
+		} catch (SignatureException e) {
+			log.info("还款审核确认回调执行有问题："+e.getMessage());
+			return;
+		} catch (ResultCodeException e) {
+			log.info("还款审核确认回调执行有问题："+e.getMessage());
+			return;
+		} catch (AlreadyDoneException e){
+			log.info("还款审核确认回调重复执行："+e.getMessage());
+		} catch(Exception e){
+			log.info("还款审核确认回调执行有问题："+e.getMessage());
+			return;
+		}
+		writeSuccess(resp);
+	}
+	
+	@RequestMapping(value = {"/account/repay/response/bg"})
+	public void repayBg(HttpServletRequest req,HttpServletResponse resp){
+		try {
+			log.debug("还款申请确认回调:"+req.getRequestURI());
+			Map<String,String> params=getAllParams(req);
+			thirdPaySupportNewService.repayApplyProcessor(params);
+		} catch (SignatureException e) {
+			log.info("还款申请确认回调执行有问题："+e.getMessage());
+			return;
+		} catch (ResultCodeException e) {
+			log.info("还款申请确认回调执行有问题："+e.getMessage());
+			return;
+		} catch (AlreadyDoneException e){
+			log.info("还款申请确认回调重复执行："+e.getMessage());
+		} catch(Exception e){
+			log.info("还款申请确认回调执行有问题："+e.getMessage());
+			return;
+		}
+		writeSuccess(resp);
+	}
+	
 	@RequestMapping(value = { "/account/cardBinding/response" })
 	public void completeCardBinding(HttpServletRequest req, HttpServletResponse resp) {
 		String message=null;

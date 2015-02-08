@@ -33,8 +33,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.google.gson.Gson;
 @Service
 public class AuditRepayServiceImpl implements IAuditRepayService {
 	@Autowired
@@ -66,12 +72,14 @@ public class AuditRepayServiceImpl implements IAuditRepayService {
 		if(loanNos==null||loanNos.size()==0)
 			throw new Exception("无效的审核列表！");
 		
+		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		
 		String baseUrl=innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_CHECK);
 		StringBuilder loanNoSBuilder=new StringBuilder();
 		Map<String,String> params=new HashMap<String, String>();
 		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
-		params.put("ReturnURL", "http://www.aaccbb.com/account/checkRepay/response/bg");
+		params.put("ReturnURL", req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repayaudit/response/bg");
 		params.put("NotifyURL", params.get("ReturnURL"));
 		for(int i=0;i<loanNos.size();i++)
 		{
@@ -96,14 +104,22 @@ public class AuditRepayServiceImpl implements IAuditRepayService {
 	}
 
 	@Override
-	public void auditRepayProcessor(String retJson)
-			throws AlreadyDoneException, ResultCodeException,
+	public void auditRepayProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException,SignatureException, Exception{
+		//校验返回结果签名，并解析返回参数
+		List<String> loanNos = ThirdPartyAssistent.handleAuditReturnParams(returnParams);
+			
+		//根据返回参数处理平台相关信息，维护与第三方的一致性
+		repayAuditHandle(loanNos);
+	}
+	
+	
+	
+	
+	public void auditRepayProcessor(String retJson) throws AlreadyDoneException, ResultCodeException,
 			SignatureException, Exception {
-			//校验返回结果签名，并解析返回参数
-			List<String> loanNos = ThirdPartyAssistent.handleAuditReturnParams(retJson);
-				
-				//根据返回参数处理平台相关信息，维护与第三方的一致性
-				repayAuditHandle(loanNos);
+		Gson gson = new Gson();
+		Map<String,String> returnParams=gson.fromJson(retJson, Map.class);
+		auditRepayProcessor(returnParams);
 	}
 	
 	
