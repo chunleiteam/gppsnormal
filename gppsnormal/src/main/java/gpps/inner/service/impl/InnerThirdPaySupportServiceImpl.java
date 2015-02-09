@@ -1,11 +1,21 @@
 package gpps.inner.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.security.SignatureException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import gpps.inner.service.IInnerThirdPaySupportService;
+import gpps.service.thirdpay.AlreadyDoneException;
+import gpps.service.thirdpay.ResultCodeException;
+import gpps.service.thirdpay.ThirdPartyAssistent;
+import gpps.tools.RsaHelper;
+import gpps.tools.StringUtil;
 
 public class InnerThirdPaySupportServiceImpl implements IInnerThirdPaySupportService {
 	private static Map<String, String> urls=new HashMap<String, String>();
@@ -79,5 +89,99 @@ public class InnerThirdPaySupportServiceImpl implements IInnerThirdPaySupportSer
 
 	public void setPrivateKey(String privateKey) {
 		this.privateKey = privateKey;
+	}
+	
+	
+	public void checkReturnParam(Map<String,String> params,String[] signStrs) throws AlreadyDoneException, ResultCodeException, SignatureException
+	{
+		String resultCode=params.get("ResultCode");
+		if(StringUtil.isEmpty(resultCode)||(!resultCode.equals("88")&&!resultCode.equals("18")))
+		{
+			throw new ResultCodeException(resultCode, params.get("Message"));
+		}
+		
+		if(resultCode.equals("18")){
+			throw new AlreadyDoneException(params.get("Message"));
+		}
+		
+		StringBuilder sBuilder=new StringBuilder();
+		for(String str:signStrs)
+		{
+			sBuilder.append(StringUtil.strFormat(params.get(str)));
+		}
+		RsaHelper rsa = RsaHelper.getInstance();
+		String sign=rsa.signData(sBuilder.toString(), privateKey);
+		if(!sign.replaceAll("\r", "").equals(params.get("SignInfo").replaceAll("\r", "")))
+			throw new SignatureException("非法的签名");
+	}
+	
+	//审核时候进行的签名
+	@Override
+	public String signForAudit(Map<String,String> params, String privateKey){
+			StringBuilder sBuilder=new StringBuilder();
+			sBuilder.append(StringUtil.strFormat(params.get("LoanNoList")));
+			sBuilder.append(StringUtil.strFormat(params.get("PlatformMoneymoremore")));
+			sBuilder.append(StringUtil.strFormat(params.get("AuditType")));
+			sBuilder.append(StringUtil.strFormat(params.get("RandomTimeStamp")));
+			sBuilder.append(StringUtil.strFormat(params.get("Remark1")));
+			sBuilder.append(StringUtil.strFormat(params.get("Remark2")));
+			sBuilder.append(StringUtil.strFormat(params.get("Remark3")));
+			sBuilder.append(StringUtil.strFormat(params.get("ReturnURL")));
+			sBuilder.append(StringUtil.strFormat(params.get("NotifyURL")));
+			RsaHelper rsa = RsaHelper.getInstance();
+			String signInfo=rsa.signData(sBuilder.toString(), privateKey);
+			return signInfo;
+	}
+	
+	// 解析并校验审核返回结果参数
+	@Override
+	public List<String> handleAuditReturnParams(Map<String, String> returnParams)
+			throws AlreadyDoneException, ResultCodeException,
+			SignatureException {
+		List<String> result = new ArrayList<String>();
+		try {
+			checkAuditReturnParams(returnParams);
+		} catch (SignatureException e) {
+			throw e;
+		} catch (ResultCodeException e) {
+			throw e;
+		} catch (AlreadyDoneException e) {
+			throw e;
+		}
+
+		if (!StringUtil.isEmpty(returnParams.get("LoanNoList"))) {
+			String[] loanNoList = returnParams.get("LoanNoList").split(",");
+			for (String loanNo : loanNoList) {
+				result.add(loanNo);
+			}
+		}
+
+		return result;
+	}
+
+	// 校验审核转账时返回的参数
+	@Override
+	public void checkAuditReturnParams(Map<String, String> params)
+			throws AlreadyDoneException, ResultCodeException,
+			SignatureException {
+		String[] signStrs = { "LoanNoList", "LoanNoListFail",
+				"PlatformMoneymoremore", "AuditType", "RandomTimeStamp",
+				"Remark1", "Remark2", "Remark3", "ResultCode" };
+		checkReturnParam(params, signStrs);
+	}
+	
+	
+	//校验转账申请时候返回的参数
+	@Override
+	public void checkTransferReturnParams(Map<String,String> params) throws AlreadyDoneException, ResultCodeException, SignatureException{
+		String[] signStrs={"LoanJsonList","PlatformMoneymoremore","Action","RandomTimeStamp","Remark1","Remark2","Remark3","ResultCode"};
+		String loanJsonList = null;
+		try {
+			loanJsonList=URLDecoder.decode(params.get("LoanJsonList"),"UTF-8");
+			params.put("LoanJsonList", loanJsonList);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		checkReturnParam(params,signStrs);
 	}
 }

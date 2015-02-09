@@ -18,9 +18,8 @@ public class ReAuditBuyProduct {
 //		loanNos.add("LN17437821502082333438927354");
 //		loanNos.add("LN17437821502082333544078204");
 		
-		loanNos.add("LN17437821502082334082205589");
-		loanNos.add("LN18147041502082321330954774");
-		loanNos.add("LN18147041502082321104547118");
+		loanNos.add("LN12968291502092128502390695");
+		loanNos.add("LN13225141502092133041298345");
 		auditBuyService.buyAuditSuccessHandle(loanNos);
 	}
 }

@@ -24,7 +24,7 @@ IInnerThirdPaySupportService innerThirdPayService;
 IHttpClientService httpClientService;
 	@Override
 	public LoanFromTP viewByOrderNo(String orderNo, String action) throws Exception {
-		String baseUrl=innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_ORDERQUERY);
+		String baseUrl=innerThirdPayService.getBaseUrl(IInnerThirdPaySupportService.ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
 		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 			params.put("Action", action);
@@ -46,7 +46,7 @@ IHttpClientService httpClientService;
 
 	@Override
 	public LoanFromTP viewByLoanNo(String loanNo, String action) throws Exception {
-		String baseUrl=innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_ORDERQUERY);
+		String baseUrl=innerThirdPayService.getBaseUrl(IInnerThirdPaySupportService.ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
 		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 			params.put("Action", action);

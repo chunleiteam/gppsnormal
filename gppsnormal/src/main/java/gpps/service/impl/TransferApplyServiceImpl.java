@@ -65,10 +65,9 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		//转账设置为需要审核
 		transfer.setNeedAudit(null);
 		
-		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		
 		//非手动转账，不需要returnURL,只需要提供后台处理页面
-		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
+//		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
+		transfer.setNotifyURL("http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repay/response/bgno");
 		
 		//签名
 		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
@@ -84,7 +83,7 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		Map<String,String> params=transfer.getParams();
 		
 		
-		String baseUrl = innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_TRANSFER);
+		String baseUrl = innerThirdPayService.getBaseUrl(IInnerThirdPaySupportService.ACTION_TRANSFER);
 		
 		//将处理好的参数post到第三方，并接受其马上返回的参数
 		String body=httpClientService.post(baseUrl, params);
@@ -116,10 +115,10 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 	}
 	
 	
-	public static List<LoanFromTP> handleReturnParams(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException
+	public List<LoanFromTP> handleReturnParams(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException
 	{
 		try{
-			ThirdPartyAssistent.checkTransferReturnParams(returnParams);
+			innerThirdPayService.checkTransferReturnParams(returnParams);
 		}
 		catch(SignatureException e){
 			throw e;

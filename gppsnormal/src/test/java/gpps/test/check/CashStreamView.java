@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CashStreamView extends ThirdPartyAssistent{
+public class CashStreamView extends TestAssistance{
 	public static LoanFromTP viewByOrderNo(String orderNo) throws Exception{
-		String baseUrl=getBaseUrl(ACTION_ORDERQUERY);
+		String baseUrl=innerThirdPayService.getBaseUrl(ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
 		params.put("PlatformMoneymoremore", platformMoneymoremore);
 			params.put("Action", null);
@@ -35,7 +35,7 @@ public class CashStreamView extends ThirdPartyAssistent{
 	}
 	
 	public static LoanFromTP viewByLoanNo(String loanNo) throws Exception{
-		String baseUrl=getBaseUrl(ACTION_ORDERQUERY);
+		String baseUrl=innerThirdPayService.getBaseUrl(ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
 		params.put("PlatformMoneymoremore", platformMoneymoremore);
 			params.put("Action", null);
@@ -58,8 +58,8 @@ public class CashStreamView extends ThirdPartyAssistent{
 	public static void main(String args[]) throws Exception{
 		IBalanceWithTPService balanceService = context.getBean(IBalanceWithTPService.class);
 		
-		LoanFromTP tp = balanceService.viewByLoanNo("T20150126001422209093718", "2");
-//		LoanFromTP tp = balanceService.viewByOrderNo("8029", "2");
+//		LoanFromTP tp = balanceService.viewByLoanNo("T20150126001422209093718", "2");
+		LoanFromTP tp = balanceService.viewByOrderNo("8029", "2");
 		
 //		viewByOrderNo("8143");
 //		LoanFromTP tp = viewByLoanNo("LN14070871501300004000935565");

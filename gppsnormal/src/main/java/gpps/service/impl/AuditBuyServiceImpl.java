@@ -101,14 +101,12 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 			throw new Exception("无效的审核列表！");
 		
 		
-		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		
-		String baseUrl=innerThirdPayService.getBaseUrl(ThirdPartyAssistent.ACTION_CHECK);
+		String baseUrl=innerThirdPayService.getBaseUrl(IInnerThirdPaySupportService.ACTION_CHECK);
 		StringBuilder loanNoSBuilder=new StringBuilder();
 		Map<String,String> params=new HashMap<String, String>();
 		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
-		params.put("ReturnURL", req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/buyaudit/response/bg");
+		params.put("ReturnURL", "http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/buyaudit/response/bgno");
 		params.put("NotifyURL", params.get("ReturnURL"));
 		for(int i=0;i<loanNos.size();i++)
 		{
@@ -120,7 +118,7 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		params.put("LoanNoList", loanNoSBuilder.toString());
 		
 		//签名
-		String signInfo = ThirdPartyAssistent.signForAudit(params, innerThirdPayService.getPrivateKey());
+		String signInfo = innerThirdPayService.signForAudit(params, innerThirdPayService.getPrivateKey());
 		params.put("SignInfo", signInfo);
 				
 		//将处理好的参数post到第三方，并接受其马上返回的参数
@@ -136,7 +134,7 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 	ResultCodeException, SignatureException, Exception{
 		
 		//校验返回结果签名，并解析返回参数
-		List<String> loanNos = ThirdPartyAssistent.handleAuditReturnParams(returnParams);
+		List<String> loanNos = innerThirdPayService.handleAuditReturnParams(returnParams);
 		
 		//得到审核操作的类型：1为通过，2为退回
 		String auditType=returnParams.get("AuditType");

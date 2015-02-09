@@ -1,5 +1,12 @@
 package gpps.inner.service;
 
+import gpps.service.thirdpay.AlreadyDoneException;
+import gpps.service.thirdpay.ResultCodeException;
+
+import java.security.SignatureException;
+import java.util.List;
+import java.util.Map;
+
 public interface IInnerThirdPaySupportService {
 	public static final String ACTION_REGISTACCOUNT="0";
 	public static final String ACTION_RECHARGE="1";
@@ -34,4 +41,32 @@ public interface IInnerThirdPaySupportService {
 	public String getServerPort();
 	
 	public String getPublicKey();
+	
+	/**
+	 * 审核操作参数签名
+	 * 
+	 * */
+	public String signForAudit(Map<String,String> params, String privateKey);
+	
+	/**
+	 * 处理审核返回的参数
+	 * 
+	 * */
+	public List<String> handleAuditReturnParams(Map<String, String> returnParams)
+			throws AlreadyDoneException, ResultCodeException,
+			SignatureException;
+	
+	/**
+	 * 校验审核返回的参数
+	 * 
+	 * */
+	public void checkAuditReturnParams(Map<String, String> params)
+			throws AlreadyDoneException, ResultCodeException,
+			SignatureException;
+	
+	/**
+	 * 校验申请转账时返回的参数
+	 * 
+	 * */
+	public void checkTransferReturnParams(Map<String,String> params) throws AlreadyDoneException, ResultCodeException, SignatureException;
 }
