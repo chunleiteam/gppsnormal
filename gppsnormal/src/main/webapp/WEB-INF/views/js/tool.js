@@ -4,6 +4,8 @@ cidInfo = function(sId){
 var iSum=0
 var info=""
 
+	sId=sId.replace(/X$/i,"x");
+	
 var reg = /^\d{17}(\d|x)$/;
 
 if(!reg.test(sId))

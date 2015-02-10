@@ -12,10 +12,13 @@ import gpps.service.IInviteService;
 import gpps.service.ILenderService;
 import gpps.service.exception.InviteException;
 import gpps.service.exception.LoginException;
+import gpps.service.exception.SMSException;
 import gpps.service.exception.ValidateCodeException;
+import gpps.service.message.IMessageSupportService;
 import gpps.tools.BankCode;
 import gpps.tools.StringUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +36,8 @@ public class LenderServiceImpl extends AbstractLoginServiceImpl implements ILend
 	ICardBindingDao cardBindingDao;
 	@Autowired
 	IInviteService inviteService;
+	@Autowired
+	IMessageSupportService messageSupportService;
 	@Override
 	public void login(String loginId, String password, String graphValidateCode)
 			throws LoginException, ValidateCodeException {
@@ -318,5 +323,27 @@ public class LenderServiceImpl extends AbstractLoginServiceImpl implements ILend
 		CardBinding cb = cardBindingDao.find(id);
 		cb.setBankCode(BankCode.getName(cb.getBankCode()));
 		return cb;
+	}
+	
+	@Override
+	public void sendMessageToAllLender(String message) throws SMSException{
+		int usercount = lenderDao.countAll();
+		List<Lender> lenders = lenderDao.findAll(0, usercount);
+		if(lenders==null || lenders.isEmpty()){
+			return;
+		}
+		List<String> phones = new ArrayList<String>();
+		for(Lender lender : lenders){
+			phones.add(lender.getTel());
+			if(phones.size()>=200)
+			{
+				messageSupportService.sendSMS(phones, message);
+				phones.clear();
+				phones = new ArrayList<String>();
+			}
+		}
+		if(phones.size()>0){
+			messageSupportService.sendSMS(phones, message);
+		}
 	}
 }

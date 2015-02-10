@@ -666,3 +666,5 @@ create table Invite
 INSERT INTO `productseries` VALUES (1,'稳健型','<?xml version=\"1.0\" encoding=\"UTF-8\"?><TagCol><items><Item description=\"较低风险\" title=\"较低风险\"/><Item description=\"收益稳定\" title=\"收益稳定\"/></items></TagCol>','本类型产品具有低风险，高回款流动性的特点，并由专业担保机构进行本金担保，适合稳健型用户的参与。',0,'固定期限，按月还本付息');
 INSERT INTO `productseries` VALUES (2,'均衡型','<?xml version=\"1.0\" encoding=\"UTF-8\"?><TagCol><items><Item description=\"风险适中\" title=\"风险适中\"/><Item description=\"较高收益\" title=\"较高收益\"/></items></TagCol>','本类型产品具有中等偏上的收益，按月回款的特点，收益流动性和风险都适中，适合平衡型的的客户参与。',1,'按日计息，按月还息，到期还本，可提前还款');
 INSERT INTO `productseries` VALUES (3,'进取型','<?xml version=\"1.0\" encoding=\"UTF-8\"?><TagCol><items><Item description=\"超高收益\" title=\"超高收益\"/></items></TagCol>','本类型产品具有高收益低流动性，到期还本付息的特点，适合追求高收益并能承担一定风险的客户参与。',2,'按日计息，按月还息，到期还本。可提前还款。');
+
+insert into invite values(1, 1, 0, null, 1);

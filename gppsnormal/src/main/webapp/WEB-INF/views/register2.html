@@ -172,6 +172,10 @@ $(document).ready(function() {
        $('#confirm').click(function(e){
     	   var name = $('input#name').val();
     	   var identity = $('input#identity').val();
+    	   if(identity==null){
+    		   identity='';
+    	   }
+    	   identity=identity.replace(/X$/i,"x");
     	   var addr = $('input#addr').val();
     	   var sex = $("input[name='sex']:checked").val();
     	   var salary = $("input[name='salary']:checked").val();

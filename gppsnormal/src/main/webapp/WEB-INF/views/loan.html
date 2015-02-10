@@ -226,6 +226,9 @@ $(document).ready(function() {
 			try{
 				var financingrequest = {"_t_":"gpps.model.FinancingRequest", "govermentOrderName":ordertitle, "govermentOrderDetail":"asdfadfadsfasdf", "applyFinancingAmount":parseFloat(amount), "rate":"20%", "createtime":(new Date()).getTime(), "lastModifyTime":(new Date()).getTime(), "borrowerID": user.id};
 				bservice.applyFinancing(financingrequest);
+				
+				alert('融资申请提交成功，请耐心等待审核！');
+				
 				window.location.href="baccount.html?fid=request&sid=request-tohandle";
 			}catch(ee){
 				alert(ee.message);
@@ -406,6 +409,8 @@ $(document).ready(function() {
 				
 				var financingrequest = {"_t_":"gpps.model.FinancingRequest", "govermentOrderName":ordertitle, "govermentOrderDetail":"asdfadfadsfasdf", "applyFinancingAmount":parseFloat(amount), "rate":"20%", "createtime":(new Date()).getTime(), "lastModifyTime":(new Date()).getTime(), "borrowerID": bor.id};
 				bservice.applyFinancing(financingrequest);
+				
+				alert('融资申请提交成功，请耐心等待审核！');
 				
 				window.location.href="baccount.html?fid=request&sid=request-tohandle";
 			}catch(ee){

@@ -8,6 +8,7 @@ import gpps.model.CardBinding;
 import gpps.model.Lender;
 import gpps.service.exception.InviteException;
 import gpps.service.exception.LoginException;
+import gpps.service.exception.SMSException;
 import gpps.service.exception.ValidateCodeException;
 
 public interface ILenderService extends ILoginService{
@@ -96,4 +97,10 @@ public interface ILenderService extends ILoginService{
 	 * 
 	 * */
 	public CardBinding getBindingCard(Integer id);
+	
+	/**
+	 * 给所有投资者用户发送短信息
+	 * @param message
+	 * */
+	public void sendMessageToAllLender(String message) throws SMSException;
 }

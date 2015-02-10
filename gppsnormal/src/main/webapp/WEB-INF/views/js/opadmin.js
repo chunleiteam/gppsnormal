@@ -202,11 +202,13 @@ var createAdminNavLevel2 = function(nav){
 		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="lender-view">用户浏览</a></li>');
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="activity">活动管理</a></li>');
 		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="validate-tp">系统校验</a></li>');
-		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="message">短信管理</a></li>')
+		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="message">短信管理</a></li>');
+		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="message-sendtoall">短信群发</a></li>')
 		ul.append(li1);
 		ul.append(li2);
 		ul.append(li3);
 		ul.append(li4);
+		ul.append(li5);
 	}
 	
 	return ul;
@@ -559,6 +561,9 @@ var lenderview = function(container){
 		"sTitle" : "级别",
 		"code" : "level"
 	}, {
+		"sTitle" : "积分",
+		"code" : "grade"
+	}, {
 		"sTitle" : "汇付账户",
 		"code" : "thirdPartyAccount"
 	}, {
@@ -596,6 +601,7 @@ var lenderview = function(container){
 				                    data.tel,
 				                    data.identityCard==null?"":data.name,
 				                    data.level,
+				                    data.grade,
 				                    data.thirdPartyAccount==null?"":data.thirdPartyAccount,
 				                    "<button id='"+data.id+"' class='sendletter'>发站内信</button>",
 				                    "<button id='"+data.id+"' class='sendinvite'>发邀请码</button>"]);
@@ -607,7 +613,7 @@ var lenderview = function(container){
 		$('button.sendinvite').click(function(e){
 			var uid = $(this).attr('id');
 			try{
-			inviteService.allocate(parseInt(uid), 5);
+			inviteService.allocate(parseInt(uid), 3);
 			alert('邀请码分配成功！');
 			}catch(e){
 				alert(e.message);
@@ -2427,6 +2433,41 @@ var helpwrite = function(container){
 	
 }
 
+var messagesendtoall = function(container){
+	var lenderService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ILenderService");
+	var total = '<div class="container-fluid" style="width:800px;">';
+		total += '<div class="row" style="margin-bottom:20px; margin-top:20px;padding-left:20px;">';
+		
+	var content = '<div class="form-group has-success has-feedback" style="margin-top:5px;">';
+	content += '<label class="control-label col-sm-3" for="inputSuccess3">短信内容</label>';
+	content += '<div class="col-sm-9">';
+	content += '<textarea class="form-control" id="notice-content" style="min-height:400px;"></textarea></div></div>';
+	
+	total += content;
+	
+	total += '<button id="message-send" class="btn btn-lg btn-success btn-block">发送</button>'
+	
+	total += "</div></div>";
+	
+	container.html(total);
+	
+	$('#message-send').click(function(e){
+		var content = $('#notice-content').val();
+		
+		if(content==null||content==''){
+			alert('短信内容不能为空');
+			return;
+		}
+		try{
+			lenderService.sendMessageToAllLender(content);
+			alert("短信群发成功！");
+			window.location.href="opadmin.html?fid=other&sid=message-sendtoall";
+		}catch(e){
+			alert(e.message);
+		}
+	});
+}
+
 var noticewrite = function(container){
 	var nservice = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.INoticeService");
 	var total = '<div class="container-fluid" style="width:800px;">';
@@ -2612,6 +2653,7 @@ var nav2funtion = {
 		"activity" : activity,
 		"validate-tp" : validatetp,
 		"message" : message,
+		"message-sendtoall" : messagesendtoall,
 		"left7" : left7,
 		"left3" : left3,
 		"left1" : left1
