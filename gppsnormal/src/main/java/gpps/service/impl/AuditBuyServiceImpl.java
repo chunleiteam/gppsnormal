@@ -106,7 +106,7 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 		Map<String,String> params=new HashMap<String, String>();
 		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
-		params.put("ReturnURL", "http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/buyaudit/response/bgno");
+		params.put("ReturnURL", "http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/buyaudit/response/bg");
 		params.put("NotifyURL", params.get("ReturnURL"));
 		for(int i=0;i<loanNos.size();i++)
 		{

@@ -67,7 +67,7 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		
 		//非手动转账，不需要returnURL,只需要提供后台处理页面
 //		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
-		transfer.setNotifyURL("http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repay/response/bgno");
+		transfer.setNotifyURL("http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repay/response/bg");
 		
 		//签名
 		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));

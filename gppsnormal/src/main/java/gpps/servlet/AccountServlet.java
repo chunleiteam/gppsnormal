@@ -412,65 +412,73 @@ public class AccountServlet {
 	@RequestMapping(value = { "/account/buyaudit/response/bg" })
 	public void checkBuyBg(HttpServletRequest req,HttpServletResponse resp)
 	{
-		try {
-			log.debug("购买审核确认回调:"+req.getRequestURI());
+//		try {
+//			log.debug("购买审核确认回调:"+req.getRequestURI());
 			Map<String,String> params=getAllParams(req);
-			thirdPaySupportNewService.auditBuyProcessor(params);;
-		} catch (SignatureException e) {
-			log.info("购买审核确认回调执行有问题："+e.getMessage());
-			return;
-		} catch (ResultCodeException e) {
-			log.info("购买审核确认回调执行有问题："+e.getMessage());
-			return;
-		} catch (AlreadyDoneException e){
-			log.info("购买审核确认回调重复执行："+e.getMessage());
-		} catch(Exception e){
-			log.info("购买审核确认回调执行有问题："+e.getMessage());
-			return;
-		}
+//			thirdPaySupportNewService.auditBuyProcessor(params);;
+//		} catch (SignatureException e) {
+//			log.info("购买审核确认回调执行有问题："+e.getMessage());
+//			return;
+//		} catch (ResultCodeException e) {
+//			log.info("购买审核确认回调执行有问题："+e.getMessage());
+//			return;
+//		} catch (AlreadyDoneException e){
+//			log.info("购买审核确认回调重复执行："+e.getMessage());
+//		} catch(Exception e){
+//			log.info("购买审核确认回调执行有问题："+e.getMessage());
+//			return;
+//		}
+		log.info("接受了一次购买审核后台返回调用，参数如下，目前动作为忽略");
+		log.info(params);
 		writeSuccess(resp);
 	}
 	
 	@RequestMapping(value = { "/account/repayaudit/response/bg" })
 	public void checkRepayBg(HttpServletRequest req,HttpServletResponse resp)
 	{
-		try {
-			log.debug("还款审核确认回调:"+req.getRequestURI());
+//		try {
+//			log.debug("还款审核确认回调:"+req.getRequestURI());
 			Map<String,String> params=getAllParams(req);
-			thirdPaySupportNewService.auditRepayProcessor(params);;
-		} catch (SignatureException e) {
-			log.info("还款审核确认回调执行有问题："+e.getMessage());
-			return;
-		} catch (ResultCodeException e) {
-			log.info("还款审核确认回调执行有问题："+e.getMessage());
-			return;
-		} catch (AlreadyDoneException e){
-			log.info("还款审核确认回调重复执行："+e.getMessage());
-		} catch(Exception e){
-			log.info("还款审核确认回调执行有问题："+e.getMessage());
-			return;
-		}
+//			thirdPaySupportNewService.auditRepayProcessor(params);;
+//		} catch (SignatureException e) {
+//			log.info("还款审核确认回调执行有问题："+e.getMessage());
+//			return;
+//		} catch (ResultCodeException e) {
+//			log.info("还款审核确认回调执行有问题："+e.getMessage());
+//			return;
+//		} catch (AlreadyDoneException e){
+//			log.info("还款审核确认回调重复执行："+e.getMessage());
+//		} catch(Exception e){
+//			log.info("还款审核确认回调执行有问题："+e.getMessage());
+//			return;
+//		}
+			
+			log.info("接受了一次还款审核后台返回调用，参数如下，目前动作为忽略");
+			log.info(params);
 		writeSuccess(resp);
 	}
 	
 	@RequestMapping(value = {"/account/repay/response/bg"})
 	public void repayBg(HttpServletRequest req,HttpServletResponse resp){
-		try {
-			log.debug("还款申请确认回调:"+req.getRequestURI());
+//		try {
+//			log.debug("还款申请确认回调:"+req.getRequestURI());
 			Map<String,String> params=getAllParams(req);
-			thirdPaySupportNewService.repayApplyProcessor(params);
-		} catch (SignatureException e) {
-			log.info("还款申请确认回调执行有问题："+e.getMessage());
-			return;
-		} catch (ResultCodeException e) {
-			log.info("还款申请确认回调执行有问题："+e.getMessage());
-			return;
-		} catch (AlreadyDoneException e){
-			log.info("还款申请确认回调重复执行："+e.getMessage());
-		} catch(Exception e){
-			log.info("还款申请确认回调执行有问题："+e.getMessage());
-			return;
-		}
+//			thirdPaySupportNewService.repayApplyProcessor(params);
+//		} catch (SignatureException e) {
+//			log.info("还款申请确认回调执行有问题："+e.getMessage());
+//			return;
+//		} catch (ResultCodeException e) {
+//			log.info("还款申请确认回调执行有问题："+e.getMessage());
+//			return;
+//		} catch (AlreadyDoneException e){
+//			log.info("还款申请确认回调重复执行："+e.getMessage());
+//		} catch(Exception e){
+//			log.info("还款申请确认回调执行有问题："+e.getMessage());
+//			return;
+//		}
+			
+		log.info("接受了一次申请还款后台返回调用，参数如下，目前动作为忽略");
+		log.info(params);
 		writeSuccess(resp);
 	}
 	
