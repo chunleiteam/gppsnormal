@@ -531,23 +531,26 @@ a.accordion-toggle {
 							if (spsw != null && spsw != "") {
 							$('button#rebind').click(
 									function(e) {
-										$('#cardBindingformdiv').empty();
-										var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
-                                        var cardBinding=service.getCardBinding();
-                                        var content="<form id='cardBindingform' action='"+cardBinding.baseUrl+"'method='post' target='_blank'>";
-                                        for(var o in cardBinding)
-                                       	{
-                                            if(o=="baseUrl"||o=="_i_"||o=="_t_")
-                                           	{
-                                            	continue;
-                                           	}
-                                            var len = o.length;
-                                            var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
-                                            content+="<input id='"+name+"' name='"+name+"' value='"+cardBinding[o]+"'/> ";
-                                       	}
-                                        content+="</form>";
-                                        $('#cardBindingformdiv').html(content);
-                                        $('#cardBindingform').submit();
+										//废弃三合一接口
+									//	$('#cardBindingformdiv').empty();
+									//	var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+                                   //     var cardBinding=service.getCardBinding();
+                                   //     var content="<form id='cardBindingform' action='"+cardBinding.baseUrl+"'method='post' target='_blank'>";
+                                    //    for(var o in cardBinding)
+                                   //    	{
+                                   //         if(o=="baseUrl"||o=="_i_"||o=="_t_")
+                                   //        	{
+                                  //          	continue;
+                                  //         	}
+                                  //          var len = o.length;
+                                  //          var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                                  //          content+="<input id='"+name+"' name='"+name+"' value='"+cardBinding[o]+"'/> ";
+                                 //      	}
+                                  //      content+="</form>";
+                                 //       $('#cardBindingformdiv').html(content);
+                                  //      $('#cardBindingform').submit();
+                                  
+                                  		window.open("bankedit.html");
 									});
 							
 							}

@@ -365,10 +365,10 @@ A.calculator-link {
 	FONT-SIZE: 14px
 }
 .raise-status-online .reduce-btn {
-	WIDTH: 20px; DISPLAY: block; BACKGROUND: url(img/plus-icons.png) #eee no-repeat 0px -36px; FLOAT: left; HEIGHT: 36px; CURSOR: pointer
+	WIDTH: 10%; DISPLAY: block; BACKGROUND: url(img/plus-icons.png) #eee no-repeat 0px -36px; FLOAT: left; HEIGHT: 36px; CURSOR: pointer
 }
 .raise-status-online .plus-btn {
-	WIDTH: 20px; DISPLAY: block; BACKGROUND: url(img/plus-icons.png) #eee no-repeat 0px -36px; FLOAT: left; HEIGHT: 36px; CURSOR: pointer
+	WIDTH: 10%; DISPLAY: block; BACKGROUND: url(img/plus-icons.png) #eee no-repeat 0px -36px; FLOAT: left; HEIGHT: 36px; CURSOR: pointer
 }
 .raise-status-online .plus-btn {
 	BACKGROUND-POSITION: -20px -36px
@@ -392,13 +392,13 @@ A.calculator-link {
 	BACKGROUND-COLOR: #ea5404; BACKGROUND-POSITION: -20px -72px
 }
 .raise-status-online .inputs-gather {
-	BORDER-BOTTOM: #b0b2b4 1px solid; BORDER-LEFT: #b0b2b4 1px solid; FLOAT: left; BORDER-TOP: #b0b2b4 1px solid; BORDER-RIGHT: #b0b2b4 1px solid
+	BORDER-BOTTOM: #b0b2b4 1px solid; BORDER-LEFT: #b0b2b4 1px solid; BORDER-TOP: #b0b2b4 1px solid; BORDER-RIGHT: #b0b2b4 1px solid
 }
 .raise-status-online .raise-operate {
 	MARGIN: 10px 0px
 }
 .raise-status-online .raise-input {
-	PADDING-BOTTOM: 0px; LINE-HEIGHT: 36px; PADDING-LEFT: 5px; WIDTH: 100px; PADDING-RIGHT: 0px; FLOAT: left; HEIGHT: 36px; FONT-SIZE: 16px; PADDING-TOP: 0px; box-shadow: 1px 1px 1px #ccc inset
+	PADDING-BOTTOM: 0px; LINE-HEIGHT: 36px; PADDING-LEFT: 5px; WIDTH: 80%; PADDING-RIGHT: 0px; FLOAT: left; HEIGHT: 36px; FONT-SIZE: 16px; PADDING-TOP: 0px; box-shadow: 1px 1px 1px #ccc inset
 }
 .balanceAmountWrap {
 	BORDER-BOTTOM: medium none; POSITION: absolute; BORDER-LEFT: medium none; PADDING-BOTTOM: 5px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; DISPLAY: none; BACKGROUND: url(img/has_arrow_bottom.png) no-repeat 0px bottom; BORDER-TOP: medium none; TOP: 16px; RIGHT: -16px; BORDER-RIGHT: medium none; PADDING-TOP: 0px; box-shadow: none

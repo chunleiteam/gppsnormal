@@ -4,6 +4,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class DateCalculateUtils {
+	//融资起始时间设置为晚上8点30
+	public static long getFinancingStartTime(long start){
+		Calendar starttime=Calendar.getInstance();
+		starttime.setTimeInMillis(start);
+		starttime.set(starttime.get(Calendar.YEAR), starttime.get(Calendar.MONTH), starttime.get(Calendar.DATE), 20, 30, 0);
+		return starttime.getTimeInMillis();
+	}
 	public static long getStartTime(long start){
 		Calendar starttime=Calendar.getInstance();
 		starttime.setTimeInMillis(start);

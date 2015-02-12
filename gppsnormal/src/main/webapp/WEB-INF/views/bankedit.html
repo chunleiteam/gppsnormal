@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>政采贷>银行卡绑定</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+
+    <!-- Custom styles for this template -->
+    <link href="css/signin/signin.css" rel="stylesheet">
+	<link href="css/plist/a.css" rel="stylesheet">
+    <script src="js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+		<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.ILenderService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IBorrowerService?json"></script>
+		<script type="text/javascript"
+				src="/easyservice/gpps.service.IMyAccountService?json"></script>
+		<script src="js/tool.js"></script>
+		<script src="js/getuser.js"></script>
+  </head>
+
+  <body>
+
+<div class="container">
+<div class="row" id="header" style="padding-left:0px; padding-right:0px;">
+      
+</div>
+<div class="row" style="margin-bottom:20px; margin-top:20px;padding-left:20px; max-width:600px;">
+		<div class="row" style="margin-bottom:20px;">
+		<div class="col-md-10" style="text-align:center;">
+			<span style="font-size:24px; font-weight:bold;">绑定银行卡信息
+		</div>
+		<div class="col-md-2"><button id="cardsave">保存</button></div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">开户行</label>
+			<div class="col-sm-9">
+				<select class="form-control" id="bankcode">
+  					<option value=1>中国银行</option>
+					<option value=2>工商银行</option>
+  					<option value=3>农业银行</option>
+  					<option value=4>交通银行</option>
+  					<option value=5>广发银行</option>
+  					<option value=7>建设银行</option>
+  					<option value=8>上海浦发银行</option>
+  					<option value=10>招商银行</option>
+  					<option value=11>邮政储蓄银行</option>
+  					<option value=12>民生银行</option>
+  					
+  					<option value=13>兴业银行</option>
+  					<option value=14>广东发展银行</option>
+  					<option value=17>中信银行</option>
+  					<option value=18>华夏银行</option>
+  					<option value=19>中国光大银行</option>
+  					
+  					<option value=28>平安银行</option>
+  					<option value=29>浙商银行</option>
+  					<option value=30>上海农村商业银行</option>
+				</select>
+
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">支行名称</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="branchbankname">
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">所在省</label>
+			<div class="col-sm-9">
+				<select class="form-control" id="province">
+				
+				</select>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">所在市</label>
+			<div class="col-sm-9">
+				<select class="form-control" id="city">
+				
+				</select>
+			</div>
+		</div>
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">账号</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="bankaccount">
+			</div>
+		</div>
+	</div>
+</div>
+<script src="js/head.js"></script>
+<script>
+var lenderService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ILenderService");
+var procity = lenderService.getProvinceCity();
+
+function refreshProCity(){
+	for(var i=0; i<procity.size(); i++){
+		$('#province').append('<option value='+procity.get(i).code+'>'+procity.get(i).name+'</option>');
+	}
+	var citys = procity.get(0).subAreas;
+	for(var t=0; t<citys.size(); t++){
+		$('#city').append('<option value='+citys.get(t).code+'>'+citys.get(t).name+'</option>');
+	}
+	
+	$('#province').change(function(e){
+		$('#city').html('');
+		var cts = null;
+		for(var m=0; m<procity.size(); m++){
+			var pro = procity.get(m);
+			if(pro.code==$(this).val()){
+				cts = pro.subAreas;
+				break;
+			}
+		}
+		for(var t=0; t<cts.size(); t++){
+			$('#city').append('<option value='+cts.get(t).code+'>'+cts.get(t).name+'</option>');
+		}
+	});
+}
+
+function refreshInfo(){
+	user = lenderService.find(user.id);
+	if(user.cardBinding!=null){	
+	$('#bankcode').val(user.cardBinding.bankCode);
+	$('#branchbankname').val(user.cardBinding.branchBankName);
+	$('#province').val(user.cardBinding.province);
+	
+	$("#province").val(user.cardBinding.province);
+	
+	$('#province').trigger('change');
+	
+	$('#city').val(user.cardBinding.city);
+	$('#bankaccount').val(user.cardBinding.cardNo);
+	}
+}
+
+$(document).ready(function () {
+	header('bankedit');
+	refreshProCity();
+	refreshInfo();
+	
+	var id = parseInt(user.id);
+	
+	$('#cardsave').click(function(e){
+		var bankcode = $('#bankcode').val();
+		var branchbankname = $('#branchbankname').val();
+		var province = $('#province').val();
+		var city = $('#city').val();
+		var bankaccount = $('#bankaccount').val();
+		
+		if(branchbankname==null || branchbankname==''){
+			alert('分行名称必须填写！');
+			return;
+		}
+		if(province==null||province==''){
+			alert('省份代码必须填写！');
+			return;
+		}
+		if(city==null||city==''){
+			alert('城市代码必须填写！');
+			return;
+		}
+		if(bankaccount==null||bankaccount==''){
+			alert('银行卡号必须填写！');
+			return;
+		}
+		var cardbinding = {"_t_":"gpps.model.CardBinding", "bankCode":bankcode, "cardType" : 0, "branchBankName" : branchbankname, "province" : province, "city" : city, "cardNo" : bankaccount};
+		
+		try{
+			lenderService.bindCard(id, cardbinding);
+		//	refreshInfo();
+			alert('保存成功！');
+			window.location.href="myaccount.html";
+		}catch(e){
+			alert(e.message);
+		}
+	});
+	
+});
+
+
+
+
+</script>
+</body>
+</html>

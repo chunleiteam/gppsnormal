@@ -76,8 +76,8 @@ public class CheckSingleCashStream {
 	public static void main(String args[]) throws Exception{
 //		withdrawSingleCashStream("LN19029242014122113491557888");
 		
-		Date datestart = new Date(2015-1900,1-1,28,8,0,0);
-		Date dateend = new Date(2015-1900,2-1,9,8,0,0);
+		Date datestart = new Date(2015-1900,2-1,12,8,0,0);
+		Date dateend = new Date(2015-1900,2-1,12,8,0,0);
 		
 		long start = DateCalculateUtils.getStartTime(datestart.getTime());
 		long end = DateCalculateUtils.getEndTime(dateend.getTime())+1000;

@@ -1,5 +1,6 @@
 package gpps.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
@@ -10,6 +11,7 @@ import gpps.service.exception.InviteException;
 import gpps.service.exception.LoginException;
 import gpps.service.exception.SMSException;
 import gpps.service.exception.ValidateCodeException;
+import gpps.tools.Area;
 
 public interface ILenderService extends ILoginService{
 	/**
@@ -91,6 +93,13 @@ public interface ILenderService extends ILoginService{
 	 */
 	public void bindCard(Integer id,Integer cardId);
 	
+	/**
+	 * 绑定银行卡
+	 * @param id
+	 * @param cardBinding
+	 */
+	public void bindCard(Integer id, CardBinding cardBinding);
+	
 	
 	/**
 	 * 获得绑定的银行卡
@@ -103,4 +112,11 @@ public interface ILenderService extends ILoginService{
 	 * @param message
 	 * */
 	public void sendMessageToAllLender(String message) throws SMSException;
+	
+	
+	/**
+	 * 获得银行卡开户的省市对应信息
+	 * 
+	 * */
+	public List<Area> getProvinceCity();
 }

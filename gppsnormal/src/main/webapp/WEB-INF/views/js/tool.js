@@ -75,7 +75,8 @@ _$fd = function(longt) {
 	formatDateCN = function(longt) {
 		//yyyy-MM-dd T HH:mm:ss
 		var r = _$fd(longt);
-		var ldStr = r.yyyy + '年' + r.MM + '月' + r.dd + '日' + r.HH + '时' + r.mm + '分' + r.ss + '秒';
+		//r.yyyy + '年' + 
+		var ldStr = r.MM + '月' + r.dd + '日' + r.HH + '时' + r.mm + '分' + r.ss + '秒';
 		return ldStr;
 	};
 	

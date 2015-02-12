@@ -3,7 +3,7 @@ package gpps.model;
 import java.math.BigDecimal;
 
 public class Submit {
-	public static final long PAYEXPIREDTIME=30L*60*1000;
+	public static final long PAYEXPIREDTIME=3L*60*1000;
 	private Integer id;
 	/**
 //	 * 1:申请竞标-> 2:待支付 （支付） 4:竞标中 (融资审核成功) 8:还款中 16：还款完毕

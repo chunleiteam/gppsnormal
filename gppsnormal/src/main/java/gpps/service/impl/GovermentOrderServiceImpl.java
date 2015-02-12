@@ -145,8 +145,8 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 			throw new IllegalArgumentException("创建订单必须选择非处理的融资申请");
 //		TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
 		
-		//融资起始时间设置为0点0分0秒
-		long start = DateCalculateUtils.getStartTime(govermentOrder.getFinancingStarttime());
+		//融资起始时间设置为20点30分0秒
+		long start = DateCalculateUtils.getFinancingStartTime(govermentOrder.getFinancingStarttime());
 		govermentOrder.setFinancingStarttime(start);
 		
 		//融资截止时间设置为23点59分59秒

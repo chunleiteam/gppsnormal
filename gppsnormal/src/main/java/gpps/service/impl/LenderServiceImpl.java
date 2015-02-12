@@ -5,6 +5,7 @@ import gpps.constant.Pagination;
 import gpps.dao.ICardBindingDao;
 import gpps.dao.ILenderAccountDao;
 import gpps.dao.ILenderDao;
+import gpps.model.Borrower;
 import gpps.model.CardBinding;
 import gpps.model.Lender;
 import gpps.model.LenderAccount;
@@ -15,6 +16,8 @@ import gpps.service.exception.LoginException;
 import gpps.service.exception.SMSException;
 import gpps.service.exception.ValidateCodeException;
 import gpps.service.message.IMessageSupportService;
+import gpps.tools.Area;
+import gpps.tools.BankBindingUtils;
 import gpps.tools.BankCode;
 import gpps.tools.StringUtil;
 
@@ -199,7 +202,11 @@ public class LenderServiceImpl extends AbstractLoginServiceImpl implements ILend
 
 	@Override
 	public Lender find(int id) {
-		return lenderDao.find(id);
+		Lender lender = lenderDao.find(id);
+		if(lender!=null && lender.getCardBindingId()!=null){
+			lender.setCardBinding(cardBindingDao.find(lender.getCardBindingId()));
+		}
+		return lender;
 	}
 	
 	@Override
@@ -312,6 +319,19 @@ public class LenderServiceImpl extends AbstractLoginServiceImpl implements ILend
 			lender.setCardBinding(cardBindingDao.find(cardId));
 		}
 	}
+	
+	@Override
+	public void bindCard(Integer id, CardBinding cardBinding) {
+		cardBindingDao.create(cardBinding);
+		lenderDao.bindCard(id, cardBinding.getId());
+		Lender lender=getCurrentUser();
+		if(lender!=null)
+		{
+			lender.setCardBindingId(cardBinding.getId());
+			lender.setCardBinding(cardBinding);
+		}
+	}
+	
 	@Override
 	public boolean isEmailExist(String email) {
 		List<Lender> lender=lenderDao.findByEmail(email.trim());
@@ -345,5 +365,10 @@ public class LenderServiceImpl extends AbstractLoginServiceImpl implements ILend
 		if(phones.size()>0){
 			messageSupportService.sendSMS(phones, message);
 		}
+	}
+	
+	@Override
+	public List<Area> getProvinceCity(){
+		return BankBindingUtils.getProvinceCity();
 	}
 }

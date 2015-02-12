@@ -333,11 +333,8 @@
 .disabled.btns .caret {
 	COLOR: #adadad
 }
-.btn-xlarge {
-	PADDING-BOTTOM: 8px; PADDING-LEFT: 40px; PADDING-RIGHT: 40px; FONT-SIZE: 14px; PADDING-TOP: 8px
-}
 .btn_xlarge {
-	PADDING-BOTTOM: 8px; PADDING-LEFT: 40px; PADDING-RIGHT: 40px; FONT-SIZE: 14px; PADDING-TOP: 8px
+	width:100%; PADDING-BOTTOM: 8px; text-align:center; FONT-SIZE: 14px; PADDING-TOP: 8px
 }
 .btn-large {
 	PADDING-BOTTOM: 5px; PADDING-LEFT: 30px; PADDING-RIGHT: 30px; FONT-SIZE: 14px; PADDING-TOP: 5px
