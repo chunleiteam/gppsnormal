@@ -634,6 +634,12 @@
     				});
         		}else if($(this).attr('data-sk')=='cresource'){
         			$('.detail-content-body').html('');
+        			
+        			if(user==null){
+        				$('.detail-content-body').html('<div style="width:100%; text-align:center;">企业详细信息登录用户有权查看。<a href="login.html">登录</a>|<a href="register.html">注册</a></div>');
+        				return;
+        			}
+        			
         			var bitems0 = bservice.findMimeItems(order.borrowerId,0);
         			$('.detail-content-body').append('<h5>证照类</h5>');
         			var pp0 = $('<p></p>');
