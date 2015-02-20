@@ -537,6 +537,8 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		if(cardBinding==null)
 			throw new IllegalOperationException("未绑定银行卡");
 		cardNo=cardBinding.getCardNo();
+////		cash.setFeeRate("0.0050");
+//		cash.setFeePercent("100");
 		cash.setCardNo(cardNo);
 		cash.setCardType(String.valueOf(cardBinding.getCardType()));
 		cash.setBankCode(cardBinding.getBankCode());
