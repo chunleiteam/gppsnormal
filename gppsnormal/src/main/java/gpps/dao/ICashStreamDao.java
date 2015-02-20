@@ -46,6 +46,7 @@ public interface ICashStreamDao {
 	 */
 	public List<CashStream> findRepayCashStream(@Param("submitId")Integer submitId,@Param("payBackId")Integer payBackId);
 	
+	public List<CashStream> findBySubmitAndPayBackAndActionAndState(@Param("submitId")Integer submitId,@Param("payBackId")Integer payBackId,@Param("action")int action,@Param("state")int state);
 	
 	/**
 	 * 找到针对某笔投资的某笔还款的指定状态的现金流

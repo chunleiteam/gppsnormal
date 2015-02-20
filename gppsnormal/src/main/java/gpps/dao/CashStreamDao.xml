@@ -115,6 +115,11 @@
             and payBackId=#{payBackId}
         </if>
     </select>
+    <select id="findBySubmitAndPayBackAndActionAndState"
+        resultType="gpps.model.CashStream">
+        select *
+        from CashStream where submitId=#{submitId} and payBackId=#{payBackId} and state=#{state} and action=#{action}
+    </select>
     <select id="findRepayCashStreamByAction"
         resultType="gpps.model.CashStream">
         select *
