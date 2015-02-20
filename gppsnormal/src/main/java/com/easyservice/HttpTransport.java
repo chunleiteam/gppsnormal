@@ -63,6 +63,21 @@ public class HttpTransport {
 	MangleClassInfoPool mangleClassInfoPool = MangleClassInfoPool.getDefault();
 	private static IEJsonIOManager eJsonIOManager=EJsonManager.getDefaultManager(); 
 
+	
+	public static String getIp(HttpServletRequest req){
+		String ip = req.getHeader("x-forwarded-for");
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = req.getHeader("Proxy-Client-IP");
+        }
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = req.getHeader("WL-Proxy-Client-IP");
+        }
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = req.getRemoteAddr();
+        }
+        return ip;
+	}
+	
 	@RequestMapping(value={"/easyservice/{interface}","/easyservice/{interface}/{method}"})
 	public void service(HttpServletRequest req, HttpServletResponse resp) {
 		try {
@@ -88,7 +103,7 @@ public class HttpTransport {
 				if (protocolBinding == null) {
 //					serviceResponse.setExceptionType(ExceptionType.ET_SE_PROTOCOL_NOT_SUPPORT);
 //					serviceResponse.setException(new UnsupportedOperationException("can not find provider for protocol : " + parse.getBindingProtocol()));
-					logger.warn(ExceptionType.ET_SE_BINDING_NOT_SUPPORT + "", new UnsupportedOperationException("can not find binding for protocol : " + parse.getBindingProtocol()));
+					logger.warn("【"+getIp(req)+"】"+ExceptionType.ET_SE_BINDING_NOT_SUPPORT + "", new UnsupportedOperationException("can not find binding for protocol : " + parse.getBindingProtocol()));
 					return;
 				}
 			}
