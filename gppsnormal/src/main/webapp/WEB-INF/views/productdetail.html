@@ -578,6 +578,12 @@
         			$('.detail-content-body').append('<br>');
         			$('.detail-content-body').append('<div class="comments"><p class="asterisk">说明：</p><p class="item">每期实际收款日期、金额以最终到账为准，本项目最终解释权归春蕾投资管理有限公司所有。</p></div>');
         		}else if($(this).attr('data-sk')=='basic'){
+        			
+        			if(user==null){
+        				$('.detail-content-body').html('<div style="width:100%; text-align:center;">项目详情登录用户有权查看。<a href="login.html">登录</a>|<a href="register.html">注册</a></div>');
+        				return;
+        			}
+        			
         			var table = $('<table class="product-description"></table>');
         			table.append('<tr><td>融资方：</td><td>'+borrower.companyName+'</td></tr>');
         			table.append('<tr><td>中标政采订单：</td><td><span>'+order.formalName+'【'+order.formalLevel+'】</span></td></tr>');
@@ -605,6 +611,12 @@
         			$('.detail-content-body').append(tdiv);
         		}else if($(this).attr('data-sk')=='resource'){
         			$('.detail-content-body').html('');
+        			
+        			if(user==null){
+        				$('.detail-content-body').html('<div style="width:100%; text-align:center;">项目资料登录用户有权查看。<a href="login.html">登录</a>|<a href="register.html">注册</a></div>');
+        				return;
+        			}
+        			
         			var items = orderService.findMimeItems(order.id, 0);
         			$('.detail-content-body').append('<h5>中标通知书</h5>');
         			var pp = $('<p></p>');
