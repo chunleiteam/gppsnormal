@@ -109,9 +109,9 @@
 			</div>
 			<div class="col-md-12" id="table_content" style="margin-top:60px;">
 				<table class="table">
-				<tr><td style="width:150px;">投资门槛</td><td>123</td></tr>
-				<tr><td>投资期限</td><td>3-6个月</td></tr>
-				<tr><td>年华收益</td><td>3%-20%</td></tr>
+				<tr><td style="width:150px;">投资门槛</td><td id="menkan">100</td></tr>
+				<tr><td>投资期限</td><td id="qixian">短</td></tr>
+				<tr><td>年华收益</td><td id="lilv">6％-12%</td></tr>
 				<tr><td>还款方式</td><td id="typedetail">等额本息</td></tr>
 				<tr><td>产品简介</td><td id="description"></td></tr>
 				</table>
@@ -132,6 +132,24 @@
 		  0 : '稳健型',
 		  1 : '均衡型',
 		  2 : '进取型'
+  }
+  
+  var menkans = {
+		  0 : "100",
+		  1 : "1000",
+		  2 : "5000"
+  }
+  
+  var qixians = {
+		  0 : "短",
+		  1 : "中",
+		  2 : "较长"
+  }
+  
+  var lilvs = {
+		  0 : "6％-12%",
+		  1 : "8％-20%",
+		  2 : "12％-30%"
   }
   
   var seriesService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductSeriesService");
@@ -174,6 +192,9 @@
 		$('#description').html(series.description);
 		$('#typedetail').html(series.typeDetail);
 		
+		$('#menkan').html(menkans[type]);
+		$('#qixian').html(qixians[type]);
+		$('#lilv').html(lilvs[type]);
 	})
 	
 })
