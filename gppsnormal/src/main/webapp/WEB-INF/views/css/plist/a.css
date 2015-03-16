@@ -59,8 +59,8 @@ a.ui-button-blue:hover{background-color:#0697da}
 a.ui-button-blue,a.ui-button-blue:active,a.ui-button-blue:hover{color:#fff}
 .ui-list-invest .ui-list-invest-button span{display:none}
 .ui-list-invest .ui-list-invest-button-READY,.ui-list-invest .ui-list-invest-button-FIRST_READY,.ui-list-invest .ui-list-invest-button-IN_PROGRESS{cursor:default}
-.ui-list-invest .ui-list-invest-button-READY,.ui-list-invest .ui-list-invest-button-FIRST_READY{background-color:#c7d78c}
-.ui-list-invest .ui-list-invest-button-IN_PROGRESS,.ui-list-invest .ui-list-invest-button-CLOSED,.ui-list-invest .ui-list-invest-button-FIRST_APPLY,.ui-list-invest .ui-list-invest-button-DRAFT,.ui-list-invest .ui-list-invest-button-BAD_DEBT,.ui-list-invest .ui-list-invest-button-OVER_DUE{background-color:#e5e4e2}
+.ui-list-invest .ui-list-invest-button-READY,.ui-list-invest .ui-list-invest-button-FIRST_READY,.ui-list-invest .ui-list-invest-button-FIRST_APPLY{background-color:#c7d78c}
+.ui-list-invest .ui-list-invest-button-IN_PROGRESS,.ui-list-invest .ui-list-invest-button-CLOSED,.ui-list-invest .ui-list-invest-button-DRAFT,.ui-list-invest .ui-list-invest-button-BAD_DEBT,.ui-list-invest .ui-list-invest-button-OVER_DUE{background-color:#e5e4e2}
 .ui-list-invest .ui-list-invest-button-READY span.READY,.ui-list-invest .ui-list-invest-button-FIRST_READY span.FIRST_READY,.ui-list-invest .ui-list-invest-button-OPEN span.OPEN,.ui-list-invest .ui-list-invest-button-IN_PROGRESS span.IN_PROGRESS,.ui-list-invest .ui-list-invest-button-CLOSED span.CLOSED,.ui-list-invest .ui-list-invest-button-OVER_DUE span.OVER_DUE,.ui-list-invest .ui-list-invest-button-BAD_DEBT span.BAD_DEBT,.ui-list-invest .ui-list-invest-button-FIRST_APPLY span.FIRST_APPLY,.ui-list-invest .ui-list-invest-button-DRAFT span.FIRST_APPLY{display:inline}
 
 
