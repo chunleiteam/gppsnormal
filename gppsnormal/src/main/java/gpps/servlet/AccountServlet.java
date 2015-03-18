@@ -405,6 +405,7 @@ public class AccountServlet {
 			cashStreamDao.updateLoanNo(cashStreamId, loanNo,null);
 			accountService.changeCashStreamState(cashStreamId, CashStream.STATE_SUCCESS);
 		} catch (IllegalConvertException e) {
+			log.error(e.getMessage());
 			e.printStackTrace();
 		}
 	}
