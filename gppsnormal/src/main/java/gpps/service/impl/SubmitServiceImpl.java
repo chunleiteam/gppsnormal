@@ -135,13 +135,15 @@ public class SubmitServiceImpl implements ISubmitService {
 		if(num%product.getMiniAdd()!=0)
 			throw new IllegalArgumentException("提交失败，最小递增金额为:"+product.getMiniAdd());
 		
-		int submitsWaitForPay = submitDao.countByProductAndStateWithPaged(productId, Submit.STATE_WAITFORPAY);
-		if(submitsWaitForPay>0){
-			throw new IllegalArgumentException("本次产品您有尚未支付的投标，请到我的账户先支付后，才能再次申请投标！");
-		}
-		
 		Lender lender=lenderService.getCurrentUser();
 		lender=lenderService.find(lender.getId());
+		
+		int submitsWaitForPay = submitDao.countByLenderAndProductAndState(lender.getId(), productId, Submit.STATE_WAITFORPAY);
+		if(submitsWaitForPay>0){
+			throw new IllegalArgumentException("本次产品您有尚未支付的投标，请到<a href=\"http://localhost:8080/myaccountdetail.html?fid=submit&sid=submit-toafford\">我的账户</a>先支付后，才能再次申请投标！");
+		}
+		
+		
 		LenderAccount account=lenderAccountDao.find(lender.getAccountId());
 		BigDecimal amount=new BigDecimal(num);
 		//判断当前账户余额是否足够购买

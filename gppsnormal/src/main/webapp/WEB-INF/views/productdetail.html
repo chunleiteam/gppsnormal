@@ -371,6 +371,24 @@
     </div>
   </div>
 </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exception" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel" style="color:red;">支付异常</h4>
+      </div>
+      <div id="exceptioncontent" style="padding-top:10px; padding-left:10px;padding-right:10px; padding-bottom:10px;">
+      	
+      </div>
+      <div class="modal-footer">
+        <button id="cancel" type="button" class="btn btn-default" data-dismiss="modal">知道了</button>
+      </div>
+    </div>
+  </div>
+</div>
  
 
 <script src="js/head.js"></script>
@@ -551,7 +569,11 @@
         $('#buyform').submit();
  		
  		}catch(e){
- 			alert(e.message);
+ 			$('#exceptioncontent').html(e.message)
+ 			$('#exception').modal({
+ 				  keyboard: false,
+ 				  backdrop: false
+ 			});
  		}
  		}
  	});
@@ -733,8 +755,7 @@
  	$('#fail').click(function(e){
  		window.location.href = "myaccount.html?fid=submit&sid=submit-toafford";
  	});
-        	 
-        	 
+ 	
          });
  </script>
     </body>
