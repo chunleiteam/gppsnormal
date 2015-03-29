@@ -3,7 +3,8 @@ package gpps.model;
 import java.math.BigDecimal;
 
 public class Submit {
-	public static final long PAYEXPIREDTIME=3L*60*1000;
+	//抢占的额度有效时间为10分钟，10分钟内未支付成功，则将额度回退
+	public static final long PAYEXPIREDTIME=10L*60*1000;
 	private Integer id;
 	/**
 //	 * 1:申请竞标-> 2:待支付 （支付） 4:竞标中 (融资审核成功) 8:还款中 16：还款完毕

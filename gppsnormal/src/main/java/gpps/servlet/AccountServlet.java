@@ -29,6 +29,7 @@ import gpps.service.thirdpay.AlreadyDoneException;
 import gpps.service.thirdpay.IThirdPaySupportNewService;
 import gpps.service.thirdpay.IThirdPaySupportService;
 import gpps.service.thirdpay.ResultCodeException;
+import gpps.service.thirdpay.ThirdPartyState;
 import gpps.service.thirdpay.Transfer.LoanJson;
 import gpps.tools.Common;
 import gpps.tools.RsaHelper;
@@ -40,6 +41,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.security.SignatureException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -338,11 +340,17 @@ public class AccountServlet {
 		try {
 			completeBuyProcessor(req, resp);
 		} catch (SignatureException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			log.error(e.getMessage());
 			message=e.getMessage();
 		} catch (ResultCodeException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			log.error(e.getMessage());
 			message=e.getMessage();
+		} catch (Exception e){
+//			e.printStackTrace();
+			log.error(e.getMessage());
+			message = e.getMessage();
 		}
 		String pid=(String) req.getAttribute("pid");
 		if(!StringUtil.isEmpty(message)){
@@ -367,15 +375,21 @@ public class AccountServlet {
 				}
 			completeBuyProcessor(req, resp);
 		} catch (SignatureException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
+//			e.printStackTrace();
 			return;
 		} catch (ResultCodeException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
+//			e.printStackTrace();
+			return;
+		} catch (Exception e){
+			log.error(e.getMessage());
+//			e.printStackTrace();
 			return;
 		}
 		writeSuccess(resp);
 	}
-	private void completeBuyProcessor(HttpServletRequest req,HttpServletResponse resp) throws SignatureException, ResultCodeException
+	private void completeBuyProcessor(HttpServletRequest req,HttpServletResponse resp) throws SignatureException, ResultCodeException, Exception
 	{
 		log.debug("购买回调:"+req.getRequestURI());
 		Map<String,String> params=getAllParams(req);
@@ -400,6 +414,26 @@ public class AccountServlet {
 			log.debug("重复的回复");
 			return;
 		}
+		
+		if("支付超时".equals(cashStream.getDescription())){
+			log.debug("支付超时的退款操作已经执行过，避免重复执行！");
+			return;
+		}
+		
+		Submit submit = submitService.find(cashStream.getSubmitId());
+		if(submit.getState()==Submit.STATE_UNSUBSCRIBE){
+			
+			List<String> lns = new ArrayList<String>();
+			lns.add(loanNo);
+			try{
+				thirdPaySupportNewService.justAuditBuy(lns, ThirdPartyState.THIRD_AUDITTYPE_RETURN);
+				cashStreamDao.updateDescription(cashStreamId, "支付超时");
+			}catch(Exception e){
+				throw new Exception(e.getMessage());
+			}
+			throw new Exception("支付超时");
+		}
+		
 		try {
 			submitService.confirmBuy(cashStream.getSubmitId());
 			cashStreamDao.updateLoanNo(cashStreamId, loanNo,null);

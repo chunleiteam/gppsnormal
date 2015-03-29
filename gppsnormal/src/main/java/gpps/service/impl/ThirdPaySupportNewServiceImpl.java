@@ -34,6 +34,11 @@ IBalanceWithTPService balanceWithTPService;
 	public void auditBuy(List<String> loanNos, int auditType) throws Exception{
 		auditBuyService.auditBuy(loanNos, auditType);
 	}
+	
+	@Override
+	public void justAuditBuy(List<String> loanNos, int auditType) throws Exception{
+		auditBuyService.justAuditBuy(loanNos, auditType);
+	}
 
 	@Override
 	public void auditRepay(List<String> loanNos, int auditType) throws Exception{

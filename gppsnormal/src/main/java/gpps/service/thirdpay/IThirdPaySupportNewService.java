@@ -22,6 +22,18 @@ public interface IThirdPaySupportNewService {
 	
 	
 	/**
+	 * 单纯的给第三方发送审核服务（通过、退回），不执行后续的操作auditBuyProcessor
+	 * @param loanNos 所有流水号用英文逗号(,)连成一个字符串
+	 * @param auditType 1.通过
+						2.退回
+						3.二次分配同意
+						4.二次分配不同意
+						5.提现通过
+						6.提现退回
+	 */
+	public void justAuditBuy(List<String> loanNos, int auditType) throws Exception;
+	
+	/**
 	 * 后台审核还款服务
 	 * @param loanNos 所有流水号用英文逗号(,)连成一个字符串
 	 * @param auditType 1.通过

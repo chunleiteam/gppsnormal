@@ -95,6 +95,44 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 	
 	private Logger log=Logger.getLogger(AuditBuyServiceImpl.class);
 	
+	
+	@Override
+	public void justAuditBuy(List<String> loanNos, int auditType) throws Exception{
+		if(loanNos==null||loanNos.size()==0)
+			throw new Exception("无效的审核列表！");
+		
+		
+		String baseUrl=innerThirdPayService.getBaseUrl(IInnerThirdPaySupportService.ACTION_CHECK);
+		StringBuilder loanNoSBuilder=new StringBuilder();
+		Map<String,String> params=new HashMap<String, String>();
+		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
+		params.put("AuditType", String.valueOf(auditType));
+		params.put("ReturnURL", "http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/buyaudit/response/bg");
+		params.put("NotifyURL", params.get("ReturnURL"));
+		for(int i=0;i<loanNos.size();i++)
+		{
+			if(loanNoSBuilder.length()!=0)
+				loanNoSBuilder.append(",");
+			loanNoSBuilder.append(loanNos.get(i));
+		}
+		
+		params.put("LoanNoList", loanNoSBuilder.toString());
+		
+		//签名
+		String signInfo = innerThirdPayService.signForAudit(params, innerThirdPayService.getPrivateKey());
+		params.put("SignInfo", signInfo);
+				
+		//将处理好的参数post到第三方，并接受其马上返回的参数
+		String body=httpClientService.post(baseUrl, params);
+		
+		Gson gson = new Gson();
+		Map<String,String> returnParams=gson.fromJson(body, Map.class);
+		
+		//校验返回结果签名
+		innerThirdPayService.handleAuditReturnParams(returnParams);
+	}
+	
+	
 	@Override
 	public void auditBuy(List<String> loanNos, int auditType) throws Exception {
 		if(loanNos==null||loanNos.size()==0)

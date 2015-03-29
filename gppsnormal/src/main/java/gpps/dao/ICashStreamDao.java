@@ -66,7 +66,7 @@ public interface ICashStreamDao {
 	public List<CashStream> findByRepayAndAction(@Param("payBackId")Integer payBackId,@Param("action")int action);
 	
 	
-	
+	public void updateDescription(@Param("cashStreamId") Integer cashStreamId,@Param("description") String description);
 	public void updateLoanNo(@Param("cashStreamId") Integer cashStreamId,@Param("loanNo") String loanNo,@Param("fee")BigDecimal fee);
 	/**
 	 * 根据action及loanNo查找流水
