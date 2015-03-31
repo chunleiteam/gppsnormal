@@ -98,6 +98,14 @@
 		select count(*)
 		from Submit where productId=#{productId} and lenderId=#{lenderId} and state=#{state}
 	</select>
+	
+	
+	<select id="countByLenderAndState" resultType="int">
+		select count(*)
+		from Submit where lenderId=#{lenderId} and state=#{state}
+	</select>
+	
+	
 	<select id="findAllByState" resultType="gpps.model.Submit">
 		select *
 		from Submit where state=#{state}

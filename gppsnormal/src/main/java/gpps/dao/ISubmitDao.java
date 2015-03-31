@@ -31,5 +31,7 @@ public interface ISubmitDao {
 	
 	public int countByLenderAndProductAndState(@Param("lenderId")Integer lenderId, @Param("productId")Integer productId,@Param("state")int state);
 	
+	public int countByLenderAndState(@Param("lenderId")Integer lenderId,@Param("state")int state);
+	
 	public List<Submit> findAllByState(int state);
 }
