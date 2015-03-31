@@ -817,6 +817,8 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 	}
 	@Override
 	public void update(Integer id,String title,long financingStarttime,long financingEndtime,long incomeStarttime,String description,String formalName, String formalLevel, String formalAmount, String tenderUnits, String formalLink){
-		govermentOrderDao.update(id,title, financingStarttime, financingEndtime, incomeStarttime, description, formalName, formalLevel, formalAmount, tenderUnits, formalLink);
+		long nfs = DateCalculateUtils.getFinancingStartTime(financingStarttime);
+		long nfe = DateCalculateUtils.getEndTime(financingEndtime);
+		govermentOrderDao.update(id,title, nfs, nfe, incomeStarttime, description, formalName, formalLevel, formalAmount, tenderUnits, formalLink);
 	}
 }
