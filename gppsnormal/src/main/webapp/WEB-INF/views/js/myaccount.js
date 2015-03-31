@@ -324,7 +324,7 @@ _$fd = function(longt) {
 		
 		
 		var name = lender.name==null?lender.loginId : lender.name
-		container.append('<p>您好'+name+'，您的信用值是<span class="orange">'+lender.grade+'</span>分，信用等级为<span class="orange">level'+lender.level+'</span></p>');
+		container.append('<p>您好'+name+'，您的信用值是<span class="orange">'+lender.grade+'</span>分，信用等级为<span class="orange">level'+lender.level+'</span>， 通过投资购买可以提升您的积分和等级！</p>');
 		container.append('<br><span class="orange">积分规则：</span>');
 		container.append(table);
 		
