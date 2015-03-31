@@ -421,6 +421,17 @@
  	$('#raiseAmount').val(product.minimum);
  	$('#initAmount').html('起投金额：'+product.minimum+'元');
  	$('#addAmount').html('递增金额：'+product.miniAdd+'元');
+ 	
+ 	
+ 	var maxAmount = "";
+ 	if(seriesname[product.productseriesId].type==2)
+ 	{
+ 		maxAmount = '最大金额<font color=red>10000</font>元';
+ 	}
+ 	else{
+ 		maxAmount = '';
+ 	}
+ 	
  	$('#rate').html(parseInt(parseFloat(product.rate.value)*100)+"%");
  	$('#duration').html(parseInt((product.incomeEndtime-order.incomeStarttime+23*3600*1000)/(24*3600*1000))+'天');
  	$('#leveltobuy').html("level"+product.levelToBuy);
@@ -486,6 +497,7 @@
  		min = parseInt((time - day*(24*3600*1000) - hour*(3600*1000))/(60*1000));
  		sec = parseInt((time - day*(24*3600*1000) - hour*(3600*1000) - min*(60*1000))/1000);
  		}
+ 		$('#stateMessage').html('请填写投资金额：('+maxAmount+')');
  		$('p#product-published-date').html('距离融资结束还有： '+day+'天'+hour+'小时'+min+'分'+sec+'秒');
  		$('#detailDate').html('融资结束时间:'+formatDateCN(order.financingEndtime));
  	}
