@@ -16,6 +16,7 @@ import gpps.model.Lender;
 import gpps.model.LenderAccount;
 import gpps.model.PayBack;
 import gpps.model.Product;
+import gpps.model.ProductSeries;
 import gpps.model.StateLog;
 import gpps.model.Submit;
 import gpps.model.Task;
@@ -135,6 +136,10 @@ public class SubmitServiceImpl implements ISubmitService {
 		if(num%product.getMiniAdd()!=0)
 			throw new IllegalArgumentException("提交失败，最小递增金额为:"+product.getMiniAdd());
 		
+		if(product.getProductSeries().getType()==ProductSeries.TYPE_FINISHPAYINTERESTANDCAPITAL && num>10000){
+			throw new IllegalArgumentException("提交失败，进取型产品单笔提交额度不得超过10000元");
+		}
+		
 		Lender lender=lenderService.getCurrentUser();
 		lender=lenderService.find(lender.getId());
 		
@@ -151,7 +156,7 @@ public class SubmitServiceImpl implements ISubmitService {
 			throw new InsufficientBalanceException("您账户的余额不足，请先充值");
 		//判断用户购买级别
 		if(lender.getLevel()<product.getLevelToBuy())
-			throw new UnreachBuyLevelException("您尚未达到购买此产品的级别");
+			throw new UnreachBuyLevelException("您尚未达到购买此产品的级别,查看<a href=\"myaccountdetail.html?fid=mycenter&sid=my-score\" target=\"_blank\">我的积分</a>");
 		try
 		{
 			product=orderService.applyFinancingProduct(productId, product.getGovermentorderId());
