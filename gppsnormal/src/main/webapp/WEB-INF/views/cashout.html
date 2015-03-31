@@ -132,7 +132,12 @@ $(document).ready(function() {
 			}
 		}else if(cardbinding==null){
 			if(confirm("您尚未绑定银行卡，马上绑卡？")){
-				$('#cardBindingformdiv').empty();
+				
+				
+				window.location.href="bankedit.html";
+				
+				
+				/* $('#cardBindingformdiv').empty();
 				var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
                 var cardBinding=service.getCardBinding();
                 var content="<form id='cardBindingform' action='"+cardBinding.baseUrl+"'method='post'>";
@@ -148,7 +153,7 @@ $(document).ready(function() {
                	}
                 content+="</form>";
                 $('#cardBindingformdiv').html(content);
-                $('#cardBindingform').submit();
+                $('#cardBindingform').submit(); */
 			}else{
 				window.close();
 			}
@@ -174,24 +179,8 @@ $(document).ready(function() {
 				window.close();
 			}
 		}else if(cardbinding==null){
-			if(confirm("您尚未绑定银行卡，马上绑卡？")){
-				$('#cardBindingformdiv').empty();
-				var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
-                var cardBinding=service.getCardBinding();
-                var content="<form id='cardBindingform' action='"+cardBinding.baseUrl+"'method='post'>";
-                for(var o in cardBinding)
-               	{
-                    if(o=="baseUrl"||o=="_i_"||o=="_t_")
-                   	{
-                    	continue;
-                   	}
-                    var len = o.length;
-                    var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
-                    content+="<input id='"+name+"' name='"+name+"' value='"+cardBinding[o]+"'/> ";
-               	}
-                content+="</form>";
-                $('#cardBindingformdiv').html(content);
-                $('#cardBindingform').submit();
+			if(confirm("您尚未绑定开户行银行卡，请联系客服！")){
+				window.close();
 			}else{
 				window.close();
 			}
