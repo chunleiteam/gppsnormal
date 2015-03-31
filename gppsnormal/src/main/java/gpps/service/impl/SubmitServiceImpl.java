@@ -140,7 +140,7 @@ public class SubmitServiceImpl implements ISubmitService {
 		
 		int submitsWaitForPay = submitDao.countByLenderAndProductAndState(lender.getId(), productId, Submit.STATE_WAITFORPAY);
 		if(submitsWaitForPay>0){
-			throw new IllegalArgumentException("本次产品您有尚未支付的投标，请到<a href=\"http://localhost:8080/myaccountdetail.html?fid=submit&sid=submit-toafford\">我的账户</a>先支付后，才能再次申请投标！");
+			throw new IllegalArgumentException("本次产品您有尚未支付的投标，请到<a href=\"myaccountdetail.html?fid=submit&sid=submit-toafford\">我的账户</a>先支付后，才能再次申请投标！");
 		}
 		
 		
