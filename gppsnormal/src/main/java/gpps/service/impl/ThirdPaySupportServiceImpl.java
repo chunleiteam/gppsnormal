@@ -136,6 +136,43 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	}
 
 	@Override
+	public Recharge getQuickRecharge(String amount) throws LoginException{
+		Recharge recharge=new Recharge();
+		recharge.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_RECHARGE));
+		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpSession session=req.getSession();
+		Object currentUser=session.getAttribute(ILoginService.SESSION_ATTRIBUTENAME_USER);
+		if(currentUser==null)
+			throw new LoginException("未找到用户信息，请重新登录");
+		recharge.setAmount(amount);
+		recharge.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/recharge/response");
+		recharge.setNotifyURL(recharge.getReturnURL()+"/bg");
+		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
+		
+		recharge.setRechargeType("2");  //RechargeType==2代表充值类型为“快捷支付”
+		recharge.setFeeType("1");       //快捷支付必备的参数，FeeType==1代表从用户自己的银行卡账户上扣钱
+		
+		Integer cashStreamId = null;
+		if(currentUser instanceof Lender)
+		{
+			Lender lender=(Lender)currentUser;
+			recharge.setRechargeMoneymoremore(lender.getThirdPartyAccount());
+			cashStreamId = accountService.rechargeLenderAccount(lender.getAccountId(), BigDecimal.valueOf(Double.valueOf(amount)), "充值");
+		}else if(currentUser instanceof Borrower){
+			Borrower borrower=(Borrower)currentUser;
+			recharge.setRechargeMoneymoremore(borrower.getThirdPartyAccount());
+			cashStreamId = accountService.rechargeBorrowerAccount(borrower.getAccountId(), BigDecimal.valueOf(Double.valueOf(amount)), "充值");
+		}
+		else {
+			throw new RuntimeException("不支持该用户充值");
+		}
+		recharge.setOrderNo(String.valueOf(cashStreamId));
+		recharge.setSignInfo(recharge.getSign(innerThirdPaySupportService.getPrivateKey()));
+		return recharge;
+	}
+	
+	
+	@Override
 	public Recharge getRecharge(String amount) throws LoginException {
 		Recharge recharge=new Recharge();
 		recharge.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_RECHARGE));
@@ -148,7 +185,16 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		recharge.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/recharge/response");
 		recharge.setNotifyURL(recharge.getReturnURL()+"/bg");
 		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
-		recharge.setSignInfo(recharge.getSign(innerThirdPaySupportService.getPrivateKey()));
+		
+//		recharge.setRechargeType("2");
+//		recharge.setFeeType("1");
+		
+		
+//		recharge.setSignInfo(recharge.getSign(innerThirdPaySupportService.getPrivateKey()));
+		
+		
+		
+		
 		Integer cashStreamId = null;
 		if(currentUser instanceof Lender)
 		{

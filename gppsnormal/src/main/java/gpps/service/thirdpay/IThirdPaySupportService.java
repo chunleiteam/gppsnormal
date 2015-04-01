@@ -21,12 +21,21 @@ public interface IThirdPaySupportService {
 	 */
 	public RegistAccount getRegistAccount() throws LoginException;
 	/**
-	 * 返回充值表单提交信息
+	 * 返回网银充值表单提交信息
 	 * @param amount
 	 * @return
 	 * @throws LoginException
 	 */
 	public Recharge getRecharge(String amount) throws LoginException;
+	
+	/**
+	 * 返回快捷支付充值表单提交信息
+	 * @param amount
+	 * @return
+	 * @throws LoginException
+	 */
+	public Recharge getQuickRecharge(String amount) throws LoginException;
+	
 	/**
 	 * 返回购买表单提交信息
 	 * @param submitId

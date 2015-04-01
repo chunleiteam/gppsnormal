@@ -66,10 +66,23 @@
             <div>
             	<span id="msg" style="color: #b94a48; font-weight: bold;"></span>
             </div>
-            <div>
-                <input type="button" name="btnSub" value="确 认" id="rechargeConfirm" class="confirmAndCancelBtn" />
-                <input type="button" class="confirmAndCancelBtn" id="reset" value="重 置" />
-            </div>
+            	<div  class="row">
+            	<div class="hidden-xs hidden-sm col-md-4 col-lg-4"></div>
+            	
+            	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            	<div class="hidden-xs hidden-sm col-md-4 col-lg-4">
+                	<button class="btn btn-lg btn-success btn-block" name="btnSub" value="网银充值" id="rechargeConfirm">网银充值</button>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                <button class="btn btn-lg btn-success btn-block" name="btnSubQuick" value="快捷支付" id="quickRechargeConfirm">快捷支付</button>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                <button class="btn btn-lg btn-default btn-block" id="reset" value="重 置">重 置</button>
+            	</div>
+            	</div>
+            	
+            	<div class="hidden-xs hidden-sm col-md-4 col-lg-4"></div>
+            	</div>
             <div id="rechargeformdiv" style="display:none">
 			</div>
             </div>
@@ -157,6 +170,35 @@ $(document).ready(function() {
 		document.getElementById('msg').innerHTML='';
 		$('#txtAccount').val('');
 	});
+	
+	$('#quickRechargeConfirm').click(function(e){
+		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
+		var value = $('#txtAccount').val();
+		if(!myreg.test(value))
+		{
+			document.getElementById('msg').innerHTML='金额必须大于0且为整数或小数，小数点后不超过两位';
+			$('#txtAccount').val('');
+		}else{
+			var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+            var recharge=service.getQuickRecharge(value);
+            var content="<form id='rechargeform' action='"+recharge.baseUrl+"'method='post'>";
+            for(var o in recharge)
+           	{
+                if(o=="baseUrl")
+               	{
+                	continue;
+               	}
+                var len = o.length;
+                var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+                content+="<input id='"+name+"' name='"+name+"' value='"+recharge[o]+"'/> ";
+           	}
+            content+="</form>";
+            $('#rechargeformdiv').html(content);
+            $('#rechargeform').submit();
+		};
+		
+	});
+	
 	
 	$('#rechargeConfirm').click(function(e){
 		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
