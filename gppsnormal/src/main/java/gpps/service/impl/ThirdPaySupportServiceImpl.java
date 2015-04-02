@@ -137,6 +137,12 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 
 	@Override
 	public Recharge getQuickRecharge(String amount) throws LoginException{
+		
+		float am = Float.parseFloat(amount);
+		if(am<100.0){
+			throw new LoginException("快捷支付充值最少100元");
+		}
+		
 		Recharge recharge=new Recharge();
 		recharge.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_RECHARGE));
 		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -150,7 +156,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		
 		recharge.setRechargeType("2");  //RechargeType==2代表充值类型为“快捷支付”
-		recharge.setFeeType("1");       //快捷支付必备的参数，FeeType==1代表从用户自己的银行卡账户上扣钱
+		recharge.setFeeType("2");       //快捷支付必备的参数，FeeType==2代表从平台账户上扣手续费（千分之3.5）
 		
 		Integer cashStreamId = null;
 		if(currentUser instanceof Lender)
@@ -564,6 +570,8 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 			cash.setWithdrawMoneymoremore(lender.getThirdPartyAccount());
 			cashStreamId = accountService.cashLenderAccount(lender.getAccountId(), BigDecimal.valueOf(Double.valueOf(amount)), "提现");
 			cardBinding=cardBindingDao.find(lender.getCardBindingId());
+			
+			
 		}else if(currentUser instanceof Borrower){
 			Borrower borrower=(Borrower)currentUser;
 			// 验证是否有正在还款的payback
@@ -576,6 +584,8 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 			cash.setWithdrawMoneymoremore(borrower.getThirdPartyAccount());
 			cashStreamId = accountService.cashBorrowerAccount(borrower.getAccountId(), BigDecimal.valueOf(Double.valueOf(amount)), "提现");
 			cardBinding=cardBindingDao.find(borrower.getCardBindingId());
+			
+			cash.setFeePercent("100");   //企业提款的手续费由平台全部代付
 		}
 		else {
 			throw new RuntimeException("不支持该用户提现");
