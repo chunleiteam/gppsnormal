@@ -172,6 +172,7 @@ $(document).ready(function() {
 	});
 	
 	$('#quickRechargeConfirm').click(function(e){
+		
 		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
 		var value = $('#txtAccount').val();
 		if(!myreg.test(value))
@@ -179,6 +180,11 @@ $(document).ready(function() {
 			document.getElementById('msg').innerHTML='金额必须大于0且为整数或小数，小数点后不超过两位';
 			$('#txtAccount').val('');
 		}else{
+			var amount = parseInt(value);
+			if(amount<100){
+				alert('快捷支付最小充值金额100元');
+				return;
+			}
 			var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
             var recharge=service.getQuickRecharge(value);
             var content="<form id='rechargeform' action='"+recharge.baseUrl+"'method='post'>";
