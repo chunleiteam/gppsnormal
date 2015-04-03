@@ -42,7 +42,7 @@ public abstract class AbstractLoginServiceImpl implements ILoginService {
 		if(session.getAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODESENDTIME)!=null)
 		{
 			if((Long)(session.getAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODESENDTIME))+MESSAGEVALIDATECODEINTERVAL>System.currentTimeMillis())
-				throw new FrozenException("一分钟内不可重复发送");
+				throw new FrozenException("验证码二十分钟内有效，五分钟内不可重复发送");
 		}
 			
 		String validateCode=getRandomValidateCode(5);
@@ -77,13 +77,24 @@ public abstract class AbstractLoginServiceImpl implements ILoginService {
 		HttpSession session =getCurrentSession();
 		messageValidateCode=checkNullAndTrim("messageValidateCode", messageValidateCode);
 		String originalMessageValidateCode=String.valueOf(checkNullObject("originalMessageValidateCode", session.getAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODE)));
-		session.removeAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODE);
+		
 		long messageValidateCodeSendTime=(Long)session.getAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODESENDTIME);
-		session.removeAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODESENDTIME);
-		if(!originalMessageValidateCode.equals(messageValidateCode))
-			throw new ValidateCodeException("短信验证码不正确");
-		if(messageValidateCodeSendTime+MESSAGEVALIDATECODEEXPIRETIME<System.currentTimeMillis())
+		
+		
+		
+		if(messageValidateCodeSendTime+MESSAGEVALIDATECODEEXPIRETIME<System.currentTimeMillis()){
+			//如果验证码过期，删除掉内存中的验证码并报过期的异常
+			session.removeAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODE);
+			session.removeAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODESENDTIME);
 			throw new ValidateCodeException("验证码过期");
+		}else if(!originalMessageValidateCode.equals(messageValidateCode)){
+			//如果用户只是输错了验证码，不删除掉内存中的验证码，只是报验证码不正确异常
+			throw new ValidateCodeException("短信验证码错误,请输入正确验证码，短信验证码20分钟内有效");
+		}else{
+			//如果用户输入正确，则删除掉内存中的验证码，不报异常
+			session.removeAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODE);
+			session.removeAttribute(SESSION_ATTRIBUTENAME_MESSAGEVALIDATECODESENDTIME);
+		}
 	}
 	
 	
