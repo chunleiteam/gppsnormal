@@ -495,7 +495,7 @@ var submittoafford = function(container){
 		                    formatDate(data.createtime),
 		                    data.amount.value,
 		                    formatDate(data.payExpiredTime),
-		                    "<a id="+data.id+" class='submittoafford' href='javascript:void(0);'>立即支付</a>"]);
+		                    "<button id="+data.id+" class='submittoafford' href='javascript:void(0);'>立即支付</button>"]);
 	}
 	var table = $('<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="99%" cellspacing="0"></table>');
 	
@@ -524,7 +524,7 @@ var submittoafford = function(container){
 		pagingType: "full"
 	} );
 	
-	$('a.submittoafford').click(function(e){
+	$('button.submittoafford').click(function(e){
 		afford($(this).attr('id'));
 	});
 }

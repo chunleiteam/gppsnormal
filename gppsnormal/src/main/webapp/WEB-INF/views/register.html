@@ -388,7 +388,8 @@ $(document).ready(function() {
 				alert(ee.message);
 				$('input#password').val('');
 				$('input#password_r').val('');
-				$('input#validate').val('');
+				//$('input#validate').val('');
+				$('input#J-input-checkcode').val('');
 				$('img#J-checkcode-img').trigger('click');
 			}
 			}else{
@@ -431,7 +432,8 @@ $(document).ready(function() {
 					alert(ee.message);
 					$('input#password').val('');
 					$('input#password_r').val('');
-					$('input#validate').val('');
+					//$('input#validate').val('');
+					$('input#J-input-checkcode').val('');
 					$('img#J-checkcode-img').trigger('click');
 				}
 				
@@ -582,7 +584,7 @@ $(document).ready(function() {
 	 		 	removeMessage();
 	 		 	
 	 		 	
-	 		 	var t = 60;
+	 		 	var t = 300; //五分钟内不可重复发送
 	 	    	$('button#sendValCode').attr('disabled', true);
 	 	    	
 	 	    	var cccfun = null;
