@@ -78,6 +78,69 @@ public class AccessoryTransferServlet {
 	public static final String TYPE_ACTIVITY="activity";
 	public static final String FILESEPARATOR = "/";
 
+	
+	@RequestMapping(value = { "/uploadimage/{type}/{id}" })
+	protected void upload(HttpServletRequest request,
+			HttpServletResponse response, @PathVariable("type") String type,
+			@PathVariable("id") String id) throws ServletException,
+			IOException {
+		// 解析 request，判断是否有上传文件
+		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+		if (!isMultipart) {
+			response.sendError(400, "非法的multipart配置");
+			return;
+		}
+		if (!tempDir.exists())
+			tempDir.getFile().mkdirs();
+
+		FileItemFactory factory = new DiskFileItemFactory(2048,
+				tempDir.getFile());
+		ServletFileUpload upload = new ServletFileUpload(factory);
+		// 设置路径、文件名的字符集
+		upload.setHeaderEncoding("UTF-8");
+		// 设置允许用户上传文件大小,单位:字节
+		upload.setSizeMax(MAXFILESIZE); // 最大限制1G
+		// 得到所有的表单域，它们目前都被当作FileItem
+		List<FileItem> fileItems;
+		try {
+			fileItems = upload.parseRequest(request);
+			if (fileItems == null || fileItems.size() == 0)
+				throw new Exception("fileItems项为空");
+			for (FileItem item : fileItems) {
+				if (item.isFormField())
+					continue;
+				// 如果item是文件上传表单域
+				// 获得文件名及路径
+				String fileName = item.getName();
+				
+				
+				
+				if(type.equals("image")){
+					String path = new StringBuilder().append(FILESEPARATOR)
+							.append(type).append(FILESEPARATOR).append(1)
+							.append(FILESEPARATOR).append(1)
+							.append(FILESEPARATOR).append(id).toString();
+					if (!officalDir.exists())
+						officalDir.getFile().mkdirs();
+					File uploadFile = new File(officalDir.getFile(), path);
+					if (!uploadFile.getParentFile().exists())
+						uploadFile.getParentFile().mkdirs();
+					uploadFile.createNewFile();
+					item.write(uploadFile);
+					System.out.println("文件" + fileName + "上传成功");
+					break;
+				}
+				
+			}
+			response.setStatus(200);
+			ServletUtils.write(response, "上传成功<a href='/views/google/admin.html'>返回</a>");
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			response.sendError(403, e.getMessage());
+		}
+	}
+	
+	
 	/**
 	 * 上传路径："/upload/{type}/{id}/{category}" type取值："order"、"product"、"borrower"
 	 * id:上传实体对应ID category：附件类型，int
@@ -117,6 +180,7 @@ public class AccessoryTransferServlet {
 				// 获得文件名及路径
 				String fileName = item.getName();
 				String uuid = UUID.randomUUID().toString();
+
 				String path = new StringBuilder().append(FILESEPARATOR)
 						.append(type).append(FILESEPARATOR).append(id)
 						.append(FILESEPARATOR).append(category)
@@ -154,7 +218,50 @@ public class AccessoryTransferServlet {
 			response.sendError(403, e.getMessage());
 		}
 	}
-
+	
+	
+	@RequestMapping(value = { "/showimage/{nid}/{itemID}" })
+	protected void service(HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable("nid") Integer nid,
+			@PathVariable("itemID") String itemID) throws ServletException,
+			IOException {
+		OutputStream outputStream = null;
+		InputStream inputStream = null;
+		try {
+			File downloadFile = new File(officalDir.getFile(), FILESEPARATOR+"image"+FILESEPARATOR+"1"+FILESEPARATOR+nid+FILESEPARATOR+itemID);
+			if (!downloadFile.exists()) {
+				response.sendError(404, "未找到下载文件");
+				return;
+			}
+			response.setContentType(MimeType.getMimeTypeFromFileName(itemID));
+			response.setHeader("Content-Disposition", "attachment; filename="+ itemID);
+			response.addHeader("Content-Length",String.valueOf(downloadFile.length()));
+			outputStream = response.getOutputStream();
+			inputStream = new FileInputStream(downloadFile);
+			byte[] buffer = new byte[1024];
+			int i = -1;
+			while ((i = inputStream.read(buffer)) != -1) {
+				outputStream.write(buffer, 0, i);
+			}
+			outputStream.flush();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			try {
+				if (inputStream != null)
+					inputStream.close();
+			} catch (IOException e) {
+			}
+			try {
+				if (outputStream != null)
+					outputStream.close();
+			} catch (IOException e) {
+			}
+		}
+	}
+	
+	
 	@RequestMapping(value = { "/download/{type}/{id}/{category}/{itemID}" })
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response, @PathVariable("type") String type,
