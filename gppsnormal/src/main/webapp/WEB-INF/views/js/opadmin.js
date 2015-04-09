@@ -2251,7 +2251,7 @@ var noticeview = function(container){
 	}];
 	
 	var userType = {0 : '全部', 1 : '投资方', 2 : '融资方'};
-	var categoryType = {0 : '平台公告', 1 : '企业公告', 2:'活动公告'};
+	var categoryType = {0 : '平台公告', 1 : '企业公告', 2:'活动公告', 3:'春蕾小白'};
 	
 	var fnServerData = function(sSource, aoData, fnCallback, oSettings) {
 		var sEcho = "";
@@ -2471,6 +2471,7 @@ var messagesendtoall = function(container){
 var noticewrite = function(container){
 	var nservice = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.INoticeService");
 	var total = '<div class="container-fluid" style="width:800px;">';
+		total += '<div class="row"><a href="uploadpicture.html" target="_blank">图片上传</a></div>';
 		total += '<div class="row" style="margin-bottom:20px; margin-top:20px;padding-left:20px;">';
 	
 	var title = '<div class="form-group has-success has-feedback" style="margin-top:5px;">';
@@ -2488,6 +2489,7 @@ var noticewrite = function(container){
 		category+='<option value=0>平台公告</option>';
 		category+='<option value=1>企业公告</option>';
 		category+='<option value=2>活动公告</option>';
+		category+='<option value=3>春蕾小白</option>';
 		category+='</select></div></div>';
 		
 		total += category;
