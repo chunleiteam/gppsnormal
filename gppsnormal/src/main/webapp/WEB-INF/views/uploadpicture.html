@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap core CSS -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link type="text/css" href="css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet" />
+
+<link href="js/uploadify2/uploadify.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" id="spi-render-css-css"
+	href="css/image/render.css" type="text/css" media="all" />
+<link rel="stylesheet" type="text/css"
+	href="css/image/default.include.b2676e.css" media="all" />
+
+<script src="js/jquery.min.js"></script>
+<script src="js/tool.js"></script>
+<script src="js/jquery.dataTables.js"></script>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/uploadify2/jquery.uploadify.min.js"></script>
+
+
+<script type="text/javascript"
+				src="/resources/EasyServiceClientFullZ.js"></script>
+<script src="js/opadmin.js"></script>
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+	<div class="container-fluid" style="width:800px;">
+	<div class="row" style="margin-bottom:20px; margin-top:20px;padding-left:20px;">
+	
+  		<div style="width:100%" id="message"></div>
+  		
+  		<div class="row" style="margin-bottom:20px;">
+		<div class="col-md-12" style="text-align:center;">
+			<span style="font-size:24px; font-weight:bold;">图片上传
+		</div>
+  		
+		
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-12" for="inputSuccess3">图片地址</label>
+			<div class="col-sm-12">
+				<textarea style="width:99%; height:300px;" id="description"></textarea>
+			</div>
+			</div>
+		
+		
+		</div>
+		
+		
+		<div class="row" style="border: #eee solid 1px;">
+			<div id="fileQueue" class="col-md-12">
+				<input type="file" name="uploadify" id="uploadify" /> 
+				<button id="upload">上传</button><button id="clearall">清空列表</button>
+			</div>
+		</div>
+		<div class="row" id="category_0" data-desk="0" style="border: #eee solid 1px; min-height:50px;">
+		</div>
+	</div>
+
+</body>
+ <script>
+ 
+ var id = null;
+
+ function refreshActAccessory(){
+	 
+	 if(id==null){
+		 return;
+	 }
+	 
+	    $("#category_0").empty();
+	    
+	    $("#category_0").append('<div class="col-md-12">上传图片:</div>');
+	    var url="/showimage/1/"+id;
+	              
+	    var single = $("<div class='col-md-4'></div>");
+	    single.append("<div><a class='sit-preview' href='"+url+"' target='_blank'><img src='"+url+"' data-preview-url='"+url+"' style='width:200px; height:150px;'/></a></div>");
+	    $("#category_0").append(single);
+	    
+	    
+	    $('#description').html(url);
+	}
+
+ 
+$(document).ready(function() {
+		
+		$('#upload').click(function(e){
+			id = "image_"+(new Date().getTime());
+			$('#uploadify').uploadify('settings','uploader','/uploadimage/image/'+id);
+			$('#uploadify').uploadify('upload','*')
+		});
+		$('#clearall').click(function(e){
+			$('#uploadify').uploadify('cancel', '*');
+		});
+	
+    $("#uploadify").uploadify({
+            'swf'       : 'js/uploadify2/uploadify.swf',   
+            'uploader'         : '',//servlet的路径或者.jsp 这是访问servlet 'scripts/uploadif' 
+            'auto'     : false,
+            'removeCompleted' : true,
+            'progressData' : 'percentage',
+            'buttonText' : '选择上传文件',
+            'fileSizeLimit' : '1GB',
+            'fileTypeExts' : '*.*',
+            'multi'    : true,
+            'requeueErrors' : true,
+            'cancelImg'      : 'js/uploadify2/uploadify-cancel.png',   
+            'queueID'        : 'fileQueue',
+            'onUploadComplete'  :function(event,queueId,fileObj,response,data){
+            	refreshActAccessory();
+            }
+        }); 
+	
+})
+</script>
+</html>
