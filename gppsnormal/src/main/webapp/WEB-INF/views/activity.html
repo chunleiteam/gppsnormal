@@ -138,6 +138,24 @@
                 </div>
             </div>
             </div>
+            
+            
+
+		<div class="col-xs-12 col-sm-12 col-md-12" style="padding-left:0px; padding-right:0px;">
+ 			<div class="news-notice sidebar-panels">
+                <a href="noticecenter.html?type=3" target="_blank"
+                   class="news-notice-head clearfix">
+                    <span class="info">春蕾小白</span>
+                    <span class="more">&gt;</span>
+                </a>
+ 
+                <div class="news-notice-body">
+                    <ul class="news-notice-list faq-list" id="chunleixiaobai">
+                   </ul>
+                </div>
+            </div>
+            </div>
+
 
 <div class="col-md-12" style="margin-bottom:10px; margin-top:10px; padding-bottom:5px; padding-left:0px; padding-right:0px;">
 <div class="col-md-12" style="padding-left:0px; padding-right:0px;">
@@ -198,6 +216,14 @@ $(document).ready(function() {
 	 if(nts){
 		 for(var i=0; i<nts.size(); i++){
 			 $('#actnotice').append('<li><b></b><a href="detail.html?type=notice&stype='+nts.get(i).publicType+'&id='+nts.get(i).id+'" target="_blank">'+nts.get(i).title+'</a></li>');
+		 }
+	 }
+	 
+	 var clxbs = noticeService.findAll(3,0,6);
+	 var cxbs = clxbs.get('result');
+	 if(cxbs){
+		 for(var i=0; i<cxbs.size(); i++){
+			 $('#chunleixiaobai').append('<li><b></b><a href="detail.html?type=notice&stype='+cxbs.get(i).publicType+'&id='+cxbs.get(i).id+'" target="_blank">'+cxbs.get(i).title+'</a></li>');
 		 }
 	 }
 	
