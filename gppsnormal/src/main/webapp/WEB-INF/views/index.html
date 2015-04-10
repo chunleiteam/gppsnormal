@@ -7,6 +7,10 @@
     <meta name="renderer" content="webkit">
     <meta name="description" content="信用创造价值，一个专注于政府采购领域小微企业直融市场的金融解决方案平台">
     
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" /> 
+    <link rel="shortcut icon" href="/favicon.ico"  type="image/x-icon" />
+	<link rel="bookmark" href="/favicon.ico" type="image/x-icon" />
+    
     <title>政采贷</title>
 
     <!-- Bootstrap core CSS -->
@@ -456,7 +460,7 @@ $(document).ready(function () {
             		   $('div#notice').html('');
             		   
             		   var res = null;
-            			res = noticeService.findAll(-1, 0, 6);
+            			res = noticeService.findAll(0, 0, 6);
             			var total = res.get('total');
             			var items = res.get('result');
                        
