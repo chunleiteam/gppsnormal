@@ -88,8 +88,9 @@
 		<permissionRules>
 		</permissionRules>
 	</Role>
-	<Role privilege = "20" limitedType="0">
+	<Role privilege = "20" limitedType="2">
 		<permissionRules>
+			
 		</permissionRules>
 	</Role>
 </StaticRolesConfig>
