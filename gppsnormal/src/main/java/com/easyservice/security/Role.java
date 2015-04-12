@@ -12,6 +12,7 @@ public class Role{
 	public static final int LIMITEDTYPE_NOTLIMITED=1;//不限
 	public static final int LIMITEDTYPE_PARTPERMIT=0;//部分许可
 	public static final int LIMITEDTYPE_ALLLIMITED=-1;//全部许可
+	public static final int LIMITEDTYPE_PARTFORBID=2; //部分禁止
 	private int limitedType=LIMITEDTYPE_PARTPERMIT;//限制类型
 	private List<PermissionRule> permissionRules=new ArrayList<PermissionRule>();
 	private String extendsRoleIds;

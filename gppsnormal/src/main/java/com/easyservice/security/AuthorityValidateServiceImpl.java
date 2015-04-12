@@ -46,20 +46,45 @@ public class AuthorityValidateServiceImpl implements IAuthorityValidateService{
 			return false;
 		}
 		if(role.getLimitedType()==Role.LIMITEDTYPE_ALLLIMITED)
-			return false;
-		else if(role.getLimitedType()==Role.LIMITEDTYPE_NOTLIMITED)
-			return true;
-		boolean success=checkPermissionRules(role, applyService, applyMethod, fetchServiceSdl);
-		if(success)
-			return true;
-		else
 		{
-			if (fetchServiceSdl)
-				logger.error("用户角色：{privilege:" + privilege + "},申请获取服务:"
-						+ applyService + "定义,未找到该用户角色配置");
+			return false;
+		}
+		else if(role.getLimitedType()==Role.LIMITEDTYPE_NOTLIMITED)
+		{
+			return true;
+		}
+		else if(role.getLimitedType()==Role.LIMITEDTYPE_PARTPERMIT)
+		{
+			boolean success=checkPermissionRules(role, applyService, applyMethod, fetchServiceSdl);
+			if(success)
+				return true;
 			else
-				logger.error("用户角色：{privilege:" + privilege + "},申请执行服务:"
-						+ applyService + "方法:" + applyMethod+",未找到该用户角色配置");
+			{
+				if (fetchServiceSdl)
+					logger.error("用户角色：{privilege:" + privilege + "},申请获取服务:"
+							+ applyService + "定义,未找到该用户角色配置");
+				else
+					logger.error("用户角色：{privilege:" + privilege + "},申请执行服务:"
+							+ applyService + "方法:" + applyMethod+",未找到该用户角色配置");
+				return false;
+			}
+		}else if(role.getLimitedType()==Role.LIMITEDTYPE_PARTFORBID){
+			boolean success = checkForbidRules(role, applyService, applyMethod, fetchServiceSdl);
+			if(success){
+				return true;
+			}else
+			{
+				if (fetchServiceSdl)
+					logger.error("用户角色：{privilege:" + privilege + "},申请获取服务:"
+							+ applyService + "定义,该权限被禁止");
+				else
+					logger.error("用户角色：{privilege:" + privilege + "},申请执行服务:"
+							+ applyService + "方法:" + applyMethod+",该权限被禁止");
+				return false;
+			}
+		}else{
+			logger.error("用户角色：{privilege:" + privilege + "},申请获取服务:"
+							+ applyService + "定义,角色权限类型：{"+role.getLimitedType()+"}有问题");
 			return false;
 		}
 	}
@@ -80,6 +105,39 @@ public class AuthorityValidateServiceImpl implements IAuthorityValidateService{
 		}
 		return null;
 	}
+	
+	private boolean checkForbidRules(Role role, String applyService, String applyMethod, boolean fetchServiceSdl){
+		if(role==null)
+			return true;
+		if(role.getPermissionRules()!=null&&role.getPermissionRules().size()>0)
+		{
+			for (PermissionRule rule : role.getPermissionRules()) {
+				if (rule.getEntityLimitType().equals(applyService))
+				{
+					if(fetchServiceSdl)
+						return false;
+					if(rule.getOperations()==null||rule.getOperations().trim().length()==0)
+						return false;
+					String[] ops=rule.getOperations().split(";");
+					for(String op:ops)
+					{
+						if(op.equals(applyMethod))
+							return false;
+					}
+					break;
+				}
+			}
+		}
+		if(role.getExtendsRoles()==null||role.getExtendsRoles().size()==0)
+			return true;
+		for(Role extendsRole:role.getExtendsRoles())
+		{
+			if(!checkForbidRules(extendsRole,applyService,applyMethod,fetchServiceSdl))
+				return false;
+		}
+		return true;
+	}
+	
 	private boolean checkPermissionRules(Role role,String applyService,String applyMethod,boolean fetchServiceSdl)
 	{
 		if(role==null)
