@@ -442,7 +442,8 @@ var submitall = function(container){
 				var item=items.get(i);
 				result.aaData.push(["<a href='productdetail.html?pid="+item.product.id+"' >"+item.product.govermentOrder.title+"("+item.product.productSeries.title+")</a>",
 				                    productstate[item.product.state],
-				                    formatDate(item.createtime),
+				                    formatDateToDay(item.createtime),
+				                    formatDateToDay(item.product.incomeEndtime),
 				                    item.amount.value,
 				                    item.repayedAmount.value,
 				                    item.waitforRepayAmount.value]);
@@ -460,6 +461,7 @@ var submitall = function(container){
 	tr.append('<th style="width: 235px;">项目信息</th>');
 	tr.append('<th style="width: 150px;">状态</th>');
 	tr.append('<th style="width: 150px;">购买时间</th>');
+	tr.append('<th style="width: 150px;">到期时间</th>');
 	tr.append('<th style="width: 42px;">金额</th>');
 	tr.append('<th style="width: 42px;">已还</th>');
 	tr.append('<th style="width: 42px;">待还</th>');
@@ -567,7 +569,8 @@ var submitpayback = function(container){
 				
 				result.aaData.push(["<a href='productdetail.html?pid="+item.product.id+"' >"+item.product.govermentOrder.title+"("+item.product.productSeries.title+")</a>",
 				                    "还款中",
-				                    formatDate(item.product.govermentOrder.financingEndtime),
+				                    formatDateToDay(item.product.govermentOrder.financingEndtime),
+				                    formatDateToDay(item.product.incomeEndtime),
 				                    item.amount.value,
 				                    item.repayedAmount.value,
 				                    item.waitforRepayAmount.value,
@@ -608,6 +611,7 @@ var submitpayback = function(container){
 	tr.append('<th style="width: 235px;">项目信息</th>');
 	tr.append('<th style="width: 150px;">状态</th>');
 	tr.append('<th style="width: 150px;">投标完成时间</th>');
+	tr.append('<th style="width: 150px;">到期时间</th>');
 	tr.append('<th style="width: 42px;">金额</th>');
 	tr.append('<th style="width: 42px;">已回款</th>');
 	tr.append('<th style="width: 42px;">待回款</th>');
