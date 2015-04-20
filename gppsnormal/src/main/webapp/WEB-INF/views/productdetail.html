@@ -623,7 +623,24 @@
         			table.append('<tr><td>中标政采订单：</td><td><span>'+order.formalName+'【'+order.formalLevel+'】</span></td></tr>');
         			table.append('<tr><td>中标金额：</td><td><span class="tips-title">'+order.formalAmount+'</span></td></tr>');
         			table.append('<tr><td>招标单位：</td><td><span>'+order.tenderUnits+'</span></td></tr>');
-        			table.append('<tr><td>中标公示链接：</td><td><span class="tips-title"><a href="'+order.formalLink+'" target="_blank">点此处查看</a></span></td></tr>');
+        			
+        			
+        			var td = $('<td></td>');
+        			$('<tr></tr>').append('<td>中标公示链接：</td>').append(td).appendTo(table);
+        			
+        			var urls= new Array(); //定义一数组 
+        			urls=order.formalLink.split(",;"); //字符分割 
+        			for (i=0;i<urls.length ;i++ ) 
+        			{ 
+        			if(urls[i]!=null && urls[i]!='')
+        			{
+        				td.append('<a style="margin-right:10px;" href="'+urls[i]+'" target="_blank">点此处查看</a>');
+        			}
+        			} 
+        			table.append('</td></tr>');
+
+        			
+        			
         			table.append('<tr><td>收益起始日期：</td><td>'+formatDateToDay(order.incomeStarttime)+'</td></tr>');
         			table.append('<tr><td>最晚还款日期：</td><td>'+formatDateToDay(product.incomeEndtime)+'</td></tr>');
         			table.append('<tr><td>项目简介：</td><td>'+order.description+'</td></tr>');
