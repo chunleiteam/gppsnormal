@@ -129,7 +129,7 @@ public class InnerGovermentOrderServiceImpl implements
 			Lender lender = lenderDao.find(id);
 			String message = "【春蕾政采贷】尊敬的"+lender.getName()+"，温馨提示您投资的"+messages.get(id)+"项目于"+dateStrMS+"正式启动生效。"+help;
 			try {
-				letterSendService.sendMessage(ILetterSendService.USERTYPE_BORROWER,id, title, message);
+				letterSendService.sendMessage(ILetterSendService.USERTYPE_LENDER,id, title, message);
 				messageService.sendMessage(ILetterSendService.USERTYPE_LENDER, id, message);
 			} catch (SMSException e) {
 				log.error(e.getMessage());
