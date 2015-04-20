@@ -31,11 +31,15 @@ import gpps.service.exception.InsufficientBalanceException;
 import gpps.service.exception.InsufficientProductException;
 import gpps.service.exception.ProductSoldOutException;
 import gpps.service.exception.UnreachBuyLevelException;
+import gpps.tools.DateCalculateUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -352,13 +356,28 @@ public class SubmitServiceImpl implements ISubmitService {
 		return Pagination.buildResult(submits,count,offset, recnum);
 	}
 
+	//根据最近90天内参与购买产品的次数计算本次购买得到的积分
+	private int calculateGrade(int grade, int amount, Integer lenderid){
+		long starttime = (new Date()).getTime()-90L*24*3600*1000;
+		List<Integer> states = new ArrayList<Integer>();
+		states.add(2);
+		List<Submit> submits = submitDao.findAllByLenderAndStatesAndCreatetime(lenderid, states, starttime, null);
+		Set<Integer> pids = new HashSet<Integer>();
+		for(Submit submit : submits){
+			pids.add(submit.getProductId());
+		}
+		BigDecimal weight = Lender.gradeWeight(pids.size());
+		int resGrade = grade + weight.multiply(new BigDecimal(amount)).intValue();
+		return resGrade;
+	}
+	
 	@Override
 	@Transactional
 	public void confirmBuy(Integer submitId) throws IllegalConvertException {
 		changeState(submitId, Submit.STATE_COMPLETEPAY);
 		Submit submit=submitDao.find(submitId);
 		Lender lender=lenderService.find(submit.getLenderId());
-		int grade=lender.getGrade()+submit.getAmount().intValue();
+		int grade=calculateGrade(lender.getGrade(),submit.getAmount().intValue(), lender.getId());
 		int level=Lender.gradeToLevel(grade);
 		lenderDao.changeGradeAndLevel(lender.getId(), grade, level);
 		lender=lenderService.getCurrentUser();
