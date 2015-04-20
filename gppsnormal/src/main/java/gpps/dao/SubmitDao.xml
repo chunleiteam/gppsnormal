@@ -33,6 +33,27 @@
 			</foreach>
 		</if>
 	</select>
+	
+	<select id="findAllByLenderAndStatesAndCreatetime" resultType="gpps.model.Submit">
+		select *
+		from Submit where lenderId=#{lenderId}
+		<if test="states != null">
+			and state in
+			<foreach item="item" index="index" collection="states" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		
+		<if test="starttime != null">
+			<![CDATA[ and createtime >= #{starttime} ]]>
+		</if>
+		
+		<if test="endtime != null">
+			<![CDATA[ and createtime <= #{endtime} ]]>
+		</if>
+	</select>
+	
 	<select id="findAllByProduct" parameterType="Integer"
 		resultType="gpps.model.Submit">
 		select *

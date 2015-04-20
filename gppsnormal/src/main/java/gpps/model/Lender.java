@@ -1,5 +1,7 @@
 package gpps.model;
 
+import java.math.BigDecimal;
+
 import com.easyservice.security.Permit;
 
 public class Lender implements Permit {
@@ -156,5 +158,22 @@ public class Lender implements Permit {
 		if(grade>10000)
 			return 1;//VIP用户
 		return 0;//普通用户
+	}
+	
+	/**
+	 * 根据90天内购买的次数来决定购买金额的权重
+	 * 
+	 * */
+	public static BigDecimal gradeWeight(int count){
+		if(count<=5)
+		{
+			return new BigDecimal(1);
+		}else if(count>5 && count<=10){
+			return new BigDecimal(1.5);
+		}else if(count>10 && count<=20){
+			return new BigDecimal(2);
+		}else{
+			return new BigDecimal(3);
+		}
 	}
 }
