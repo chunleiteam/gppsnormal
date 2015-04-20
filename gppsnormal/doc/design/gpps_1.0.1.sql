@@ -656,6 +656,24 @@ create table Invite
    primary key (id)
 );
 
+
+/*======================20150415修改========================================*/
+/*==============================================================*/
+/* Table: Subscribe                                              */
+/*==============================================================*/
+create table Subscribe
+(
+   id                   integer not null auto_increment,
+   description          varchar(2000),
+   lenderId          	integer not null,
+   productId            integer not null,
+   state                int not null default 0,
+   amount               int not null default 0,
+   createTime			bigint default 0 not null,
+   confirmTime			bigint default 0 not null,
+   primary key (id)
+);
+
       
       
       
