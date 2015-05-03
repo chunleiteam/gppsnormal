@@ -29,5 +29,6 @@
 		<mapper resource="gpps/dao/HelpDao.xml" />
 		
 		<mapper resource="gpps/dao/InviteDao.xml" />
+		<mapper resource="gpps/dao/SubscribeDao.xml" />
 	</mappers>
 </configuration>
