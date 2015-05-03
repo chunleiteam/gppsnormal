@@ -93,11 +93,25 @@ public class SubmitServiceImpl implements ISubmitService {
 							for(Submit submit:submits)
 							{
 								if((submit.getCreatetime()+Submit.PAYEXPIREDTIME)>System.currentTimeMillis())
+								{	
 									continue;
+								}
 								processUnsubscribeSubmit(submit);
-								logger.debug("Submit[id:"+submit.getId()+"]未支付，过期退订");
+								logger.info("Submit[id:"+submit.getId()+"]10分钟内未支付，过期退订");
 							}
 						}
+						List<Submit> sub_submits = submitDao.findAllByState(Submit.STATE_SUBSCRIBE_WAITFORPAY);
+						if(sub_submits!=null&&!sub_submits.isEmpty()){
+							for(Submit submit:sub_submits){
+								if((submit.getCreatetime()+Submit.SUBSCRIBE_PAYEXPIREDTIME)>System.currentTimeMillis())
+								{
+									continue;
+								}
+								processSubscribe_UnPayedSubmit(submit);
+								logger.info("预约Submit[id:"+submit.getId()+"]12小时内未支付，过期退订");
+							}
+						}
+					
 					} catch (Throwable e) {
 						logger.error(e.getMessage(),e);
 					}
@@ -127,6 +141,12 @@ public class SubmitServiceImpl implements ISubmitService {
 		{
 			orderService.releaseFinancingProduct(product);
 		}
+	}
+	@Transactional
+	private void processSubscribe_UnPayedSubmit(Submit submit) throws IllegalConvertException {
+		changeState(submit.getId(), Submit.STATE_UNSUBSCRIBE);
+		// 金额回滚
+		productDao.buy(submit.getProductId(), submit.getAmount().negate());
 	}
 	@Override
 	@Transactional
@@ -197,7 +217,9 @@ public class SubmitServiceImpl implements ISubmitService {
 	static int[][] validConverts={
 		{Submit.STATE_WAITFORPAY,Submit.STATE_UNSUBSCRIBE},
 		{Submit.STATE_WAITFORPAY,Submit.STATE_COMPLETEPAY},
-		{Submit.STATE_COMPLETEPAY,Submit.STATE_FAILBIDDING}
+		{Submit.STATE_COMPLETEPAY,Submit.STATE_FAILBIDDING},
+		{Submit.STATE_SUBSCRIBE_WAITFORPAY,Submit.STATE_UNSUBSCRIBE},
+		{Submit.STATE_SUBSCRIBE_WAITFORPAY,Submit.STATE_COMPLETEPAY}
 		};
 	private void changeState(Integer submitId, int state)
 			throws IllegalConvertException {
@@ -275,6 +297,23 @@ public class SubmitServiceImpl implements ISubmitService {
 			submit.setProduct(productService.find(submit.getProductId()));
 			submit.getProduct().setGovermentOrder(govermentOrderDao.find(submit.getProduct().getGovermentorderId()));
 			submit.setPayExpiredTime(submit.getCreatetime()+Submit.PAYEXPIREDTIME);
+		}
+		return submits;
+	}
+	
+	@Override
+	public List<Submit> findMyAllWaitforPayingSubscribeSubmits(){
+		Lender lender=lenderService.getCurrentUser();
+		List<Integer> states=new ArrayList<Integer>();
+		states.add(Submit.STATE_SUBSCRIBE_WAITFORPAY);
+		List<Submit> submits=submitDao.findAllByLenderAndStates(lender.getId(), states);
+		if(submits==null||submits.size()==0)
+			return new ArrayList<Submit>(0);
+		for(Submit submit:submits)
+		{
+			submit.setProduct(productService.find(submit.getProductId()));
+			submit.getProduct().setGovermentOrder(govermentOrderDao.find(submit.getProduct().getGovermentorderId()));
+			submit.setPayExpiredTime(submit.getCreatetime()+Submit.SUBSCRIBE_PAYEXPIREDTIME);
 		}
 		return submits;
 	}

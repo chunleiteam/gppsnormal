@@ -32,6 +32,7 @@
 				#{item}
 			</foreach>
 		</if>
+		 order by createtime desc
 	</select>
 	
 	<select id="findAllByLenderAndStatesAndCreatetime" resultType="gpps.model.Submit">

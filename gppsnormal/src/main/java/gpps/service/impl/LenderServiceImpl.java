@@ -50,7 +50,7 @@ public class LenderServiceImpl extends AbstractLoginServiceImpl implements ILend
 		password=getProcessedPassword(checkNullAndTrim("password", password)+PASSWORDSEED);
 		Lender lender=lenderDao.findByLoginIdAndPassword(loginId, password);
 		if(lender==null)
-			throw new LoginException("Login fail!!");
+			throw new LoginException("用户名或密码错误!!");
 		if(lender.getCardBindingId()!=null)
 		lender.setCardBinding(cardBindingDao.find(lender.getCardBindingId()));
 		

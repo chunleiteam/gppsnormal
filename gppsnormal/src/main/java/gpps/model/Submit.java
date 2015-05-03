@@ -5,6 +5,11 @@ import java.math.BigDecimal;
 public class Submit {
 	//抢占的额度有效时间为10分钟，10分钟内未支付成功，则将额度回退
 	public static final long PAYEXPIREDTIME=10L*60*1000;
+	
+	//预约审核通过的额度有效时间为12小时，12小时内未支付成功，则将额度回退
+	public static final long SUBSCRIBE_PAYEXPIREDTIME = 12L*3600*1000;
+	
+	
 	private Integer id;
 	/**
 //	 * 1:申请竞标-> 2:待支付 （支付） 4:竞标中 (融资审核成功) 8:还款中 16：还款完毕
@@ -14,12 +19,13 @@ public class Submit {
 //	 * 已购买;流标;
 //	 * 其他状态从产品中获取
 //	 * 
-	 * 1:待付款;2:购买成功;4:退订;8:流标;
+	 * 1:待付款;2:购买成功;4:退订;8:流标;16预约审核通过待付款
 	 */
 	public static final int STATE_WAITFORPAY=1;//1
 	public static final int STATE_COMPLETEPAY=1<<1;//2
 	public static final int STATE_UNSUBSCRIBE=1<<2;//4
 	public static final int STATE_FAILBIDDING=1<<3;//8
+	public static final int STATE_SUBSCRIBE_WAITFORPAY=1<<4;//16
 	private int state=STATE_WAITFORPAY;
 	private long createtime = System.currentTimeMillis();
 	private Integer lenderId;

@@ -121,4 +121,9 @@ public interface IProductService {
 	 * @param levelToBuy
 	 */
 	public void update(Integer id,int expectAmount,String rate,long incomeEndtime,int minimum,int miniAdd,int levelToBuy);
+	
+	
+	public List<Product> getAllPreViewProduct();
+	public List<Product> getAllToBeSubscribedProduct();
+	public List<Product> getAllSubscribedProduct();
 }

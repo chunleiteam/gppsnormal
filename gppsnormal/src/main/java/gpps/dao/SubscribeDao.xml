@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gpps.dao.ISubscribeDao">
+	<select id="find" parameterType="Integer" resultType="gpps.model.Subscribe">
+		select *
+		from Subscribe where id=#{id}
+	</select>
+	<insert id="create" parameterType="gpps.model.Subscribe"
+        useGeneratedKeys="true" keyProperty="id">
+        insert into
+        Subscribe(applyAmount,lenderId,productId,createTime,confirmTime,state,description)
+        values(#{applyAmount},#{lenderId},#{productId},#{createTime},#{confirmTime},#{state},#{description})
+    </insert>
+    <update id="changeState">
+    	update Subscribe set state=#{state}, auditAmount=#{auditAmount}, confirmTime=#{confirmTime}, description=#{description} where id=#{id}
+    </update>
+    <select id="findAllByProductIdAndState" resultType="gpps.model.Subscribe">
+		select *
+		from Subscribe where productId=#{productId}
+		<if test="state != -1">
+        	 and state=#{state}
+        </if>
+	</select>
+	<select id="countByProductIdAndState" resultType="int">
+		select count(*)
+		from Subscribe where productId=#{productId}
+		<if test="state != -1">
+        	 and state=#{state}
+        </if>
+		
+	</select>
+	<select id="countByProductIdAndLenderAndState" resultType="int">
+		select count(*)
+		from Subscribe where productId=#{productId} and lenderId=#{lenderId}
+		<if test="state != -1">
+        	 and state=#{state}
+        </if>
+	</select>
+</mapper>

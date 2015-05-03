@@ -75,6 +75,13 @@ public interface ISubmitService {
 	 * @return
 	 */
 	public List<Submit> findMyAllWaitforPayingSubmits();
+	
+	/**
+	 * 返回用户所有的预约审核通过待支付的提交
+	 * 
+	 * */
+	public List<Submit> findMyAllWaitforPayingSubscribeSubmits();
+	
 	/**
 	 * 返回用户所有的退订提交
 	 * @return

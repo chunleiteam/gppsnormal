@@ -11,6 +11,7 @@ import gpps.dao.IProductDao;
 import gpps.dao.IProductSeriesDao;
 import gpps.dao.IStateLogDao;
 import gpps.dao.ISubmitDao;
+import gpps.dao.ISubscribeDao;
 import gpps.inner.service.IInnerPayBackService;
 import gpps.inner.service.IInnerProductService;
 import gpps.inner.service.impl.InnerProductServiceImpl;
@@ -23,6 +24,7 @@ import gpps.model.ProductAction;
 import gpps.model.ProductSeries;
 import gpps.model.StateLog;
 import gpps.model.Submit;
+import gpps.model.Subscribe;
 import gpps.model.Task;
 import gpps.model.ref.Accessory;
 import gpps.model.ref.Accessory.MimeCol;
@@ -80,6 +82,8 @@ public class ProductServiceImpl implements IProductService {
 	ISubmitDao submitDao;
 	@Autowired
 	ICashStreamDao cashStreamDao;
+	@Autowired
+	ISubscribeDao subscribeDao;
 	private static final IEasyObjectXMLTransformer xmlTransformer=new EasyObjectXMLTransformerImpl(); 
 	Logger logger=Logger.getLogger(this.getClass());
 	@Override
@@ -126,6 +130,7 @@ public class ProductServiceImpl implements IProductService {
 	public Product find(Integer productId) {
 		checkNullObject("productId", productId);
 		Product product=productDao.find(productId);
+		product.setGovermentOrder(govermentOrderDao.find(product.getGovermentorderId()));
 		product.setProductSeries(productSeriesDao.find(product.getProductseriesId()));
 		return product;
 	}
@@ -380,5 +385,88 @@ public class ProductServiceImpl implements IProductService {
 	@Override
 	public void update(Integer id, int expectAmount, String rate, long incomeEndtime, int minimum, int miniAdd, int levelToBuy) {
 		productDao.update(id, new BigDecimal(expectAmount), new BigDecimal(rate), incomeEndtime, minimum, miniAdd, levelToBuy);
+	}
+	
+	@Override
+	public List<Product> getAllPreViewProduct(){
+		List<Product> products = new ArrayList<Product>();
+		List<GovermentOrder> orders = orderService.findByStates(GovermentOrder.STATE_PREPUBLISH, 0, Integer.MAX_VALUE);
+		if(orders==null || orders.isEmpty()){
+			return products;
+		}
+		for(GovermentOrder order : orders){
+			List<Product> pds = productDao.findByGovermentOrder(order.getId());
+			for(Product pd : pds){
+				pd.setGovermentOrder(order);
+				int count = subscribeDao.countByProductIdAndState(pd.getId(), -1);
+				pd.setsCount(count);
+				ProductSeries ps = productSeriesDao.find(pd.getProductseriesId());
+				pd.setProductSeries(ps);
+				products.add(pd);
+			}
+		}
+		return products;
+	}
+	
+	@Override
+	public List<Product> getAllToBeSubscribedProduct(){
+		List<Product> products = new ArrayList<Product>();
+		List<GovermentOrder> orders = orderService.findByStates(GovermentOrder.STATE_PREPUBLISH, 0, Integer.MAX_VALUE);
+		if(orders==null || orders.isEmpty()){
+			return products;
+		}
+		for(GovermentOrder order : orders){
+			//距离融资起始时间还有13小时以上，预约尚未截止
+			if(System.currentTimeMillis()+13L*3600*1000 <= order.getFinancingStarttime()){
+				continue;
+			}
+			
+			List<Product> pds = productDao.findByGovermentOrder(order.getId());
+			for(Product pd : pds){
+				//如果存在状态为尚未审核的预约申请，则说明该产品尚未审核完毕
+				int unauditCount = subscribeDao.countByProductIdAndState(pd.getId(), Subscribe.STATE_APPLY);
+				if(unauditCount>0)
+				{
+				pd.setGovermentOrder(order);
+				int count = subscribeDao.countByProductIdAndState(pd.getId(), -1);
+				pd.setsCount(count);
+				ProductSeries ps = productSeriesDao.find(pd.getProductseriesId());
+				pd.setProductSeries(ps);
+				products.add(pd);
+				}
+			}
+		}
+		return products;
+	}
+	
+	@Override
+	public List<Product> getAllSubscribedProduct(){
+		List<Product> products = new ArrayList<Product>();
+		List<GovermentOrder> orders = orderService.findByStates(GovermentOrder.STATE_PREPUBLISH, 0, Integer.MAX_VALUE);
+		if(orders==null || orders.isEmpty()){
+			return products;
+		}
+		for(GovermentOrder order : orders){
+			//距离融资起始时间还有13小时以上，预约尚未截止
+			if(System.currentTimeMillis()+13L*3600*1000 <= order.getFinancingStarttime()){
+				continue;
+			}
+			
+			List<Product> pds = productDao.findByGovermentOrder(order.getId());
+			for(Product pd : pds){
+				//如果不存在状态为尚未审核的预约申请，则说明该产品已经审核完毕
+				int unauditCount = subscribeDao.countByProductIdAndState(pd.getId(), Subscribe.STATE_APPLY);
+				if(unauditCount==0)
+				{
+				pd.setGovermentOrder(order);
+				int count = subscribeDao.countByProductIdAndState(pd.getId(), -1);
+				pd.setsCount(count);
+				ProductSeries ps = productSeriesDao.find(pd.getProductseriesId());
+				pd.setProductSeries(ps);
+				products.add(pd);
+				}
+			}
+		}
+		return products;
 	}
 }

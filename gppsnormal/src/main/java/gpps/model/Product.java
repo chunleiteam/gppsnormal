@@ -159,4 +159,12 @@ public class Product {
 	public void setProductSeries(ProductSeries productSeries) {
 		this.productSeries = productSeries;
 	}
+	private int sCount=0;
+	public int getsCount() {
+		return sCount;
+	}
+	public void setsCount(int sCount) {
+		this.sCount = sCount;
+	}
+	
 }

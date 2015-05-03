@@ -192,7 +192,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		recharge.setNotifyURL(recharge.getReturnURL()+"/bg");
 		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		
-//		recharge.setRechargeType("2");
+//		recharge.setRechargeType("4");
 //		recharge.setFeeType("1");
 		
 		

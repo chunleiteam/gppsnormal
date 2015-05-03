@@ -244,6 +244,7 @@ public class MyAccountServiceImpl implements IMyAccountService {
 		
 		message.put("submit_all", submitDao.countByLenderAndProductStates(lender.getId(), null));
 		message.put("submit_waitforpay", submitService.findMyAllWaitforPayingSubmits().size());
+		message.put("submit_subscribeforpay", submitService.findMyAllWaitforPayingSubscribeSubmits().size());
 		
 		stateList.add(Product.STATE_REPAYING);
 		stateList.add(Product.STATE_POSTPONE);
