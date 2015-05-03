@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1 user-scalable=no">
+<meta name="renderer" content="webkit">
+<title>政采贷>我的帐户</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/mine.css" rel="stylesheet">
+<link href="css/plugins/dataTables/jquery.dataTables.css" rel="stylesheet">
+
+<link href="css/plist/a.css" rel="stylesheet">
+<link href="css/myaccount/myaccount.css" rel="stylesheet">
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="js/cdn/html5shiv.min.js"></script>
+      <script src="js/cdn/respond.min.js"></script>
+    <![endif]-->
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+
+
+	<script src="js/jquery.dataTables.js"></script>
+	<script src="js/tool.js"></script>
+	
+	
+	<script type="text/javascript"
+		src="/resources/EasyServiceClientFullZ.js"></script>
+	<script type="text/javascript"
+		src="/easyservice/gpps.service.ISubscribeService?json"></script>
+	<script type="text/javascript"
+		src="/easyservice/gpps.dao.ISubscribeDao?json"></script>
+	<script type="text/javascript"
+		src="/easyservice/gpps.service.IProductService?json"></script>
+</head>
+<body>
+	<div class="container-fluid" style="width:800px;">
+	<div class="row" style="margin-bottom:20px; margin-top:20px;padding-left:20px;">
+	
+  		<div style="width:100%" id="message"></div>
+  		
+  		<div class="row" style="margin-bottom:20px;">
+		<div class="col-md-12" style="text-align:center;">
+			<span style="font-size:24px; font-weight:bold;">产品基本信息
+		</div>
+		</div>
+  		
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">产品名称</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="title">
+			</div>
+		</div>
+		
+		<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">预期金额</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="expectamount">
+			</div>
+		</div>
+		
+		
+			
+			<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">预约截止时间</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="applyendtime"></input>
+			</div>
+			</div>
+			
+			<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">已预约人数</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="count">
+			</div>
+			</div>
+			
+			<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">审核状态</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="state">
+			</div>
+			</div>
+			
+			<div class="form-group has-success has-feedback">
+			<label class="control-label col-sm-3" for="inputSuccess3">融资起始时间</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="financingstarttime">
+			</div>
+			</div>
+		
+		</div>
+		
+		<div class="row" style="margin-bottom:20px; margin-top:20px;padding-left:20px;">
+		
+		<div class="row" style="margin-bottom:20px;">
+		<div class="col-md-10" style="text-align:center;">
+			<span style="font-size:24px; font-weight:bold;">预约详细信息
+		</div>
+		</div>
+		
+		<div class="row" id="container" style="margin-bottom:20px;">
+		
+		</div>
+		<div class="row">
+		<div class="col-md-12" style="text-align:center;">
+			<button id="audit">审核</button>
+		</div>
+		</div>
+		</div>
+		
+	</div>
+
+</body>
+ <script>
+ 
+ _defaultDataTableOLanguage = {
+			"sProcessing" : "<img src ='images/waiting.gif' height = 18/>正在查询中，请稍后......",
+			"sLengthMenu" : "每页 _MENU_ 条记录",
+			"sZeroRecords" : "无数据",
+			"sInfo" : "当前第 _START_ 到  _END_ 条记录 共_TOTAL_条记录",
+			"sInfoEmpty" : " ",
+			"sSearch" : "查找： ",
+			"oPaginate" : {
+				"sFirst" : "",
+				"sLast" : "",
+				"sNext" : "下一页",
+				"sPrevious" : "上一页"
+			},
+			"sInfoFiltered" : "(在 _MAX_ 条记录中查找)"
+		};
+
+ 
+ var id = parseInt(getQueryString('id'));
+ var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubscribeService");
+ var dao = EasyServiceClient.getRemoteProxy("/easyservice/gpps.dao.ISubscribeDao");
+ var productService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductService");
+ var product = null;
+ var count = 0;
+ var state = false;
+ 
+ function refreshInfo(){
+		product = productService.find(id);
+		count = service.countSubscribe(id, -1);
+		state = service.isAudited(id);
+		$('#title').val(product.govermentOrder.title+"【"+product.productSeries.title+"】");
+		$('#expectamount').val(product.expectAmount.value);
+		$('#applyendtime').val(formatDate(product.govermentOrder.financingStarttime - 13*3600*1000));
+		$('#count').val(count);
+		var stateMessage = "未审核";
+		if(state==true){
+			stateMessage = "已审核";
+		}else{
+			stateMessage = "未审核";
+		}
+		$('#state').val(stateMessage);
+		$('#financingstarttime').val(formatDate(product.govermentOrder.financingStarttime));
+		
+		if(state==true){
+			$('button#audit').attr('disabled', 'disabled');
+			$('button#audit').click(function(e){
+				alert("该产品预约已经审核完毕！");
+			})
+		}
+	}
+
+var subscribeDetail = function(container){
+	var datas = null;
+	datas = service.findAllByProductIdAndState(id, -1);
+	
+	var aaData = new Array();
+	for(var i=0; i<datas.size(); i++){
+		var data=datas.get(i);
+		if(state==true)
+			{
+				aaData.push([data.id,
+		                    data.lenderId,
+		                    data.lender.name,
+		                    data.lender.tel,
+		                    data.applyAmount,
+		                    "<input type=text value="+data.auditAmount+"></input>"]);
+			}else{
+				aaData.push([data.id,
+			                    data.lenderId,
+			                    data.lender.name,
+			                    data.lender.tel,
+			                    data.applyAmount,
+			                    "<input type=text></input>"]);
+			}
+	}
+	var table = $('<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="99%" cellspacing="0"></table>');
+	
+	var thead = $('<thead></thead>');
+	var tr = $('<tr role="row"></tr>');
+	tr.append('<th style="width: 135px;">预约ID</th>');
+	tr.append('<th style="width: 102px;">预约者ID</th>');
+	tr.append('<th style="width: 60px;">预约者姓名</th>');
+	tr.append('<th style="width: 60px;">联系电话</th>');
+	tr.append('<th style="width: 60px;">预约额度</th>');
+	tr.append('<th style="width: 102px;">审核额度</th>');
+	
+	thead.append(tr);
+	table.append(thead)
+	
+	
+	table.append('<tbody></tbody>');
+	container.append(table);
+	
+	table.addClass( 'nowrap' )
+	.dataTable( {
+		responsive: true,
+		bFilter : false, //是否使用搜索 
+		aaData : aaData,
+		oLanguage : _defaultDataTableOLanguage,
+		iDisplayLength : 100, //默认每页显示的记录数
+		aLengthMenu : [ 100, 150, 200 ],
+		pagingType: "full"
+	} );
+}
+
+
+
+ 
+$(document).ready(function() {
+	
+		refreshInfo();
+		subscribeDetail($("#container"));
+	
+		
+	$('button#audit').click(function(e){
+		var trs = $('table#example').find('tr');
+		var list = new java.util.ArrayList();
+		for(var i=1; i<trs.size(); i++){
+			var tr = trs.get(i);
+			var tds = $(tr).find('td');
+			var sid = $(tds.get(0)).text();
+			var lid = $(tds.get(1)).text();
+			var applyAmount = $(tds.get(4)).text();
+			var auditInput = $(tr).find('input');
+			var auditAmount = auditInput.val();
+			
+				var tint = parseInt(auditAmount);
+				if(isNaN(tint))
+				{
+					auditInput.css('background','red');
+					return;
+				}else{
+					auditInput.css('background','white');
+				}
+			
+			var subscribeAudit = {"_t_":"gpps.service.SubscribeAudit", "lenderId":parseInt(lid), "subsribeId" : parseInt(sid), "applyAmount" : parseInt(applyAmount), "auditAmount" : parseInt(auditAmount)};
+			list.add(subscribeAudit);
+		}
+		try{
+			service.audit(id, list);
+			refreshInfo();
+			subscribeDetail($("#container"));
+		}catch(e){
+			alert(e.message);
+		}
+		
+	});
+	
+})
+</script>
+</html>

@@ -52,6 +52,8 @@
 				src="/easyservice/gpps.service.IMyAccountService?json"></script>
 <script type="text/javascript"
 				src="/easyservice/gpps.service.IHelpService?json"></script>
+<script type="text/javascript"
+				src="/easyservice/gpps.service.ISubscribeService?json"></script>
 <script src="js/getuser.js"></script>
     
     <script>
@@ -426,7 +428,7 @@
  	var maxAmount = "";
  	if(seriesname[product.productseriesId].type==2)
  	{
- 		maxAmount = '最大金额<font color=red>10000</font>元';
+ 		maxAmount = '（最大金额<font color=red>10000</font>元）';
  	}
  	else{
  		maxAmount = '';
@@ -458,7 +460,7 @@
  	
  	
  	if(order.state==2){
- 		var time = order.financingStarttime - (new Date()).getTime();
+ 		var time = order.financingStarttime - (13*3600*1000) - (new Date()).getTime();
  		var day = 0;
  		var hour = 0;
  		var min = 0;
@@ -470,13 +472,63 @@
  		min = parseInt((time - day*(24*3600*1000) - hour*(3600*1000))/(60*1000));
  		sec = parseInt((time - day*(24*3600*1000) - hour*(3600*1000) - min*(60*1000))/1000);
  		}
+ 		
+ 		var starttime = order.financingStarttime - (new Date()).getTime();
+ 		var sday = 0;
+ 		var shour = 0;
+ 		var smin = 0;
+ 		var ssec = 0;
+ 		if(starttime>0)
+ 		{
+ 		sday = parseInt(starttime/(24*3600*1000));
+ 		shour = parseInt((starttime- sday*(24*3600*1000))/(3600*1000));
+ 		smin = parseInt((starttime - sday*(24*3600*1000) - shour*(3600*1000))/(60*1000));
+ 		ssec = parseInt((starttime - sday*(24*3600*1000) - shour*(3600*1000) - smin*(60*1000))/1000);
+ 		}
+ 		
  		$('#remainamount').html('开始融资时间：'+formatDateCN(order.financingStarttime));
- 		$('p#product-published-date').html('距离融资开始还有： '+day+'天'+hour+'小时'+min+'分'+sec+'秒');
- 		$('#stateMessage').html('剩余可投金额：'+parseInt(product.expectAmount.value)+'元');
- 		$('a#invest').addClass('disabled').attr('disabled',"disabled").text('预发布');
+ 		
+ 		
+ 		
+ 		var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubscribeService");
+ 		if(time>0)
+ 			{
+ 			$('p#product-published-date').html('距离预约截止还有： '+day+'天'+hour+'小时'+min+'分'+sec+'秒');
+ 			$('#stateMessage').html('预计融资：'+parseInt(product.expectAmount.value)+'元【预约中】');
+ 			$('a#invest').text('我要预约');
+ 			
+ 			$('a#invest').click(function(e){
+ 				if(usertype!='lender' && usertype!='borrower'){
+ 	 	 			if(confirm('登录后才能购买产品，现在登录？')){
+ 	 	 				window.location.href = "login.html?rb=productdetail.html?pid="+pid;
+ 	 	 			}
+ 	 	 			return;
+ 	 	 		}else if(usertype=='borrower'){
+ 	 	 			alert('企业用户无法投资产品，请登陆个人用户投资！');
+ 	 	 			return;
+ 	 	 		}
+ 				try{
+ 				service.subscribe(parseInt(pid), parseInt($('#raiseAmount').val()));
+ 				alert('预约成功，您的预约金额为'+$('#raiseAmount').val()+'元，请等待审核');
+ 				location.reload(true);
+ 				}catch(e){
+ 					alert(e.message);
+ 				}
+ 			})
+ 			
+ 			}
+ 		else
+ 			{
+ 			$('p#product-published-date').html('距离融资开始还有： '+sday+'天'+shour+'小时'+smin+'分'+ssec+'秒');
+ 			$('#stateMessage').html('预计融资：'+parseInt(product.expectAmount.value)+'元【预约截止】');
+ 			$('a#invest').addClass('disabled').attr('disabled',"disabled").text('我要预约');
+ 			}
+ 		
  	//	$('#inputAmount').css('display', 'none');
- 		$('#inputAmount').html('');
- 		$('#dt_div').css('display', 'none');
+ 	//	$('#inputAmount').html('');
+ 		//$('#dt_div').css('display', 'none');
+ 		var count = service.countSubscribe(parseInt(pid), -1);
+ 		$('#detailDate').html('已预约<span class="orange" style="padding-left:5px;">'+count+'</span>人次');
  	}
  	else if(product.state==1 && (parseInt(product.expectAmount.value)-parseInt(product.realAmount.value))==0){
  		$('#remainamount').html('产品已售罄');
@@ -497,9 +549,58 @@
  		min = parseInt((time - day*(24*3600*1000) - hour*(3600*1000))/(60*1000));
  		sec = parseInt((time - day*(24*3600*1000) - hour*(3600*1000) - min*(60*1000))/1000);
  		}
- 		$('#stateMessage').html('请填写投资金额：('+maxAmount+')');
+ 		$('#stateMessage').html('请填写投资金额：'+maxAmount);
  		$('p#product-published-date').html('距离融资结束还有： '+day+'天'+hour+'小时'+min+'分'+sec+'秒');
  		$('#detailDate').html('融资结束时间:'+formatDateCN(order.financingEndtime));
+ 		
+ 		$('a#invest').click(function(e){
+ 	 		if(order.state==1 && (parseInt(product.expectAmount.value)-parseInt(product.realAmount.value))>0)
+ 	 		{
+ 	 		if(usertype!='lender' && usertype!='borrower'){
+ 	 			if(confirm('登录后才能购买产品，现在登录？')){
+ 	 				window.location.href = "login.html?rb=productdetail.html?pid="+pid;
+ 	 			}
+ 	 			return;
+ 	 		}else if(usertype=='borrower'){
+ 	 			alert('企业用户无法投资产品，请登陆个人用户投资！');
+ 	 			return;
+ 	 		}
+ 	 		
+ 	 		try{
+ 	 		var oid = submitService.buy(parseInt(pid), parseInt($('#raiseAmount').val()));
+ 	 		
+ 	 		//$('#myModal').modal({
+ 			//	  keyboard: false,
+ 			//	  backdrop: false
+ 			//});
+ 	 		
+ 	 		//window.location.href = "/account/buy/request?submitId="+oid+"&pid="+pid;
+ 	 		var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+ 	        var transfer=service.getTransferToBuy(oid,pid);
+ 	        var content="<form id='buyform' action='"+transfer.baseUrl+"'method='post'>";
+ 	        for(var o in transfer)
+ 	       	{
+ 	            if(o=="baseUrl")
+ 	           	{
+ 	            	continue;
+ 	           	}
+ 	            var len = o.length;
+ 	            var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+ 	            content+="<input id='"+name+"' name='"+name+"' value='"+transfer[o]+"'/> ";
+ 	       	}
+ 	        content+="</form>";
+ 	        $('#buyformdiv').html(content);
+ 	        $('#buyform').submit();
+ 	 		
+ 	 		}catch(e){
+ 	 			$('#exceptioncontent').html(e.message)
+ 	 			$('#exception').modal({
+ 	 				  keyboard: false,
+ 	 				  backdrop: false
+ 	 			});
+ 	 		}
+ 	 		}
+ 	 	});
  	}
  	else if(product.state==2){
  		$('#remainamount').html('融资完成，正在还款');
@@ -539,56 +640,6 @@
  		$('#invest-record').append('<tr><td>'+subs.get(i).lenderName+'</td><td>'+subs.get(i).amount.value+'</td><td>'+formatDateToDay(subs.get(i).createtime)+'</td></tr>');
  	}
  		}
- 	
- 	
- 	$('a#invest').click(function(e){
- 		if(order.state==1 && (parseInt(product.expectAmount.value)-parseInt(product.realAmount.value))>0)
- 		{
- 		if(usertype!='lender' && usertype!='borrower'){
- 			if(confirm('登录后才能购买产品，现在登录？')){
- 				window.location.href = "login.html?rb=productdetail.html?pid="+pid;
- 			}
- 			return;
- 		}else if(usertype=='borrower'){
- 			alert('企业用户无法投资产品，请登陆个人用户投资！');
- 			return;
- 		}
- 		
- 		try{
- 		var oid = submitService.buy(parseInt(pid), parseInt($('#raiseAmount').val()));
- 		
- 		//$('#myModal').modal({
-		//	  keyboard: false,
-		//	  backdrop: false
-		//});
- 		
- 		//window.location.href = "/account/buy/request?submitId="+oid+"&pid="+pid;
- 		var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
-        var transfer=service.getTransferToBuy(oid,pid);
-        var content="<form id='buyform' action='"+transfer.baseUrl+"'method='post'>";
-        for(var o in transfer)
-       	{
-            if(o=="baseUrl")
-           	{
-            	continue;
-           	}
-            var len = o.length;
-            var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
-            content+="<input id='"+name+"' name='"+name+"' value='"+transfer[o]+"'/> ";
-       	}
-        content+="</form>";
-        $('#buyformdiv').html(content);
-        $('#buyform').submit();
- 		
- 		}catch(e){
- 			$('#exceptioncontent').html(e.message)
- 			$('#exception').modal({
- 				  keyboard: false,
- 				  backdrop: false
- 			});
- 		}
- 		}
- 	});
 	  
         	 $('ul.sourcelist li a').click(function(e){
         		 $('ul.sourcelist').find('li').removeClass('active');

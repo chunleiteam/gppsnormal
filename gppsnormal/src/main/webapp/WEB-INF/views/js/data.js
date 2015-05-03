@@ -741,13 +741,13 @@ var createNavLevel2 = function(nav){
 	}else if(nav=='submit'){
 		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="submit-all">全部</a></li>');
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="submit-toafford">待支付</a></li>');
-//		var li3 = $('<li role="presentation"><a href="#" data-sk="submit-toaudit">待审核</a></li>');
+		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="submit-subscribe-toafford">预约成功</a></li>');
 		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="submit-payback">还款中</a></li>');
 		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="submit-done">还款完毕</a></li>');
 		var li6 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="submit-retreat">已退订</a></li>');
 		ul.append(li1);
 		ul.append(li2);
-//		ul.append(li3);
+		ul.append(li3);
 		ul.append(li4);
 		ul.append(li5);
 		ul.append(li6);

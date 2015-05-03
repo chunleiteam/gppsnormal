@@ -484,7 +484,52 @@ var submitall = function(container){
 		pagingType: "full"
 	} );
 }
-
+var submitsubscribetoafford = function(container){
+	var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
+	var datas = null;
+	datas = submitService.findMyAllWaitforPayingSubscribeSubmits();
+	var aaData = new Array();
+	for(var i=0; i<datas.size(); i++){
+		var data=datas.get(i);
+		aaData.push(["<a href='productdetail.html?pid="+data.product.id+"'>"+data.product.govermentOrder.title+"("+data.product.productSeries.title+")</a>",
+		                    "预约成功待支付",
+		                    formatDate(data.createtime),
+		                    data.amount.value,
+		                    formatDate(data.payExpiredTime),
+		                    "<button id="+data.id+" class='submittoafford' href='javascript:void(0);'>立即支付</button>"]);
+	}
+	var table = $('<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="99%" cellspacing="0"></table>');
+	
+	var thead = $('<thead></thead>');
+	var tr = $('<tr role="row"></tr>');
+	tr.append('<th style="width: 135px;">项目信息</th>');
+	tr.append('<th style="width: 102px;">状态</th>');
+	tr.append('<th style="width: 60px;">审核时间</th>');
+	tr.append('<th style="width: 60px;">金额</th>');
+	tr.append('<th style="width: 102px;">最迟支付时间</th>');
+	tr.append('<th style="width: 42px;">操作</th>');
+	
+	thead.append(tr);
+	table.append(thead)
+	
+	
+	table.append('<tbody></tbody>');
+	container.append(table);
+	
+	table.addClass( 'nowrap' )
+	.dataTable( {
+		responsive: true,
+		bFilter : false, //是否使用搜索 
+		aaData : aaData,
+		oLanguage : _defaultDataTableOLanguage,
+		pagingType: "full"
+	} );
+	
+	$('button.submittoafford').click(function(e){
+		afford($(this).attr('id'));
+	});
+	
+}
 var submittoafford = function(container){
 	var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
 	var datas = null;
@@ -686,6 +731,7 @@ var submitretreat = function(container){
 	.dataTable( {
 		responsive: true,
 		bFilter : false, //是否使用搜索 
+		bSort : false,
 		aaData : aaData,
 		oLanguage : _defaultDataTableOLanguage,
 		pagingType: "full"
@@ -1542,6 +1588,7 @@ var nav2funtion = {
 		"my-note" : mynote,
 		"submit-all" : submitall,
 		"submit-toafford" : submittoafford,
+		"submit-subscribe-toafford" : submitsubscribetoafford,
 		"submit-payback" : submitpayback,
 		"submit-done" : submitdone,
 		"submit-retreat" : submitretreat,

@@ -160,7 +160,15 @@ var createAdminNavLevel2 = function(nav){
 		ul.append(li2);
 		ul.append(li3);
 		ul.append(li4);
-	}else if(nav=='order'){
+	}else if(nav=='subscribeaudit'){
+		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="subscribe-doing">预览中产品</a></li>');
+		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="subscribe-toaudit">预约截止待审核产品</a></li>');
+		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="subscribe-audited">已审核产品</a></li>');
+		ul.append(li1);
+		ul.append(li2);
+		ul.append(li3);
+	}
+	else if(nav=='order'){
 		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="order-all">全部</a></li>');
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="order-unpublish">未发布</a></li>');
 		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="order-preview">预览</a></li>');
@@ -339,9 +347,167 @@ var borrowerall = function(container){
 	table.dataTable(mySettings);
 }
 
+var subscribeaudited = function(container){
+	var productService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductService");
+	var products = productService.getAllSubscribedProduct();
+	
+	var columns = [ {
+		"sTitle" : "订单名称",
+			"code" : "name"
+	}, {
+		"sTitle" : "产品类型",
+		"code" : "state"
+	}, {
+		"sTitle" : "预约状态",
+		"code" : "phone"
+	}, {
+		"sTitle" : "融资起始时间",
+		"code" : "requesttime"
+	}, {
+		"sTitle" : "已预约人数",
+		"code" : "requesttime"
+	}, {
+		"sTitle" : "审核查看",
+		"code" : "repayed"
+	}];
+	
+	var aaData = new Array();
+	for(var i=0; i<products.size(); i++){
+		var data=products.get(i);
+		
+		aaData.push([data.govermentOrder.title,
+		             		data.productSeries.title,
+		                    '预约截止',
+		                    formatDate(data.govermentOrder.financingStarttime),
+		                    data.sCount,
+		                    "<button id="+data.id+" class='audit'>查看</button>"]);
+	}
+	var mySettings = $.extend({}, defaultSettings_noCallBack, {
+		"aoColumns" : columns,
+		"aaData" : aaData
+	});
+	var content = $('<div></div>');
+	var table = $('<table class="table table-striped table-hover" style="min-width:300px;"></table>').appendTo(content);
+	container.append(content);
+	table.dataTable(mySettings);
+	
+	$('button.audit').click(function(e){
+		var pid = parseInt($(this).attr('id'));
+		window.open('subscribeaudit.html?id='+pid);
+	})
+}
 
+var subscribetoaudit = function(container){
+	var productService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductService");
+	var products = productService.getAllToBeSubscribedProduct();
+	
+	var columns = [ {
+		"sTitle" : "订单名称",
+			"code" : "name"
+	}, {
+		"sTitle" : "产品类型",
+		"code" : "state"
+	}, {
+		"sTitle" : "预约状态",
+		"code" : "phone"
+	}, {
+		"sTitle" : "融资起始时间",
+		"code" : "requesttime"
+	}, {
+		"sTitle" : "已预约人数",
+		"code" : "requesttime"
+	}, {
+		"sTitle" : "审核预约",
+		"code" : "repayed"
+	}];
+	
+	var aaData = new Array();
+	for(var i=0; i<products.size(); i++){
+		var data=products.get(i);
+		
+		aaData.push([data.govermentOrder.title,
+		             		data.productSeries.title,
+		                    '已截止',
+		                    formatDate(data.govermentOrder.financingStarttime),
+		                    data.sCount,
+		                    "<button id="+data.id+" class='audit'>审核</button>"]);
+	}
+	var mySettings = $.extend({}, defaultSettings_noCallBack, {
+		"aoColumns" : columns,
+		"aaData" : aaData
+	});
+	var content = $('<div></div>');
+	var table = $('<table class="table table-striped table-hover" style="min-width:300px;"></table>').appendTo(content);
+	container.append(content);
+	table.dataTable(mySettings);
+	
+	$('button.audit').click(function(e){
+		var pid = parseInt($(this).attr('id'));
+		window.open('subscribeaudit.html?id='+pid);
+	})
+}
 
-
+var subscribedoing = function(container){
+	var productService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IProductService");
+	var products = productService.getAllPreViewProduct();
+	
+	var columns = [ {
+		"sTitle" : "订单名称",
+			"code" : "name"
+	}, {
+		"sTitle" : "产品类型",
+		"code" : "state"
+	}, {
+		"sTitle" : "预约状态",
+		"code" : "phone"
+	}, {
+		"sTitle" : "预约截止时间",
+		"code" : "phone"
+	}, {
+		"sTitle" : "融资起始时间",
+		"code" : "requesttime"
+	}, {
+		"sTitle" : "已预约人数",
+		"code" : "requesttime"
+	}, {
+		"sTitle" : "查看预约",
+		"code" : "repayed"
+	}];
+	
+	var aaData = new Array();
+	for(var i=0; i<products.size(); i++){
+		var data=products.get(i);
+		
+		var jiezhi = data.govermentOrder.financingStarttime - 13*3600*1000;
+		var now = (new Date()).getTime();
+		var state = '';
+		if(now < jiezhi){
+			state = '预约中';
+		}else{
+			state = '预约截止';
+		}
+		aaData.push([data.govermentOrder.title,
+		                    data.productSeries.title,
+		                    state,
+		                    formatDate(jiezhi),
+		                    formatDate(data.govermentOrder.financingStarttime),
+		                    data.sCount,
+		                    "<button id="+data.id+" class='audit'>查看</button>"]);
+	}
+	var mySettings = $.extend({}, defaultSettings_noCallBack, {
+		"aoColumns" : columns,
+		"aaData" : aaData
+	});
+	var content = $('<div></div>');
+	var table = $('<table class="table table-striped table-hover" style="min-width:300px;"></table>').appendTo(content);
+	container.append(content);
+	table.dataTable(mySettings);
+	
+	$('button.audit').click(function(e){
+		var pid = parseInt($(this).attr('id'));
+		window.open('subscribeaudit.html?id='+pid);
+	})
+}
 
 var borrowernew = function(container){
 
@@ -2619,6 +2785,9 @@ var validatetp = function(container){
 
 
 var nav2funtion = {
+		'subscribe-doing' : subscribedoing,
+		'subscribe-toaudit' : subscribetoaudit,
+		'subscribe-audited' : subscribeaudited,
 		'lender-view' : lenderview,
 		'borrower-request' : borrowerrequest,
 		'tohandle-borrower-request' : borrowerrequest,
