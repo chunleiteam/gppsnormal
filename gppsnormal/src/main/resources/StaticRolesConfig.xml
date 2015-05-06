@@ -71,7 +71,7 @@
 			<PermissionRule  entityLimitType="gpps.service.IBorrowerService"/>
 			<PermissionRule  entityLimitType="gpps.service.ILetterService" operations="find;findMyLetters;alreadyRead"/>
 			<PermissionRule  entityLimitType="gpps.service.IMyAccountService" operations="getCurrentUser;getBAccountMessage;getBankName"/>
-			<PermissionRule  entityLimitType="gpps.service.thirdpay.IThirdPaySupportService" operations="getRegistAccount;getRecharge;getQuickRecharge;getCardBinding;getCash;getAuthorize"/>
+			<PermissionRule  entityLimitType="gpps.service.thirdpay.IThirdPaySupportService" operations="getRegistAccount;getRecharge;getQuickRecharge;getCardBinding;getCash;getAuthorize;getCompanyRecharge"/>
 			<PermissionRule  entityLimitType="gpps.service.IAccountService" operations="findBorrowerCashStreamByActionAndState;getBorrowerRepayedDetail;getBorrowerWillBeRepayedDetail;checkThroughThirdPlatform"/>
         	<PermissionRule  entityLimitType="gpps.service.IGovermentOrderService" operations="findBorrowerOrderByStates;findBorrowerFinancingRequest"/>
         	<PermissionRule  entityLimitType="gpps.service.IHelpService" operations="createPrivate;findMyHelps"/>
