@@ -136,9 +136,13 @@ var createAdminNavLevel2 = function(nav){
 		var li1 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="left7">7日内还款</a></li>');
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="left3">3日内还款</a></li>');
 		var li3 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="left1">1日内还款</a></li>');
-		ul.append(li1);
-		ul.append(li2);
+		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="leftovertime">过期未还款</a></li>');
+		//var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="leftall">所有待还款</a></li>');
+		ul.append(li4);
 		ul.append(li3);
+		ul.append(li2);
+		ul.append(li1);
+		//ul.append(li5);
 	}
 	else if(nav=='borrower'){
 		var li1 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="borrower-all">全部企业</a></li>');
@@ -1600,14 +1604,20 @@ var orderfinancing = function(container){
 var orderpaying = function(container){
 	ordershow(4, container);
 }
+var leftovertime = function(container){
+	leftd(container, 0);
+}
+var leftall = function(container){
+	leftd(container, 365);
+}
 var left7 = function(container){
-	leftd(container, 180);
+	leftd(container, 7);
 }
 var left3 = function(container){
-	leftd(container, 80);
+	leftd(container, 3);
 }
 var left1 = function(container){
-	leftd(container, 40);
+	leftd(container, 1);
 }
 var leftd = function(container, d){
 	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
@@ -2827,5 +2837,7 @@ var nav2funtion = {
 		"message-sendtoall" : messagesendtoall,
 		"left7" : left7,
 		"left3" : left3,
-		"left1" : left1
+		"left1" : left1,
+		"leftovertime" : leftovertime,
+		"leftall" : leftall
 }
