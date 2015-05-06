@@ -136,6 +136,46 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	}
 
 	@Override
+	public Recharge getCompanyRecharge(String amount) throws LoginException{
+
+		float am = Float.parseFloat(amount);
+		if(am<1000.0){
+			throw new LoginException("企业网银充值最少1000元");
+		}
+		
+		Recharge recharge=new Recharge();
+		recharge.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_RECHARGE));
+		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpSession session=req.getSession();
+		Object currentUser=session.getAttribute(ILoginService.SESSION_ATTRIBUTENAME_USER);
+		if(currentUser==null)
+			throw new LoginException("未找到用户信息，请重新登录");
+		recharge.setAmount(amount);
+		recharge.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/recharge/response");
+		recharge.setNotifyURL(recharge.getReturnURL()+"/bg");
+		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
+		
+		recharge.setRechargeType("4");  //RechargeType==4代表充值类型为“企业网银充值”
+		recharge.setFeeType("2");       //企业网银充值必备的参数，FeeType==2代表从平台账户上扣手续费（每笔20）
+		
+		Integer cashStreamId = null;
+		if(currentUser instanceof Lender)
+		{
+			throw new RuntimeException("不支持个人充值");
+		}else if(currentUser instanceof Borrower){
+			Borrower borrower=(Borrower)currentUser;
+			recharge.setRechargeMoneymoremore(borrower.getThirdPartyAccount());
+			cashStreamId = accountService.rechargeBorrowerAccount(borrower.getAccountId(), BigDecimal.valueOf(Double.valueOf(amount)), "充值");
+		}
+		else {
+			throw new RuntimeException("不支持该用户充值");
+		}
+		recharge.setOrderNo(String.valueOf(cashStreamId));
+		recharge.setSignInfo(recharge.getSign(innerThirdPaySupportService.getPrivateKey()));
+		return recharge;
+	}
+	
+	@Override
 	public Recharge getQuickRecharge(String amount) throws LoginException{
 		
 		float am = Float.parseFloat(amount);

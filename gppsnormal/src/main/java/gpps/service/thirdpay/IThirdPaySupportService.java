@@ -37,6 +37,14 @@ public interface IThirdPaySupportService {
 	public Recharge getQuickRecharge(String amount) throws LoginException;
 	
 	/**
+	 * 返回企业网银充值表单提交信息
+	 * @param amount
+	 * @return
+	 * @throws LoginException
+	 */
+	public Recharge getCompanyRecharge(String amount) throws LoginException;
+	
+	/**
 	 * 返回购买表单提交信息
 	 * @param submitId
 	 * @param pid
