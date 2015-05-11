@@ -38,7 +38,7 @@ public class CashStreamView extends TestAssistance{
 		String baseUrl=innerThirdPayService.getBaseUrl(ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
 		params.put("PlatformMoneymoremore", platformMoneymoremore);
-			params.put("Action", null);
+			params.put("Action", "1");
 		StringBuilder sBuilder=new StringBuilder();
 		sBuilder.append(StringUtil.strFormat(params.get("PlatformMoneymoremore")));
 		sBuilder.append(StringUtil.strFormat(params.get("Action")));
@@ -58,11 +58,11 @@ public class CashStreamView extends TestAssistance{
 	public static void main(String args[]) throws Exception{
 		IBalanceWithTPService balanceService = context.getBean(IBalanceWithTPService.class);
 		
-//		LoanFromTP tp = balanceService.viewByLoanNo("T20150126001422209093718", "2");
-		LoanFromTP tp = balanceService.viewByOrderNo("8029", "2");
+//		LoanFromTP tp = balanceService.viewByLoanNo("1429416651405644", "1");
+		LoanFromTP tp = balanceService.viewByOrderNo("998", "1");
 		
 //		viewByOrderNo("8143");
-//		LoanFromTP tp = viewByLoanNo("LN14070871501300004000935565");
+//		LoanFromTP tp = viewByLoanNo("1429416651405644");
 		System.out.println(tp.getOrderNo()+":::"+tp.getLoanNo());
 		System.exit(0);
 	}

@@ -28,7 +28,7 @@ public class CashAuditTest extends TestAssistance {
 		IThirdPaySupportNewService payNewService = context.getBean(IThirdPaySupportNewService.class);
 		
 		List<String> loanNos = new ArrayList<String>();
-		loanNos.add("LN13225141502092133041298345");
+		loanNos.add("LN11243741502151511050351976");
 //		loanNos.add("LN16139081502100126591892736");
 		
 		

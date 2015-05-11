@@ -50,9 +50,9 @@ public class CashTransferTest extends TestAssistance{
 
 		
 		LoanJson loadJson=new LoanJson();
-		loadJson.setLoanOutMoneymoremore("m23075");
-		loadJson.setLoanInMoneymoremore("m23072");
-		loadJson.setOrderNo("12199");
+		loadJson.setLoanOutMoneymoremore("p401");
+		loadJson.setLoanInMoneymoremore("m23076");
+		loadJson.setOrderNo("12196");
 		loadJson.setBatchNo("20");
 		loadJson.setAmount("100");
 		loanJsons.add(loadJson);

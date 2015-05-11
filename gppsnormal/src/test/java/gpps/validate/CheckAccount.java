@@ -49,6 +49,8 @@ public class CheckAccount {
 		int total=lenderDao.countAll();
 		for(int i=0;i<(total/DEFAULT_RECNUM+(total%DEFAULT_RECNUM==0?0:1));i++)
 		{
+			
+			
 			List<Lender> lenders=lenderDao.findAll(i*DEFAULT_RECNUM, DEFAULT_RECNUM);
 			if(lenders==null||lenders.size()==0)
 				continue;

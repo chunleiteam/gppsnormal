@@ -76,8 +76,8 @@ public class CheckSingleCashStream {
 	public static void main(String args[]) throws Exception{
 //		withdrawSingleCashStream("LN19029242014122113491557888");
 		
-		Date datestart = new Date(2015-1900,2-1,12,8,0,0);
-		Date dateend = new Date(2015-1900,2-1,12,8,0,0);
+		Date datestart = new Date(2015-1900,4-1,29,8,0,0);
+		Date dateend = new Date(2015-1900,4-1,29,8,0,0);
 		
 		long start = DateCalculateUtils.getStartTime(datestart.getTime());
 		long end = DateCalculateUtils.getEndTime(dateend.getTime())+1000;
@@ -313,10 +313,13 @@ public class CheckSingleCashStream {
 				return true;
 			}else{ 
 				Map<String, String> result = res.get(0);
-				if("0".equals(result.get("TransferState")) && "0".equals(result.get("ActState"))){
-				return true;
+				if("支付超时".equals(cashStream.getDescription())){
+					return true;
+				}
+				else if("0".equals(result.get("TransferState")) && "0".equals(result.get("ActState"))){
+					return true;
 				}else{
-				throw new Exception("现金流[ID:"+cashStream.getId()+"]有问题: 平台未处理的现金流在第三方上有对应的记录！");
+					throw new Exception("现金流[ID:"+cashStream.getId()+"]有问题: 平台未处理的现金流在第三方上有对应的记录！");
 				}
 			}
 		}
@@ -802,8 +805,19 @@ public class CheckSingleCashStream {
 		}else if(RechargeState.equals("2")&&cashStream.getState()==4){
 			stateflag=true;
 		}
-		boolean totalflag = cashStream.getChiefamount().compareTo(new BigDecimal(Amount))==0;
-		boolean feeflag = cashStream.getFee().compareTo(new BigDecimal(Fee))==0;
+		boolean totalflag = false;
+		boolean feeflag = false;
+		if("扣费快捷充值".equals(cashStream.getDescription())){
+			totalflag = cashStream.getChiefamount().compareTo((new BigDecimal(Amount)).subtract(new BigDecimal(Fee)))==0;
+			feeflag = cashStream.getFee().compareTo(new BigDecimal(0))==0;
+		}else{
+			totalflag = cashStream.getChiefamount().compareTo(new BigDecimal(Amount))==0;
+			feeflag = cashStream.getFee().negate().compareTo(new BigDecimal(Fee))==0;
+		}
+		
+		
+		
+		
 		
 		flag = flag && loanflag && stateflag && totalflag && feeflag && accountflag;
 		
