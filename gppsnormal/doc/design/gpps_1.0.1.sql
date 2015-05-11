@@ -668,7 +668,8 @@ create table Subscribe
    lenderId          	integer not null,
    productId            integer not null,
    state                int not null default 0,
-   amount               int not null default 0,
+   applyAmount          int not null default 0,
+   auditAmount          int not null default 0,
    createTime			bigint default 0 not null,
    confirmTime			bigint default 0 not null,
    primary key (id)
