@@ -137,12 +137,12 @@ var createAdminNavLevel2 = function(nav){
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="left3">3日内还款</a></li>');
 		var li3 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="left1">1日内还款</a></li>');
 		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="leftovertime">过期未还款</a></li>');
-		//var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="leftall">所有待还款</a></li>');
+		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="leftall">所有待还款</a></li>');
 		ul.append(li4);
 		ul.append(li3);
 		ul.append(li2);
 		ul.append(li1);
-		//ul.append(li5);
+		ul.append(li5);
 	}
 	else if(nav=='borrower'){
 		var li1 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="borrower-all">全部企业</a></li>');
