@@ -71,16 +71,13 @@
             	<div class="hidden-xs hidden-sm col-md-3 col-lg-3"></div>
             	
             	<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-            	<div class="hidden-xs hidden-sm col-md-3 col-lg-3">
+            	<div class="hidden-xs hidden-sm col-md-4 col-lg-4">
                 	<button class="btn btn-lg btn-success btn-block" name="btnSub" value="网银充值" id="rechargeConfirm">网银充值</button>
                 </div>
-                <div class="hidden-xs hidden-sm col-md-3 col-lg-3">
-                	<button class="btn btn-lg btn-success btn-block" name="btnSubCompany" value="企业网银" id="companyRechargeConfirm">企业网银</button>
-                </div>
-                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
                 <button class="btn btn-lg btn-success btn-block" name="btnSubQuick" value="快捷支付" id="quickRechargeConfirm">快捷支付</button>
                 </div>
-                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
                 <button class="btn btn-lg btn-default btn-block" id="reset" value="重 置">重 置</button>
             	</div>
             	</div>
@@ -117,7 +114,7 @@ $(document).ready(function() {
 	
 	if(usertype=='lender'){
 		
-		$('button#companyRechargeConfirm').attr('disabled', 'disabled');
+	//	$('button#companyRechargeConfirm').attr('disabled', 'disabled');
 		
 		var thirdPartyAccount = user.thirdPartyAccount;
 		var identityCard = user.identityCard;
@@ -137,6 +134,9 @@ $(document).ready(function() {
 			}
 		}
 	}else if(usertype=='borrower'){
+		
+		$('button#quickRechargeConfirm').text('企业网银');
+		
 		var privilege = user.privilege;
 		var thirdPartyAccount = user.thirdPartyAccount;
 		if(privilege==10){
@@ -178,46 +178,6 @@ $(document).ready(function() {
 		$('#txtAccount').val('');
 	});
 	
-	$('#companyRechargeConfirm').click(function(e){
-		
-		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
-		var value = $('#txtAccount').val();
-		if(!myreg.test(value))
-		{
-			document.getElementById('msg').innerHTML='金额必须大于0且为整数或小数，小数点后不超过两位';
-			$('#txtAccount').val('');
-		}else{
-			var amount = parseInt(value);
-			if(amount<100){
-				alert('快捷支付最小充值金额100元');
-				return;
-			}
-			var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
-            var recharge=null;
-            try{
-            	recharge = service.getCompanyRecharge(value);
-            }catch(e){
-            	alert(e.message);
-            	return;
-            }
-            var content="<form id='rechargeform' action='"+recharge.baseUrl+"'method='post'>";
-            for(var o in recharge)
-           	{
-                if(o=="baseUrl")
-               	{
-                	continue;
-               	}
-                var len = o.length;
-                var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
-                content+="<input id='"+name+"' name='"+name+"' value='"+recharge[o]+"'/> ";
-           	}
-            content+="</form>";
-            $('#rechargeformdiv').html(content);
-            $('#rechargeform').submit();
-		};
-		
-	});
-	
 	$('#quickRechargeConfirm').click(function(e){
 		
 		var myreg=/^[+]?(([1-9]\d*[.]?)|(0.))(\d{0,2})?$/;
@@ -228,12 +188,36 @@ $(document).ready(function() {
 			$('#txtAccount').val('');
 		}else{
 			var amount = parseInt(value);
-			if(amount<100){
-				alert('快捷支付最小充值金额100元');
-				return;
-			}
+			
 			var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
-            var recharge=service.getQuickRecharge(value);
+            
+            var recharge=null;
+            if(usertype=='lender')
+            {
+            	if(amount<100){
+    				alert('快捷支付最小充值金额100元');
+    				return;
+    			}
+            	try{
+                	recharge = service.getQuickRecharge(value);
+                }catch(e){
+                	alert(e.message);
+                	return;
+                }	
+            }else{
+            	if(amount<1000){
+    				alert('企业网银最小充值金额1000元');
+    				return;
+    			}
+            	try{
+                	recharge = service.getCompanyRecharge(value);
+                }catch(e){
+                	alert(e.message);
+                	return;
+                }
+            }
+            
+            
             var content="<form id='rechargeform' action='"+recharge.baseUrl+"'method='post'>";
             for(var o in recharge)
            	{
