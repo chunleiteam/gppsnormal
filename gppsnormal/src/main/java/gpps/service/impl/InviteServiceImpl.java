@@ -45,7 +45,7 @@ IMessageSupportService messageService;
 		 maxValue = Integer.parseInt(invite.getCode());
 		}
 		String name = (lender.getName()==null || lender.getName().equals(""))?lender.getLoginId():lender.getName();
-		String message = "【春蕾政采贷】尊敬的"+name+"，感谢您在政采贷平台进行投资，您将获得"+number+"个邀请码：";
+		String message = "【春蕾政采贷】尊敬的"+name+"，非常感谢您对政采贷的参与和认可，作为回馈您将获得"+number+"个邀请码：";
 //				"【春蕾政采贷】分配给您的"+number+"个邀请码是:";
 		for(int i=0; i<number; i++){
 			Random ran = new Random();
@@ -62,7 +62,7 @@ IMessageSupportService messageService;
 			message += (ncode+", ");
 		}
 		
-		message += "成功邀请好友在平台进行注册投资后，可提升您在政采贷的信用等级和收益。";
+		message += "6月30日前，成功邀请好友在平台注册，您将获得20元奖励，好友完成一笔投资，您将获得100元奖励。奖励将在7月1日以转账方式直接打入您的政采贷账户，欢迎您积极参与！";
 		
 		List<String> tels = new ArrayList<String>();
 		tels.add(lender.getTel());
