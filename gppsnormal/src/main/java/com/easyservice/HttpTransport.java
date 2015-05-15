@@ -100,12 +100,11 @@ public class HttpTransport {
 			HttpParse parse = new HttpParse(req, resp);
 			IProtocolBinding protocolBinding = register.lookupBinding(parse.getBindingProtocol());
 			if (protocolBinding == null) {
-				if (protocolBinding == null) {
-//					serviceResponse.setExceptionType(ExceptionType.ET_SE_PROTOCOL_NOT_SUPPORT);
-//					serviceResponse.setException(new UnsupportedOperationException("can not find provider for protocol : " + parse.getBindingProtocol()));
-					logger.warn("【"+getIp(req)+"】"+ExceptionType.ET_SE_BINDING_NOT_SUPPORT + "", new UnsupportedOperationException("can not find binding for protocol : " + parse.getBindingProtocol()));
-					return;
-				}
+//				serviceResponse.setExceptionType(ExceptionType.ET_SE_PROTOCOL_NOT_SUPPORT);
+//				serviceResponse.setException(new UnsupportedOperationException("can not find provider for protocol : " + parse.getBindingProtocol()));
+				logger.warn("【"+getIp(req)+"】"+ExceptionType.ET_SE_BINDING_NOT_SUPPORT + ", can not find binding for protocol : " + parse.getBindingProtocol());
+				logger.warn(parse.getRequestURL().getUrl()+"::"+parse.getInterfaceName()+"::"+parse.getServiceProtocol()+"::"+parse.getTransportProtocol());
+				return;
 			}
 			try {
 				 HttpSession session=req.getSession();
