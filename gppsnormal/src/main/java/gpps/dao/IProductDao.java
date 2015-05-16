@@ -23,7 +23,9 @@ public interface IProductDao {
 	public List<Product> findByState(@Param("states")List<Integer> states,@Param("offset")int offset,@Param("recnum")int recnum);
 	public int countByState(@Param("states")List<Integer> states);
 	public List<Product> findByProductSeriesAndState(@Param("productSeriesId")Integer productSeriesId,@Param("states")List<Integer> states,@Param("offset")int offset,@Param("recnum")int recnum);
+	public List<Product> findByProductSeriesAndBuyLevelAndState(@Param("productSeriesId")Integer productSeriesId, @Param("levelToBuy")int levelToBuy,@Param("states")List<Integer> states,@Param("offset")int offset,@Param("recnum")int recnum);
 	public int countByProductSeriesAndState(@Param("productSeriesId")Integer productSeriesId,@Param("states")List<Integer> state);
+	public int countByProductSeriesAndBuyLevelAndState(@Param("productSeriesId")Integer productSeriesId, @Param("levelToBuy")int levelToBuy,@Param("states")List<Integer> state);
 	public void changeBuyLevel(@Param("id")Integer id,@Param("levelToBuy")int levelToBuy);
 	public void buy(@Param("id")Integer id,@Param("amount")BigDecimal amount);
 	public void delete(Integer id);

@@ -25,32 +25,32 @@
 	<select id="findByState" resultType="gpps.model.Product">
 		select id,state,govermentorderId,expectAmount,realAmount,rate,paybackmodel,productseriesId,levelToBuy,createtime,minimum,description,incomeEndtime,miniAdd
 		from Product
+		<if test="1==1">
+			<![CDATA[ where (productSeriesId<>3 or levelToBuy<>0) ]]>
+		</if>
 		<if test="states != null">
-			where state in
+			and state in
 			<foreach item="item" index="index" collection="states" open="("
 				separator="," close=")">
 				#{item}
 			</foreach>
 		</if>
-		<if test="states == null">
-           <![CDATA[ where state <> 0 ]]>
-        </if>
-		order by state asc,createtime desc
+		 order by state asc,createtime desc
 		LIMIT #{offset}, #{recnum}
 	</select>
 	<select id="countByState" resultType="int">
 		select count(*)
 		from Product
+		<if test="1==1">
+			<![CDATA[ where (productSeriesId<>3 or levelToBuy<>0) ]]>
+		</if>
 		<if test="states != null">
-			where state in
+			 and state in
 			<foreach item="item" index="index" collection="states" open="("
 				separator="," close=")">
 				#{item}
 			</foreach>
 		</if>
-		<if test="states == null">
-           <![CDATA[ and state <> 0 ]]>
-        </if>
 	</select>
 	<select id="findByProductSeriesAndState" resultType="gpps.model.Product">
 		select id,state,govermentorderId,expectAmount,realAmount,rate,paybackmodel,productseriesId,levelToBuy,createtime,minimum,description,incomeEndtime,miniAdd
@@ -68,6 +68,39 @@
         </if>
 		order by state asc,createtime desc 
 		LIMIT #{offset}, #{recnum}
+	</select>
+	
+	<select id="findByProductSeriesAndBuyLevelAndState" resultType="gpps.model.Product">
+		select id,state,govermentorderId,expectAmount,realAmount,rate,paybackmodel,productseriesId,levelToBuy,createtime,minimum,description,incomeEndtime,miniAdd
+		from Product where productSeriesId=#{productSeriesId} and levelToBuy=#{levelToBuy} 
+		<if test="states != null">
+			and state
+			in
+			<foreach item="item" index="index" collection="states" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="states == null">
+           <![CDATA[ and state <> 0 ]]>
+        </if>
+		order by state asc,createtime desc 
+		LIMIT #{offset}, #{recnum}
+	</select>
+	<select id="countByProductSeriesAndBuyLevelAndState" resultType="int">
+		select count(*)
+		from Product where productSeriesId=#{productSeriesId} and levelToBuy=#{levelToBuy} 
+		<if test="states != null">
+			and state
+			in
+			<foreach item="item" index="index" collection="states" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="states == null">
+           <![CDATA[ and state <> 0 ]]>
+        </if>
 	</select>
 	<select id="countByProductSeriesAndState" resultType="int">
 		select count(*)
