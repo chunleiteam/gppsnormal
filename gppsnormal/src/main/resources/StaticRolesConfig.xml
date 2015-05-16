@@ -19,8 +19,8 @@
 			<PermissionRule  entityLimitType="gpps.service.ILenderService" operations="register;registerSecondStep;getCurrentUser;login;sendMessageValidateCode;isLoginIdExist;isPhoneNumberExist;isIdentityCardExist;isEmailExist;getProcessedTel;changePassword;findByLoginId;isCodeRight;loginOut"/>
 			<PermissionRule  entityLimitType="gpps.service.IAdminService" operations="register;registerSecondStep;getCurrentUser;login;sendMessageValidateCode;isLoginIdExist;isPhoneNumberExist;isIdentityCardExist;isEmailExist;getProcessedTel"/>
 			<PermissionRule  entityLimitType="gpps.service.IBorrowerService" operations="find;register;getCurrentUser;login;sendMessageValidateCode;isLoginIdExist;isPhoneNumberExist;isIdentityCardExist;isEmailExist;getProcessedTel;changePassword;findByLoginId"/>
-			<PermissionRule  entityLimitType="gpps.service.IGovermentOrderService" operations="findByStates;findByBorrowerIdAndStates;findGovermentOrderByProductSeries;findByStatesByPage;findGovermentOrderByProduct;findMimeItems;"/>
-			<PermissionRule  entityLimitType="gpps.service.IProductService" operations="find;findByGovermentOrder;findByStates;findByProductSeriesAndStates;findByProductId;findMimeItems"/>
+			<PermissionRule  entityLimitType="gpps.service.IGovermentOrderService" operations="findByStates;findByBorrowerIdAndStates;findGovermentOrderByProductSeries;findNPByStatesByPage;findByStatesByPage;findGovermentOrderByProduct;findMimeItems;"/>
+			<PermissionRule  entityLimitType="gpps.service.IProductService" operations="find;findByGovermentOrder;findByStates;findByProductSeriesAndStates;findNewLenderProductByStates;findByProductId;findMimeItems"/>
 			<PermissionRule  entityLimitType="gpps.service.IActivityService" operations="find;findByState;findMimeItem"/>
 			<PermissionRule  entityLimitType="gpps.service.IActivityRefService" operations="find;findByActivity;applyActivityByAnonymous;isApply"/>
 			<PermissionRule  entityLimitType="gpps.service.IHelpService" operations="find;findPublicHelps"/>
