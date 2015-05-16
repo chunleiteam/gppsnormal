@@ -139,7 +139,7 @@ public class ProductServiceImpl implements IProductService {
 	public List<Product> findByGovermentOrder(Integer orderId) {
 		return productDao.findByGovermentOrder(orderId);
 	}
-
+	
 	@Override
 	public List<Product> findByStates(int states, int offset, int recnum) {
 		List<Integer> list=null;
@@ -180,6 +180,31 @@ public class ProductServiceImpl implements IProductService {
 				return new ArrayList<Product>(0);
 		}
 		return productDao.findByProductSeriesAndState(productSeriesId, list, offset, recnum);
+	}
+	
+	@Override
+	public List<Product> findNewLenderProductByStates(int states, int offset, int recnum){
+		List<Integer> list=null;
+		if(states!=-1)
+		{
+			list=new ArrayList<Integer>();
+			for(int productState:productStates)
+			{
+				if((productState&states)>0)
+					list.add(productState);
+			}
+			if(list.isEmpty())
+				return new ArrayList<Product>(0);
+		}
+		ProductSeries ps = productSeriesDao.findByType(ProductSeries.TYPE_FINISHPAYINTERESTANDCAPITAL);
+		List<Product> products = productDao.findByProductSeriesAndBuyLevelAndState(ps.getId(), 0, list, offset, recnum);
+		if(products==null||products.size()==0)
+			return new ArrayList<Product>(0);
+		for(Product product:products)
+		{
+			product.setGovermentOrder(govermentOrderDao.find(product.getGovermentorderId()));
+		}
+		return products; 
 	}
 
 	@Override

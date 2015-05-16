@@ -628,6 +628,38 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 			}
 		}
 	}
+	
+	@Override
+	public Map<String, Object> findNPByStatesByPage(int states,int offset,int recnum){
+		List<Integer> list=null;
+		if(states!=-1)
+		{
+			list=new ArrayList<Integer>();
+			for(int orderState:orderStates)
+			{
+				if((orderState&states)>0)
+					list.add(orderState);
+			}
+			if(list.isEmpty())
+				return Pagination.buildResult(null, 0, offset, recnum);
+		}
+		
+		ProductSeries ps = productSeriesDao.findByType(ProductSeries.TYPE_FINISHPAYINTERESTANDCAPITAL);
+		
+		int count=productDao.countByProductSeriesAndBuyLevelAndState(ps.getId(), 0, list);
+		if(count==0)
+			return Pagination.buildResult(null, 0, offset, recnum);
+		List<Product> products=productDao.findByProductSeriesAndBuyLevelAndState(ps.getId(), 0, list, offset, recnum);
+		List<GovermentOrder> orders=new ArrayList<GovermentOrder>();
+		for(Product product:products)
+		{
+			GovermentOrder order=govermentOrderDao.find(product.getGovermentorderId());
+			order.getProducts().add(product);
+			orders.add(order);
+		}
+		return Pagination.buildResult(orders, count, offset, recnum);
+	}
+	
 	@Override
 	public Map<String, Object> findGovermentOrderByProductSeries(
 			Integer productSeriesId,int states, int offset, int recnum) {
@@ -643,7 +675,7 @@ public class GovermentOrderServiceImpl implements IGovermentOrderService{
 			if(list.isEmpty())
 				return Pagination.buildResult(null, 0, offset, recnum);
 		}
-		int count=productDao.countByProductSeriesAndState(productSeriesId, null);
+		int count=productDao.countByProductSeriesAndState(productSeriesId, list);
 		if(count==0)
 			return Pagination.buildResult(null, 0, offset, recnum);
 		List<Product> products=productDao.findByProductSeriesAndState(productSeriesId, list, offset, recnum);

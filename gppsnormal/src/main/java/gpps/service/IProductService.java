@@ -54,6 +54,14 @@ public interface IProductService {
 	 * @return
 	 */
 	public List<Product> findByProductSeriesAndStates(Integer productSeriesId,int state,int offset,int recnum);
+	/**
+	 * 根据状态查找新手产品（产品类型为进取型并且购买级别为0的产品）
+	 * @param state 一个或几个状态并集，-1表示不限
+	 * @param offset
+	 * @param recnum
+	 * @return
+	 * */
+	public List<Product> findNewLenderProductByStates(int state,int offset,int recnum);
 	
 	public void createProductAction(ProductAction productAction);
 	

@@ -140,6 +140,16 @@ public interface IGovermentOrderService {
 	 * @return
 	 */
 	public Map<String, Object> findByStatesByPage(int states,int offset,int recnum);
+	
+	/**
+	 * 根据订单状态查找新手专区订单
+	 * @param states
+	 * @param offset
+	 * @param recnum
+	 * @return
+	 */
+	public Map<String, Object> findNPByStatesByPage(int states,int offset,int recnum);
+	
 	/**
 	 * 返回产品所属订单以及订单的所有产品
 	 * @param productId
