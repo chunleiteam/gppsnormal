@@ -787,7 +787,7 @@ var lenderview = function(container){
 		$('button.sendinvite').click(function(e){
 			var uid = $(this).attr('id');
 			try{
-			inviteService.allocate(parseInt(uid), 5);
+			inviteService.allocate(parseInt(uid), 5, 2);
 			alert('邀请码分配成功！');
 			}catch(e){
 				alert(e.message);
