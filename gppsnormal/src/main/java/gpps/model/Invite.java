@@ -8,6 +8,8 @@ public class Invite {
 	private String code;
 	private Integer attributeTo;
 	private Integer registerBy;
+	private Integer batchCode;
+	
 	private int state=STATE_INIT;
 	
 	public Integer getId() {
@@ -39,5 +41,11 @@ public class Invite {
 	}
 	public void setState(int state) {
 		this.state = state;
+	}
+	public Integer getBatchCode() {
+		return batchCode;
+	}
+	public void setBatchCode(Integer batchCode) {
+		this.batchCode = batchCode;
 	}
 }
