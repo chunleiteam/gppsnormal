@@ -25,7 +25,7 @@ ILenderDao lenderDao;
 @Autowired
 IMessageSupportService messageService;
 	@Override
-	public List<String> allocate(Integer lenderId, int number)
+	public List<String> allocate(Integer lenderId, int number, int batchCode)
 			throws InviteException {
 		if(number<=0 || number>MAX_ALLOC_NUMBER){
 			throw new InviteException("分配的数量有问题，必须是大于0小于等于"+MAX_ALLOC_NUMBER+"的值！");
@@ -56,6 +56,7 @@ IMessageSupportService messageService;
 			inv.setAttributeTo(lenderId);
 			inv.setCode(ncode);
 			inv.setState(Invite.STATE_INIT);
+			inv.setBatchCode(batchCode);
 			res.add(ncode);
 			inviteDao.create(inv);
 			
