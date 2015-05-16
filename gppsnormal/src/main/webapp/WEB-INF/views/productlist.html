@@ -459,6 +459,41 @@
         	 }
         	 
         	 
+        	 var linp = $('<li></li>');
+        	 var anp = $('<a href="javascript:void(0);" data-sk="newp"><span class="min-price">新手专区</span><span style="color:red;">new</font></a>');
+        	 linp.append(anp);
+        	 anp.click(function(e){
+        		 $(this).parent().parent().find('li').removeClass('active');
+        		 $(this).parent().addClass('active');
+        		 $('li#nav_name').html('新手专区');
+        		 var orders = orderService.findNPByStatesByPage(-1,0,numPerPage);
+        		 
+        		 var total = orders.get('total');
+        		 resetTotal(total);
+        		 
+        		 refreshList(orders);
+        		 
+        		 $('#prePage').unbind('click');
+        		 $('#prePage').bind('click', function(e){
+        			var cp = pre();
+        			var orders = orderService.findNPByStatesByPage(-1,cp*numPerPage, numPerPage);
+        			refreshList(orders);
+        		 });
+        		 $('#nextPage').unbind('click');
+        		 $('#nextPage').bind('click', function(e){
+        			var cp = next(); 
+        			var orders = orderService.findNPByStatesByPage(-1,cp*numPerPage, numPerPage);
+        			refreshList(orders);
+        		 });
+        		 
+        		 $('#intro').html('<p>预期年化利率 ：<span style="color:#ff0000;">36% </span>&nbsp; &nbsp; &nbsp; &nbsp;投资金额： 100 元起 &nbsp; &nbsp; &nbsp; &nbsp;投资期限：1-3个月 &nbsp; &nbsp; &nbsp; &nbsp;收益方式：每月还息到期还本  &nbsp; &nbsp; &nbsp;<a href="pseriescenter.html?type=1" target="_blank">了解详情</a></p>');
+        	 });
+        	 $('ul.plnav').append(linp);
+        	 
+        	 
+        	 
+        	 
+        	 
         	 var cjquestions = helpService.findPublicHelps(1,0,10);
         	 var questions = cjquestions.get('result');
         	 if(questions){

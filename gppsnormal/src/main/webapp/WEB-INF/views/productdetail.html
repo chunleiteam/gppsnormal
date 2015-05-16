@@ -76,6 +76,8 @@
 	var seriesname = {};
 	var seriestype = {};
 	
+	var isNewProduct = false;
+	
 	
 	try{
  		order = orderService.findGovermentOrderByProduct(parseInt(pid));
@@ -94,6 +96,8 @@
 			break;
 		}
 	}
+	
+	
 	borrower = bservice.find(order.borrowerId);
 	series = seriesService.find(product.productseriesId);
 	
@@ -104,6 +108,12 @@
 		seriesname[allseries.get(i).id] = allseries.get(i);
 	}
 	
+	
+	//产品类型为进取型并且购买级别为0，说明是新手单
+	if(seriesname[product.productseriesId].type==2 && product.levelToBuy==0){
+		isNewProduct = true;
+	}
+
 	paybacks = paybackService.findAll(product.id);
 	
 	}catch(e){
@@ -297,7 +307,7 @@
     	<ul id="sourcelist" class="nav navbar-nav sourcelist">
     			<li class=""><a href="javascript: void(0);" data-sk="basic"><span class="min-price">项目详情</span></a></li>
     			<li class=""><a href="javascript: void(0);" data-sk="payback"><span class="min-price">还款计划</span></a></li>
-    			<li class=""><a href="javascript: void(0);" data-sk="resource"><span class="min-price">项目资料</span></a></li>
+    			<li class="" id="liresource"><a href="javascript: void(0);" data-sk="resource"><span class="min-price">项目资料</span></a></li>
     			<li class=""><a href="javascript: void(0);" data-sk="cresource"><span class="min-price">企业资料</span></a></li>
     			<li class=""><a href="javascript: void(0);" data-sk="action"><span class="min-price">项目进程</span></a></li>
 		</ul>
@@ -406,8 +416,13 @@
 	  
  	
  	$('li#productseries').html('<a href="productlist.html?sid='+seriesname[product.productseriesId].type+'">'+seriesname[product.productseriesId].title+'</a> <span class="divider">&gt;</span>');
- 	$('span#product-title').html(order.title+'['+seriesname[product.productseriesId].title+']');
  	
+ 	if(isNewProduct==false)
+ 	{
+ 		$('span#product-title').html(order.title+'['+seriesname[product.productseriesId].title+']');
+ 	}else{
+ 		$('span#product-title').html(order.title+'[新手专享]');
+ 	}
  	var str = "";
  	for(var i=0; i<order.products.size(); i++){
  		if(order.products.get(i).id!=parseInt(pid)){
@@ -428,7 +443,11 @@
  	var maxAmount = "";
  	if(seriesname[product.productseriesId].type==2)
  	{
- 		maxAmount = '（最大金额<font color=red>10000</font>元）';
+ 		if(product.levelToBuy==0){
+ 			maxAmount = '（最大金额<font color=red>100</font>元）';
+ 		}else{
+ 			maxAmount = '（最大金额<font color=red>10000</font>元）';
+ 		}
  	}
  	else{
  		maxAmount = '';
@@ -437,10 +456,21 @@
  	$('#rate').html(parseInt(parseFloat(product.rate.value)*100)+"%");
  	$('#duration').html(parseInt((product.incomeEndtime-order.incomeStarttime+23*3600*1000)/(24*3600*1000))+'天');
  	$('#leveltobuy').html("level"+product.levelToBuy);
- 	$('#pseriestitle').html(series.title);
+ 	
+ 	if(isNewProduct==false){
+ 		$('#pseriestitle').html(series.title);
+ 	}
+ 	else{
+ 		$('#pseriestitle').html('新手单');
+ 	}
+ 	
  	$('#remainamount').html( '剩余可投金额：<strong>'+(parseInt(product.expectAmount.value)-parseInt(product.realAmount.value))+'元</strong>');
  	
- 	$('#productdescription').html(seriesname[product.productseriesId].description);
+ 	if(isNewProduct==false){
+ 		$('#productdescription').html(seriesname[product.productseriesId].description);
+ 	}else{
+ 		$('#productdescription').html('本类型产品为新手专享，仅限于初次购买客户，具有期限短，利率高，限额购买等特点');
+ 	}
  	$('#progressTxt').html((parseInt(product.realAmount.value)*100/parseInt(product.expectAmount.value)).toFixed(2)+"%");
  	$('#progressBar').css('width', parseInt(product.realAmount.value)*145/parseInt(product.expectAmount.value)+'px');
  	$('#reward-info').html(seriesname[product.productseriesId].typeDetail);
@@ -640,6 +670,15 @@
  		$('#invest-record').append('<tr><td>'+subs.get(i).lenderName+'</td><td>'+subs.get(i).amount.value+'</td><td>'+formatDateToDay(subs.get(i).createtime)+'</td></tr>');
  	}
  		}
+ 	
+ 	
+ 	
+ 			if(isNewProduct==true){
+ 				$('li#liresource').remove();
+ 			}
+ 	
+ 	
+ 	
 	  
         	 $('ul.sourcelist li a').click(function(e){
         		 $('ul.sourcelist').find('li').removeClass('active');
@@ -671,13 +710,20 @@
         			
         			var table = $('<table class="product-description"></table>');
         			table.append('<tr><td>融资方：</td><td>'+borrower.companyName+'</td></tr>');
-        			table.append('<tr><td>中标政采订单：</td><td><span>'+order.formalName+'【'+order.formalLevel+'】</span></td></tr>');
-        			table.append('<tr><td>中标金额：</td><td><span class="tips-title">'+order.formalAmount+'</span></td></tr>');
-        			table.append('<tr><td>招标单位：</td><td><span>'+order.tenderUnits+'</span></td></tr>');
         			
-        			
-        			var td = $('<td></td>');
-        			$('<tr></tr>').append('<td>中标公示链接：</td>').append(td).appendTo(table);
+        			if(isNewProduct==false)
+        			{
+        				table.append('<tr><td>中标政采订单：</td><td><span>'+order.formalName+'【'+order.formalLevel+'】</span></td></tr>');
+        				table.append('<tr><td>中标金额：</td><td><span class="tips-title">'+order.formalAmount+'</span></td></tr>');
+        				table.append('<tr><td>招标单位：</td><td><span>'+order.tenderUnits+'</span></td></tr>');
+        				var td = $('<td></td>');
+        				$('<tr></tr>').append('<td>中标公示链接：</td>').append(td).appendTo(table);
+        			}else{
+        				table.append('<tr><td>订单名称：</td><td><span>'+order.formalName+'</span></td></tr>');
+            			table.append('<tr><td>订单类型：</td><td><span>新手专用订单</span></td></tr>');
+            			var td = $('<td></td>');
+            			$('<tr></tr>').append('<td>订单说明：</td>').append(td).appendTo(table);
+        			}
         			
         			var urls= new Array(); //定义一数组 
         			urls=order.formalLink.split(",;"); //字符分割 
@@ -720,7 +766,12 @@
         			}
         			
         			var items = orderService.findMimeItems(order.id, 0);
-        			$('.detail-content-body').append('<h5>中标通知书</h5>');
+        			if(isNewProduct==false)
+        			{
+        				$('.detail-content-body').append('<h5>中标通知书</h5>');
+        			}else{
+        				$('.detail-content-body').append('<h5>新手专用订单资料</h5>');
+        			}
         			var pp = $('<p></p>');
         			for(var i=0; i<items.size(); i++){
         				var url = "/download/order/"+order.id+"/0/"+items.get(i).id;
@@ -731,16 +782,22 @@
         			$('.detail-content-body').append(pp);
         			$('.detail-content-body').append('<br>');
         			
-        			var items1 = orderService.findMimeItems(order.id, 1);
-        			$('.detail-content-body').append('<h5>政府采购合同</h5>');
-        			var pp1 = $('<p></p>');
-        			for(var i=0; i<items1.size(); i++){
-        				var url = "/download/order/"+order.id+"/1/"+items1.get(i).id;
-        				var viewurl = "img/pdf.png";
-        				var img = $('<img class="accessory" data-sk='+url+' src='+viewurl+'></img>').css('width', '200px').css('height', '150px').css('margin-left','10px').css('margin-top','5px');
-        				pp1.append(img);
+        			
+        			if(isNewProduct==false){
+        				var items1 = orderService.findMimeItems(order.id, 1);
+        				$('.detail-content-body').append('<h5>政府采购合同</h5>');
+        				var pp1 = $('<p></p>');
+        				for(var i=0; i<items1.size(); i++){
+        					var url = "/download/order/"+order.id+"/1/"+items1.get(i).id;
+        					var viewurl = "img/pdf.png";
+        					var img = $('<img class="accessory" data-sk='+url+' src='+viewurl+'></img>').css('width', '200px').css('height', '150px').css('margin-left','10px').css('margin-top','5px');
+        					pp1.append(img);
+        				}
+        				$('.detail-content-body').append(pp1);
         			}
-        			$('.detail-content-body').append(pp1);
+        			
+        			
+        			
         			
         			$('img.accessory').click(function(e){
     					var source = $(this).attr('data-sk');
