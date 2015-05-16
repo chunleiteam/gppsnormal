@@ -675,6 +675,9 @@ create table Subscribe
    primary key (id)
 );
 
+
+alter table Invite add(batchCode integer);
+
       
       
       
