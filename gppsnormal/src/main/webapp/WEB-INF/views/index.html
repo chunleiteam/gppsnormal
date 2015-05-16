@@ -159,6 +159,14 @@
    			<div class="table-responsive" id="projectlist" style="padding-top:10px;">
 			</div>
       </div>
+      
+      <div class="col-md-12" style="text-align:center; font-size:20px; color:#999; font-weight:bold; margin-bottom:20px;">
+      		<img src="img/productlist.jpg" style="height:30px; width:30px; margin-right:6px; margin-top:0px;"></img><span style="padding-top:5px;">新手专区</span>
+      </div>
+		<div class="col-md-12" style="margin-bottom:20px; background-color:white;">
+   			<div class="table-responsive" id="newProjectlist" style="padding-top:10px;">
+			</div>
+      </div>
 		
 		<div class="hidden-xs hidden-sm col-md-6 col-lg-6">
 		<div class="col-md-12" style="padding-bottom:5px; border-bottom: 3px solid grey;"><a class="announce darkgray" style="font-size:18px; font-weight:bold;" data-sk="platform" target="_blank" href="noticecenter.html?type=0">平台公告</a>
@@ -511,8 +519,15 @@ $(document).ready(function () {
                    
                    ctx.products = products;
                		ejs.renderComplexNode("#projectlist_template", "#projectlist", ctx);
+               		
+               		var newProducts = productService.findNewLenderProductByStates(1+2+8, 0, 5);
+                    ctx.products = newProducts;
+               		ejs.renderComplexNode("#projectlist_template", "#newProjectlist", ctx);
                    
                    });
+                   
+                   
+                  
  </script>
   </body>
 </html>
