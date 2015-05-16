@@ -160,12 +160,27 @@ public class SubmitServiceImpl implements ISubmitService {
 		if(num%product.getMiniAdd()!=0)
 			throw new IllegalArgumentException("提交失败，最小递增金额为:"+product.getMiniAdd());
 		
+		Lender lender=lenderService.getCurrentUser();
+		lender=lenderService.find(lender.getId());
+		
+		
+		//新手单定义为“进取型”并且购买级别为0
+		if(product.getProductSeries().getType()==ProductSeries.TYPE_FINISHPAYINTERESTANDCAPITAL && product.getLevelToBuy()==0){
+			if(num>100)
+			{
+				throw new IllegalArgumentException("提交失败，新手产品单笔提交额度不得超过100元");
+			}
+			int count = submitDao.countByLenderAndState(lender.getId(), Submit.STATE_COMPLETEPAY);
+			if(count>0){
+				throw new IllegalArgumentException("提交失败，已成功购买过产品的用户无法购买新手产品");
+			}
+		}
+		
 		if(product.getProductSeries().getType()==ProductSeries.TYPE_FINISHPAYINTERESTANDCAPITAL && num>10000){
 			throw new IllegalArgumentException("提交失败，进取型产品单笔提交额度不得超过10000元");
 		}
 		
-		Lender lender=lenderService.getCurrentUser();
-		lender=lenderService.find(lender.getId());
+		
 		
 		int submitsWaitForPay = submitDao.countByLenderAndState(lender.getId(), Submit.STATE_WAITFORPAY);
 		if(submitsWaitForPay>0){
