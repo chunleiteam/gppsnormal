@@ -721,6 +721,9 @@ var lenderview = function(container){
 	var columns = [ {
 		"sTitle" : "姓名",
 			"code" : "name"
+	},{
+		"sTitle" : "用户名",
+		"code" : "loginid"
 	}, {
 		"sTitle" : "电话",
 		"code" : "tel"
@@ -768,6 +771,7 @@ var lenderview = function(container){
 			for(var i=0; i<items.size(); i++){
 				var data=items.get(i);
 				result.aaData.push([data.name==null?"":data.name,
+									data.loginId,
 				                    data.tel,
 				                    data.identityCard==null?"":data.name,
 				                    data.level,
