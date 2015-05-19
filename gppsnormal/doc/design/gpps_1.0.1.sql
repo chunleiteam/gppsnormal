@@ -678,6 +678,13 @@ create table Subscribe
 
 alter table Invite add(batchCode integer);
 
+/*======================20150518修改========================================*/
+/*==============================================================*/
+/* Table: payback                                              */
+/*==============================================================*/
+alter table payback modify borrowerAccountId integer null;
+alter table payback modify productId integer null;
+
       
       
       
