@@ -124,6 +124,20 @@ public class AccountServiceImpl implements IAccountService {
 	}
 
 	@Override
+	public Integer freezeAdminAccount(Integer lenderId, BigDecimal chiefAmount, Integer paybackId, String description) throws Exception{
+		CashStream cashStream=new CashStream();
+		cashStream.setBorrowerAccountId(null);
+		cashStream.setLenderAccountId(lenderId);
+		cashStream.setChiefamount(chiefAmount);
+		cashStream.setPaybackId(paybackId);
+		cashStream.setDescription(description);
+		cashStream.setAction(CashStream.ACTION_AWARD);
+		cashStreamDao.create(cashStream);
+		recordStateLogWithCreate(cashStream);
+		return cashStream.getId();
+	}
+	
+	@Override
 	public Integer freezeBorrowerAccount(Integer borrowerAccountId, BigDecimal chiefAmount, BigDecimal interest, Integer submitId, Integer paybackId, String description) throws InsufficientBalanceException {
 		BorrowerAccount borrowerAccount=checkNullObject(BorrowerAccount.class, borrowerAccountDao.find(borrowerAccountId));
 		if(chiefAmount.add(interest).compareTo(borrowerAccount.getUsable())>0)
@@ -206,6 +220,20 @@ public class AccountServiceImpl implements IAccountService {
 		return cashStream.getId();
 	}
 
+	@Override
+	@Transactional
+	public Integer reward(Integer cashStreamId, Integer lenderAccountId, BigDecimal amount,Integer paybackId, String description) throws IllegalConvertException{
+		checkNullObject(LenderAccount.class, lenderAccountDao.find(lenderAccountId));
+		checkNullObject(PayBack.class, paybackId);
+		
+		CashStream cashStream=cashStreamDao.find(cashStreamId);
+		checkNullObject(CashStream.class, cashStream);
+		
+		changeCashStreamState(cashStream.getId(), CashStream.STATE_SUCCESS);
+		return cashStream.getId();
+	}
+	
+	
 	@Override
 	@Transactional
 	public Integer repay(Integer lenderAccountId, Integer borrowerAccountId, BigDecimal chiefamount, BigDecimal interest, Integer submitId, Integer paybackId, String description) throws IllegalConvertException {
@@ -345,6 +373,10 @@ public class AccountServiceImpl implements IAccountService {
 					break;
 				case CashStream.ACTION_STORECHANGE:
 					borrowerAccountDao.repay(cashStream.getBorrowerAccountId(), cashStream.getChiefamount().add(cashStream.getInterest()));
+					break;
+				case CashStream.ACTION_AWARD:
+					//奖励跟充值对于用户的账户余额来说行为完全一致
+					lenderAccountDao.recharge(cashStream.getLenderAccountId(), cashStream.getChiefamount());
 					break;
 				default:
 					throw new UnsupportedOperationException();

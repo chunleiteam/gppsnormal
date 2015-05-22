@@ -51,6 +51,15 @@ public interface IAccountService {
 	 * @throws IllegalConvertException 
 	 */
 	public Integer freezeBorrowerAccount(Integer borrowerAccountId,BigDecimal chiefAmount, BigDecimal interest, Integer submitId,Integer paybackId,String description) throws InsufficientBalanceException;
+	
+	/**
+	 * 平台自有账户冻结（仅限于发放奖励）
+	 * @param chiefAmount 奖励额度
+	 * @param paybackId   本批次对应的奖励paybackId
+	 * @param description 冻结说明
+	 * */
+	public Integer freezeAdminAccount(Integer lenderId, BigDecimal chiefAmount, Integer paybackId, String description) throws Exception;
+	
 	/**
 	 * 借款人账户解冻
 	 * @param borrowerAccountId
@@ -73,6 +82,14 @@ public interface IAccountService {
 	 * @throws IllegalConvertException 
 	 */
 	public Integer repay(Integer lenderAccountId,Integer borrowerAccountId,BigDecimal chiefamount,BigDecimal interest,Integer submitid,Integer paybackId,String description) throws IllegalConvertException;
+	
+	/**
+	 * 发放奖励
+	 * 
+	 * 
+	 * */
+	public Integer reward(Integer cashStreamId, Integer lenderAccountId, BigDecimal amount,Integer paybackId, String description) throws IllegalConvertException;
+	
 	/**
 	 * 贷款人取现
 	 * @param amount
