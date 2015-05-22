@@ -3,10 +3,12 @@ package gpps.validate;
 import gpps.dao.ICashStreamDao;
 import gpps.dao.IPayBackDao;
 import gpps.dao.IProductDao;
+import gpps.dao.IProductSeriesDao;
 import gpps.dao.ISubmitDao;
 import gpps.model.CashStream;
 import gpps.model.PayBack;
 import gpps.model.Product;
+import gpps.model.ProductSeries;
 import gpps.model.Submit;
 import gpps.service.CashStreamSum;
 
@@ -24,6 +26,7 @@ public class CheckProduct {
 	protected static ISubmitDao submitDao = context.getBean(ISubmitDao.class);
 	protected static IPayBackDao paybackDao = context.getBean(IPayBackDao.class);
 	protected static ICashStreamDao cashStreamDao = context.getBean(ICashStreamDao.class);
+	protected static IProductSeriesDao productSeriesDao = context.getBean(IProductSeriesDao.class);
 	public static void main(String args[]){
 		
 		
@@ -39,6 +42,14 @@ public class CheckProduct {
 		states.add(Product.STATE_QUITFINANCING);
 		states.add(Product.STATE_FINISHREPAY);
 		List<Product> products = productDao.findByState(states, 0, 10000);
+		
+		ProductSeries ps = productSeriesDao.findByType(ProductSeries.TYPE_FINISHPAYINTERESTANDCAPITAL);
+		List<Product> nps = productDao.findByProductSeriesAndBuyLevelAndState(ps.getId(), 0, states, 0, 10000);
+		
+		if(nps!=null){
+			products.addAll(nps);
+		}
+		
 		for(Product product : products){
 			total++;
 			try{

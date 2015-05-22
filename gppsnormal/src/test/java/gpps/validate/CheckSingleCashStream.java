@@ -3,6 +3,7 @@ package gpps.validate;
 import gpps.dao.IBorrowerDao;
 import gpps.dao.ICashStreamDao;
 import gpps.dao.ILenderDao;
+import gpps.inner.service.IInnerThirdPaySupportService;
 import gpps.model.Borrower;
 import gpps.model.CashStream;
 import gpps.model.Lender;
@@ -16,8 +17,10 @@ import gpps.tools.StringUtil;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -73,11 +76,13 @@ public class CheckSingleCashStream {
 	protected static ILenderDao lenderDao = context.getBean(ILenderDao.class);
 	protected static IBorrowerDao borrowerDao = context.getBean(IBorrowerDao.class);
 	
+	protected static IInnerThirdPaySupportService innerService = context.getBean(IInnerThirdPaySupportService.class);
+	
 	public static void main(String args[]) throws Exception{
 //		withdrawSingleCashStream("LN19029242014122113491557888");
 		
-		Date datestart = new Date(2015-1900,4-1,29,8,0,0);
-		Date dateend = new Date(2015-1900,4-1,29,8,0,0);
+		Date datestart = new Date(2015-1900,5-1,18,8,0,0);
+		Date dateend = new Date(2015-1900,5-1,22,8,0,0);
 		
 		long start = DateCalculateUtils.getStartTime(datestart.getTime());
 		long end = DateCalculateUtils.getEndTime(dateend.getTime())+1000;
@@ -96,7 +101,19 @@ public class CheckSingleCashStream {
 		
 		StringBuilder errorlog = new StringBuilder();
 		
+		Set<Integer> lenderIds = new HashSet<Integer>();
+		Set<Integer> borrowerIds = new HashSet<Integer>();
+		
 		for(CashStream cs : css){
+			
+			if(cs.getLenderAccountId()!=null){
+				lenderIds.add(cs.getLenderAccountId());
+			}
+			
+			if(cs.getBorrowerAccountId()!=null){
+				borrowerIds.add(cs.getBorrowerAccountId());
+			}
+			
 			total++;
 			try{
 			checkSingleCashStream(cs.getId());
@@ -112,6 +129,9 @@ public class CheckSingleCashStream {
 		
 		System.out.println(errorlog.toString());
 		System.out.println("现金流审核执行完毕：总共"+total+"条，成功"+success+"条，失败"+wrong+"条！");
+		
+		System.out.println("lenderIds: "+lenderIds);
+		System.out.println("borrowerIds: "+borrowerIds);
 		
 		System.exit(0);
 	}
@@ -181,7 +201,10 @@ public class CheckSingleCashStream {
 		if(cashStream.getAction()==CashStream.ACTION_RECHARGE)
 		{
 			flag = checkRechargeResult(cashStream, body);
-		}else if(cashStream.getAction()==CashStream.ACTION_CASH){
+		}else if(cashStream.getAction()==CashStream.ACTION_AWARD){
+			flag = checkAwardResult(cashStream, body);
+		}
+		else if(cashStream.getAction()==CashStream.ACTION_CASH){
 			flag = checkWithDrawResult(cashStream, body);
 		}else if(cashStream.getAction()==CashStream.ACTION_REPAY){
 			flag = checkPayBackResult(cashStream, body);
@@ -618,6 +641,102 @@ public class CheckSingleCashStream {
 			}
 		
 		
+		
+		
+		Map<String, String> result = res.get(0);
+		
+		//付款人乾多多标识
+		String LoanOutMoneymoremore = result.get("LoanOutMoneymoremore");
+		
+		//收款人乾多多标识
+		String LoanInMoneymoremore = result.get("LoanInMoneymoremore");
+		
+		//额度
+		String Amount = result.get("Amount");
+		//乾多多流水号
+		String LoanNo = result.get("LoanNo");
+		
+		//转账类型
+		String TransferAction = result.get("TransferAction");
+		
+		//转账状态
+		String TransferState = result.get("TransferState");
+		
+		//操作状态
+		String ActState = result.get("ActState");
+		
+		
+		
+		//还款
+		boolean actionflag = TransferAction.equals("2");
+		
+		
+		boolean accountflag = out.equals(LoanOutMoneymoremore) && in.equals(LoanInMoneymoremore);
+		
+		boolean loanflag = cashStream.getLoanNo()==null? false : cashStream.getLoanNo().equals(LoanNo);
+		
+		boolean stateflag = false;
+		if(ActState.equals("0")&&TransferState.equals("0")&&cashStream.getState()==1)
+		{
+			stateflag=true;
+		}else if(ActState.equals("1")&&TransferState.equals("1")&&cashStream.getState()==2){
+			stateflag=true;
+		}else if(ActState.equals("2")&&TransferState.equals("1")&&cashStream.getState()==4){
+			stateflag=true;
+		}else if(ActState.equals("3")&&TransferState.equals("1")&&cashStream.getState()==2){
+			stateflag=true;
+		}
+		boolean totalflag = cashStream.getChiefamount().add(cashStream.getInterest()).compareTo(new BigDecimal(Amount))==0;
+		
+		flag = flag && loanflag && stateflag && totalflag && accountflag && actionflag;
+		
+		StringBuilder message = new StringBuilder();
+		
+			message.append("现金流[ID:"+cashStream.getId()+"]: ");
+		if(loanflag==false){
+			message.append(" 乾多多流水号不一致:[平台"+cashStream.getLoanNo()+"][钱多多"+LoanNo+"] ");
+		}
+		if(stateflag==false){
+			message.append(" 操作状态不一致:[平台"+cashStream.getState()+"][钱多多"+ActState+"] ");
+		}
+		if(totalflag==false){
+			message.append(" 金额不一致:[平台"+cashStream.getChiefamount().toString()+"][钱多多"+Amount+"] ");
+		}
+		
+		if(accountflag==false){
+			message.append(" 账户不一致:[平台 borrower:"+out+" lender:+"+in+"][钱多多 borrower:"+LoanOutMoneymoremore+" lender:"+LoanInMoneymoremore+"] ");
+		}
+		
+		if(actionflag==false){
+			message.append(" 行为不一致:[平台 还款][钱多多 投标] ");
+		}
+		
+		if(!flag){
+			throw new Exception(message.toString());
+		}
+		
+		return flag;
+	}
+	
+	private static boolean checkAwardResult(CashStream cashStream, String body) throws Exception{
+		boolean flag = true;
+		Gson gson = new Gson();
+		List<Map<String, String>> res = (List<Map<String,String>>)gson.fromJson(body, List.class);
+		
+		if( (res==null || res.isEmpty()) && cashStream.getState() == cashStream.STATE_INIT && (cashStream.getLoanNo()==null || "".equals(cashStream.getLoanNo()))){
+			return true;
+		}else if((res==null || res.isEmpty())){
+			throw new Exception("现金流[ID:"+cashStream.getId()+"]有问题: 找不到第三方上对应的记录！");
+		}
+		
+		
+		String out = innerService.getPlatformMoneymoremore();
+		String in = "";
+		
+			Lender lender = lenderDao.findByAccountID(cashStream.getLenderAccountId());
+			if(lender!=null){
+				in = lender.getThirdPartyAccount();
+			}
 		
 		
 		Map<String, String> result = res.get(0);

@@ -33,7 +33,7 @@ public class CheckPayBack {
 	public static void printPayBackCondition(Integer paybackId){
 		PayBack pb = payBackDao.find(paybackId);
 		Product product = productDao.find(pb.getProductId());
-		List<CashStream> css = cashStreamDao.findByRepayAndAction(paybackId, CashStream.ACTION_FREEZE);
+		List<CashStream> css = cashStreamDao.findByRepayAndActionAndState(paybackId, CashStream.ACTION_FREEZE, CashStream.STATE_SUCCESS);
 		
 		BigDecimal totalAmount = new BigDecimal(0);
 		BigDecimal totalChief = new BigDecimal(0);
