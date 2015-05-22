@@ -28,7 +28,7 @@ public class MessageCheck {
 	}
 	
 	public static void main(String args[]) throws Exception{
-		String message = "【春蕾政采贷】尊敬的用户，ZCD2015004001号项目已完成调查，将于4月23日20点30分发布，标的金额50万元，年化利率16%，期限3个月，按月摊还本息，敬请关注！政采贷平台移动端快捷支付功能已经开通，您可通过手机快捷支付进行充值投资，充值所产生的千分之三点五费用由政采贷平台进行全额垫付，您可进行免费充值，欢迎使用！详情请查看平台网站：www.zhengcaidai.com。";
+		String message = "【春蕾政采贷】尊敬的用户，新手专享ZCD2015NEW001号项目已启动，仅限于初次购买客户，期限1个月，年化利率36%，每人限额100元，欢迎体验和推荐。详情请查看http://www.zhengcaidai.com/productdetail.html?pid=16。";
 		System.out.println(check(message));
 	}
 	
