@@ -25,9 +25,9 @@ public class JustAuditBuyTest {
 	
 	public static void justAuditBuy2() throws Exception{
 		List<String> loanNos = new ArrayList<String>();
-		loanNos.add("LN13225141503300031297369031");
+		loanNos.add("LN11243741505111747171565846");
 		
-		auditBuyService.justAuditBuy(loanNos, ThirdPartyState.THIRD_AUDITTYPE_RETURN);
+		auditBuyService.justAuditBuy(loanNos, ThirdPartyState.THIRD_AUDITTYPE_PASS);
 	}
 	
 	public static void justAuditBuy(){
