@@ -696,4 +696,4 @@ INSERT INTO `productseries` VALUES (1,'稳健型','<?xml version=\"1.0\" encodin
 INSERT INTO `productseries` VALUES (2,'均衡型','<?xml version=\"1.0\" encoding=\"UTF-8\"?><TagCol><items><Item description=\"风险适中\" title=\"风险适中\"/><Item description=\"较高收益\" title=\"较高收益\"/></items></TagCol>','本类型产品具有中等偏上的收益，按月回款的特点，收益流动性和风险都适中，适合平衡型的的客户参与。',1,'按日计息，按月还息，到期还本，可提前还款');
 INSERT INTO `productseries` VALUES (3,'进取型','<?xml version=\"1.0\" encoding=\"UTF-8\"?><TagCol><items><Item description=\"超高收益\" title=\"超高收益\"/></items></TagCol>','本类型产品具有高收益低流动性，到期还本付息的特点，适合追求高收益并能承担一定风险的客户参与。',2,'按日计息，按月还息，到期还本。可提前还款。');
 
-insert into invite values(1, 1, 0, null, 1);
+insert into invite values(1, 1, 0, null, 1, null);
