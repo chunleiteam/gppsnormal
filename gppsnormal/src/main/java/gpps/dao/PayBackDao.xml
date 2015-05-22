@@ -18,6 +18,10 @@
 		select *
 		from PayBack where id=#{id}
 	</select>
+	<select id="findByTypeAndCheckResult" resultType="gpps.model.PayBack">
+		select *
+		from PayBack where type=#{type} and checkResult=#{checkResult}
+	</select>
 	<update id="changeState">
 		update
 		PayBack set state=#{state}

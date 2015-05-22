@@ -37,6 +37,9 @@ public interface ICashStreamDao {
 	public List<CashStream> findByActionAndTime(@Param("action")int action, @Param("start")long start, @Param("end")long end);
 	
 	public int countByActionAndState(@Param("lenderAccountId")Integer lenderAccountId,@Param("borrowerAccountId")Integer borrowerAccountId,@Param("action")int action,@Param("state")int state);
+	
+	public int countByActionAndStateAndDescription(@Param("action")int action,@Param("state")int state,@Param("description")String description);
+	
 	public PayBackDetail sumLenderRepayed(@Param("lenderAccountId")Integer lenderAccountId,@Param("starttime")long starttime,@Param("endtime")long endtime);
 	/**
 	 * 找到订单的所有还款
@@ -63,7 +66,7 @@ public interface ICashStreamDao {
 	 * @param action 动作
 	 * 
 	 * */
-	public List<CashStream> findByRepayAndAction(@Param("payBackId")Integer payBackId,@Param("action")int action);
+	public List<CashStream> findByRepayAndActionAndState(@Param("payBackId")Integer payBackId,@Param("action")int action,@Param("state")int state);
 	
 	
 	public void updateDescription(@Param("cashStreamId") Integer cashStreamId,@Param("description") String description);
@@ -75,6 +78,8 @@ public interface ICashStreamDao {
 	 * @return
 	 */
 	public List<CashStream> findSuccessByActionAndLoanNo(@Param("action")int action,@Param("loanNo")String loanNo);
+	
+	public List<CashStream> findByActionAndLoanNo(@Param("action")int action,@Param("loanNo")String loanNo);
 	
 	public CashStreamSum sumCashStream(@Param("lenderAccountId")Integer lenderAccountId,@Param("borrowerAccountId")Integer borrowerAccountId,@Param("actions")List<Integer> actions);
 	public CashStreamSum sumProduct(@Param("productId")Integer productId,@Param("action")int action);

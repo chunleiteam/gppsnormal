@@ -39,6 +39,12 @@ public interface IPayBackDao {
 	
 	public List<PayBack> findByTimeAndState(@Param("starttime")long starttime, @Param("endtime")long endtime, @Param("state")Integer state);
 	
+	/**
+	 * 主要用于奖励的查询，当type==2的时候，checkResult代表了奖励的批次
+	 * 
+	 * */
+	public List<PayBack> findByTypeAndCheckResult(@Param("type")int type, @Param("checkResult")int checkResult);
+	
 	public void changeCheckResult(@Param("id")Integer id,@Param("checkResult")int checkResult);
 	
 	public void deleteByProduct(Integer productId);

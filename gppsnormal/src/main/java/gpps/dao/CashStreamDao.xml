@@ -57,6 +57,10 @@
 		order by createtime desc
 		LIMIT #{offset}, #{recnum}
 	</select>
+	<select id="countByActionAndStateAndDescription" resultType="int">
+		select count(*)
+		from CashStream where action=#{action} and state=#{state} and description=#{description}
+	</select>
 	<select id="countByActionAndState" resultType="int">
 		select count(*)
 		from CashStream where 1=1
@@ -128,10 +132,13 @@
             and payBackId=#{payBackId}
         </if>
     </select>
-    <select id="findByRepayAndAction"
+    <select id="findByRepayAndActionAndState"
         resultType="gpps.model.CashStream">
         select *
-        from CashStream where payBackId=#{payBackId} and state=2 and action=#{action}
+        from CashStream where payBackId=#{payBackId} and action=#{action}
+        <if test="state!=-1">
+         and state=#{state}
+        </if>
     </select>
     <update id="updateLoanNo">
     	update CashStream set loanNo=#{loanNo}
@@ -149,6 +156,14 @@
 			and action=#{action}
 		</if>
     </select>
+    
+    <select id="findByActionAndLoanNo" resultType="gpps.model.CashStream">
+    	select * from CashStream where loanNo=#{loanNo}
+    	<if test="action != -1">
+			and action=#{action}
+		</if>
+    </select>
+    
 	<select id="sumCashStream" resultType="gpps.service.CashStreamSum">
 		select sum(chiefamount) chiefAmount,sum(interest) interest from CashStream
 		where (state=2 or state=8)
