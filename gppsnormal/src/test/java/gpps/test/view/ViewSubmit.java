@@ -16,7 +16,7 @@ public class ViewSubmit {
 	static ISubmitDao submitDao = context.getBean(ISubmitDao.class);
 	static ILenderDao lenderDao = context.getBean(ILenderDao.class);
 	public static void main(String args[]){
-	List<Submit> submits = submitDao.findAllByProductAndState(13, Submit.STATE_COMPLETEPAY);
+	List<Submit> submits = submitDao.findAllByProductAndState(14, Submit.STATE_COMPLETEPAY);
 	System.out.println("用户姓名\t登录名\t\t\t身份证\t投标额度\t合同编号");
 	for(Submit submit : submits){
 		Lender lender = lenderDao.find(submit.getLenderId());
