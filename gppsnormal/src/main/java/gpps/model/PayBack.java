@@ -25,11 +25,12 @@ public class PayBack {
 	private long checktime;//验证时间
 	public static final int TYPE_INTERESTANDCHIEF=0;
 	public static final int TYPE_LASTPAY=1;
-	private int type;//还款方式 0:利息和本息;1:一次性本金
+	public static final int TYPE_REWARD=2;
+	private int type;//还款方式 0:利息和本息;1:一次性本金;2:发放奖励
 	public static final int CHECK_NOT=0;
 	public static final int CHECK_SUCCESS=1;
 	public static final int CHECK_FAIL=2;
-	private int checkResult=CHECK_NOT;
+	private int checkResult=CHECK_NOT;  //当type==2时，checkResult代表了发放奖励的批次
 //	private Integer paybackId;
 //	/**
 //	 * 0：正常还款 1：新增（指向延期）

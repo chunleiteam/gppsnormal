@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class CashStream {
 	private Integer id;
 	/**
-	 * 0:向账户充值 1:冻结(包括借款方竞标冻结/融资方还钱冻结) 2：解冻 3:贷款人将冻结资金支付给借款人 4:借款人还款 5:从账户提现;6将除不尽的零钱存入平台账户
+	 * 0:向账户充值 1:冻结(包括借款方竞标冻结/融资方还钱冻结) 2：解冻 3:贷款人将冻结资金支付给借款人 4:借款人还款 5:从账户提现;6将除不尽的零钱存入平台账户;7:奖励冻结;8:奖励解冻;9:奖励
 	 */
 	public static final int ACTION_RECHARGE=0;
 	public static final int ACTION_FREEZE=1;
@@ -14,6 +14,7 @@ public class CashStream {
 	public static final int ACTION_REPAY=4;
 	public static final int ACTION_CASH=5;
 	public static final int ACTION_STORECHANGE=6;
+	public static final int ACTION_AWARD=9;
 	private int action;
 	private long createtime = System.currentTimeMillis();
 	private Integer lenderAccountId;
