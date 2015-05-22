@@ -245,7 +245,7 @@ public class TaskServiceImpl implements ITaskService {
 		if(interrupted)
 		logger.info("该校验任务曾被打断过，现在继续执行");
 		
-		List<CashStream> css = cashStreamDao.findByRepayAndAction(task.getPayBackId(), CashStream.ACTION_FREEZE);
+		List<CashStream> css = cashStreamDao.findByRepayAndActionAndState(task.getPayBackId(), CashStream.ACTION_FREEZE, CashStream.STATE_SUCCESS);
 		List<LoanJson> loanJsons=new ArrayList<LoanJson>();
 		
 		for(CashStream cs : css){
@@ -286,7 +286,7 @@ public class TaskServiceImpl implements ITaskService {
 				logger.info("开始执行产品id="+task.getProductId()+"的还款任务taskID="+task.getId());
 				if(interrupted)
 					logger.info("该支付任务曾被打断过，现在继续执行");
-		List<CashStream> css = cashStreamDao.findByRepayAndAction(task.getPayBackId(), CashStream.ACTION_FREEZE);
+		List<CashStream> css = cashStreamDao.findByRepayAndActionAndState(task.getPayBackId(), CashStream.ACTION_FREEZE, CashStream.STATE_SUCCESS);
 		
 		if(css==null||css.size()==0)
 			return;

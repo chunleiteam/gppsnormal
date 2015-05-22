@@ -617,7 +617,7 @@ public class PayBackServiceImpl implements IPayBackService {
 			throw new IllegalOperationException("请先验证成功再审核");
 		}
 		
-		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_FREEZE);
+		List<CashStream> css = cashStreamDao.findByRepayAndActionAndState(payBackId, CashStream.ACTION_FREEZE, CashStream.STATE_SUCCESS);
 		
 		//根据融资方申请还款时创建的冻结现金流来校验本次还款
 		innerPayBackService.justCheckOutPayBackByCS(css, payBackId, "正式还款审核");
@@ -755,7 +755,7 @@ public class PayBackServiceImpl implements IPayBackService {
 		
 		Product product = productDao.find(payback.getProductId());
 		Borrower borrower = borrowerDao.findByAccountID(payback.getBorrowerAccountId());
-		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_FREEZE);
+		List<CashStream> css = cashStreamDao.findByRepayAndActionAndState(payBackId, CashStream.ACTION_FREEZE, CashStream.STATE_SUCCESS);
 		
 		List<SinglePayBack> spbs = new ArrayList<SinglePayBack>();
 		
@@ -837,7 +837,7 @@ public class PayBackServiceImpl implements IPayBackService {
 	
 	public List<SinglePayBack> checkoutPayBackOld(Integer payBackId) throws CheckException {
 		PayBack payback = payBackDao.find(payBackId);
-		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_FREEZE);
+		List<CashStream> css = cashStreamDao.findByRepayAndActionAndState(payBackId, CashStream.ACTION_FREEZE, CashStream.STATE_SUCCESS);
 		
 		List<SinglePayBack> spbs = new ArrayList<SinglePayBack>();
 		
