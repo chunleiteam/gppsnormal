@@ -91,6 +91,57 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		//由于申请还款（自动）会前后台都返回处理结果，因此能接收到直接返回结果，因此直接就执行相应的后续处理
 		repayApplyProcessor(body);
 	}
+	
+	
+	@Override
+	public List<LoanFromTP> justTransferApply(List<LoanJson> loanJsons)
+			throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException{
+		if(loanJsons==null || loanJsons.isEmpty()){
+			throw new CheckException("无效的转账列表！");
+		}
+		
+		Transfer transfer = new Transfer();
+		transfer.setPlatformMoneymoremore(innerThirdPayService.getPlatformMoneymoremore());
+		transfer.setTransferAction(ThirdPartyState.THIRD_TRANSFERACTION_REPAY);
+		transfer.setAction(ThirdPartyState.THIRD_ACTION_AUTO);
+		transfer.setTransferType(ThirdPartyState.THIRD_TRANSFERTYPE_DIRECT);
+		
+		//转账设置为需要审核
+		transfer.setNeedAudit(null);
+		
+		//非手动转账，不需要returnURL,只需要提供后台处理页面
+//		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
+		transfer.setNotifyURL("http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repay/response/bg");
+		
+		//签名
+		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
+		transfer.setSignInfo(transfer.getSign(innerThirdPayService.getPrivateKey()));
+		
+		//将转账列表编码
+		try {
+			transfer.setLoanJsonList(URLEncoder.encode(transfer.getLoanJsonList(),"UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+		Map<String,String> params=transfer.getParams();
+		
+		
+		String baseUrl = innerThirdPayService.getBaseUrl(IInnerThirdPaySupportService.ACTION_TRANSFER);
+		
+		//将处理好的参数post到第三方，并接受其马上返回的参数
+		String body=httpClientService.post(baseUrl, params);
+
+		//校验返回结果
+		Gson gson = new Gson();
+		//自动、需要审核转账(Action=2  NeedAudit=null)，只包含一个json，记录了具体的转账信息
+		Map returnParams=gson.fromJson(body, Map.class);
+		
+		List<LoanFromTP> res = handleReturnParams(returnParams);
+		return res;
+	}
+	
+	
 
 	@Override
 	public void repayApplyProcessor(Map<String, String> returnParams) throws AlreadyDoneException, ResultCodeException,
@@ -185,7 +236,7 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 			}
 			
 			CashStream cashStream = cashStreamDao.find(cashStreamId);
-			if(cashStream.getState()==CashStream.STATE_SUCCESS && loanNo.equals(cashStream.getLoanNo()))
+			if(cashStream.getState()==CashStream.STATE_SUCCESS && loanNo.getLoanNo().equals(cashStream.getLoanNo()))
 			{
 				log.debug("回款现金流【"+cashStreamId+"】:已执行完毕，重复提交");
 				continue;

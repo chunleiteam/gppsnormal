@@ -53,6 +53,12 @@ IBalanceWithTPService balanceWithTPService;
 	}
 	
 	@Override
+	public void justTransferApply(List<LoanJson> loanJsons) throws Exception{
+		transferApplyService.justTransferApply(loanJsons);
+	}
+	
+	
+	@Override
 	public LoanFromTP viewByOrderNo(String orderNo, String action) throws Exception{
 		return balanceWithTPService.viewByOrderNo(orderNo, action);
 	}
