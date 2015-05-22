@@ -77,7 +77,8 @@ var defaultSettings_noCallBack = {
 			3 : '投标',
 			4 : '还款',
 			5 : '提现',
-			6 : '存零'
+			6 : '存零',
+			9 : '奖励'
 	}
 	var productstate = {
 			1:'融资中',
