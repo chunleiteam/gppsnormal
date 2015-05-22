@@ -644,7 +644,7 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 		
 		Map<Integer, List<CashStream>> messages = new HashMap<Integer, List<CashStream>>();
 		
-		List<CashStream> css = cashStreamDao.findByRepayAndAction(payBackId, CashStream.ACTION_REPAY);
+		List<CashStream> css = cashStreamDao.findByRepayAndActionAndState(payBackId, CashStream.ACTION_REPAY, CashStream.STATE_SUCCESS);
 		for(CashStream cs : css){
 			if(messages.containsKey(cs.getLenderAccountId()))
 			{
