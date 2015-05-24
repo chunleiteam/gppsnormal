@@ -1,0 +1,26 @@
+近期双乾将采取加大带宽、优化服务器集群协调、接口优化、程序优化等措施，部分平台的接口稳定性可能会有影响，若有接口异常，及时跟双乾技术或客服反馈。
+    今日起进行接口优化：5月21日12:00点前，6个接口需更改新的抛送地址（剩下4个接口抛送地址保持不变），6个接口新的抛送地址如下：
+【1】. 开户接口新的抛送地址：
+https://register.moneymoremore.com/loan/toloanregisterbind.action
+【2】. 充值接口新的抛送地址：
+https://recharge.moneymoremore.com/loan/toloanrecharge.action
+【3】. 转账接口新的抛送地址：
+https://transfer.moneymoremore.com/loan/loan.action
+【4】. 审核接口新的抛送地址：
+https://audit.moneymoremore.com/loan/toloantransferaudit.action
+【5】. 余额查询接口新的抛送地址：
+https://query.moneymoremore.com/loan/balancequery.action
+【6】. 对账接口新的抛送地址：
+https://query.moneymoremore.com/loan/loanorderquery.action
+以下4个接口抛送地址保持不变
+【1】. 提现接口抛送单配地址：
+https://www.moneymoremore.com/loan/toloanwithdraws.action
+【2】. 授权接口抛送单配地址:
+https://www.moneymoremore.com/loan/toloanauthorize.action
+【3】. 资金释放接口抛送单配地址:
+https://www.moneymoremore.com/loan/toloanrelease.action
+【4】. 三合一接口抛送单配地址:
+https://www.moneymoremore.com/loan/toloanfastpay.action
+要求所有平台更改新的接口抛送地址于5月21日12:00前完成，截止日期后，6个接口原来的抛送地址将全部停用。请平台人员联系系统开发的技术在规定期限内加紧更换新的抛送地址，所有商户知晓并执行！！
+
+*******看到通知，请回复*********
