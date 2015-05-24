@@ -12,7 +12,6 @@ import gpps.service.thirdpay.ITransferApplyService;
 import gpps.service.thirdpay.LoanFromTP;
 import gpps.service.thirdpay.LoanHelper;
 import gpps.service.thirdpay.ResultCodeException;
-import gpps.service.thirdpay.ThirdPartyAssistent;
 import gpps.service.thirdpay.ThirdPartyState;
 import gpps.service.thirdpay.Transfer;
 import gpps.service.thirdpay.Transfer.LoanJson;

@@ -53,7 +53,6 @@ import gpps.service.thirdpay.IAuditBuyService;
 import gpps.service.thirdpay.IHttpClientService;
 import gpps.service.thirdpay.IThirdPaySupportService;
 import gpps.service.thirdpay.ResultCodeException;
-import gpps.service.thirdpay.ThirdPartyAssistent;
 @Service
 public class AuditBuyServiceImpl implements IAuditBuyService {
 	@Autowired

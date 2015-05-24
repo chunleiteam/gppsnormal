@@ -5,7 +5,6 @@ import gpps.service.thirdpay.IBalanceWithTPService;
 import gpps.service.thirdpay.IHttpClientService;
 import gpps.service.thirdpay.LoanFromTP;
 import gpps.service.thirdpay.LoanHelper;
-import gpps.service.thirdpay.ThirdPartyAssistent;
 import gpps.tools.RsaHelper;
 import gpps.tools.StringUtil;
 

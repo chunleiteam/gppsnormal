@@ -26,7 +26,6 @@ import gpps.service.thirdpay.AlreadyDoneException;
 import gpps.service.thirdpay.IAuditRepayService;
 import gpps.service.thirdpay.IHttpClientService;
 import gpps.service.thirdpay.ResultCodeException;
-import gpps.service.thirdpay.ThirdPartyAssistent;
 
 import java.security.SignatureException;
 import java.util.HashMap;
