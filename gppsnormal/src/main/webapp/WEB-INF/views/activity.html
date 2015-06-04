@@ -124,7 +124,7 @@
 春蕾活动由北京春蕾投资管理有限责任公司主办，旨在丰富广大客户的业余休闲生活，通过发起跑步、徒步、自驾游、慈善公益等方式的活动，鼓励广大客户关注公益，享受健康的生活方式，投身自然，热爱生活。我们坚信：身心健康，才是您最好的一笔投资！<br>
 </div>
 
-		<div class="col-xs-12 col-sm-12 col-md-12" style="padding-left:0px; padding-right:0px;">
+		<div class="col-md-12" style="padding-left:0px; padding-right:0px;">
  			<div class="news-notice sidebar-panels">
                 <a href="helpcenter.html?type=0" target="_blank"
                    class="news-notice-head clearfix">
@@ -137,11 +137,11 @@
                    </ul>
                 </div>
             </div>
-            </div>
+       </div>
             
             
 
-		<div class="col-xs-12 col-sm-12 col-md-12" style="padding-left:0px; padding-right:0px;">
+		<div class="col-md-12" style="padding-left:0px; padding-right:0px;">
  			<div class="news-notice sidebar-panels">
                 <a href="noticecenter.html?type=3" target="_blank"
                    class="news-notice-head clearfix">
@@ -154,7 +154,8 @@
                    </ul>
                 </div>
             </div>
-            </div>
+            <div style="clear:both;"></div>
+       </div>
 
 
 <div class="col-md-12" style="margin-bottom:10px; margin-top:10px; padding-bottom:5px; padding-left:0px; padding-right:0px;">
@@ -223,7 +224,7 @@ $(document).ready(function() {
 	 var cxbs = clxbs.get('result');
 	 if(cxbs){
 		 for(var i=0; i<cxbs.size(); i++){
-			 $('#chunleixiaobai').append('<li><b></b><a href="detail.html?type=notice&stype='+cxbs.get(i).publicType+'&id='+cxbs.get(i).id+'" target="_blank">'+cxbs.get(i).title+'</a></li>');
+			 $('#chunleixiaobai').append('<li style="clear:both;"><b></b><a href="detail.html?type=notice&stype='+cxbs.get(i).publicType+'&id='+cxbs.get(i).id+'" target="_blank">'+cxbs.get(i).title+'</a></li>');
 		 }
 	 }
 	
