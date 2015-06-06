@@ -36,6 +36,21 @@
 		total=total-#{amount},freeze=freeze-#{amount}
 		where id=#{accountId}
 	</update>
+	<update id="purchaseBack">
+		update BorrowerAccount set
+		total=total+#{fee},usable=usable+#{chiefAmount}+#{fee},used=used-#{chiefAmount},totalFee=totalFee+#{fee} 
+		where id=#{accountId}
+	</update>
+	<update id="purchase">
+		update BorrowerAccount set
+		total=total+#{interest},usable=usable+#{chiefAmount}+#{interest},used=used-#{chiefAmount},totalFee=totalFee+#{interest} 
+		where id=#{accountId}
+	</update>
+	<update id="purchaseBackRepay">
+		update BorrowerAccount set
+		total=total+#{interest},usable=usable+#{chiefAmount}+#{interest},used=used-#{chiefAmount},totalFee=totalFee+#{interest} 
+		where id=#{accountId}
+	</update>
 	<update id="cash">
 		update BorrowerAccount set
 		total=total-#{amount},usable=usable-#{amount}

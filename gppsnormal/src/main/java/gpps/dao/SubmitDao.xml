@@ -8,8 +8,8 @@
 	<insert id="create" parameterType="gpps.model.Submit"
 		useGeneratedKeys="true" keyProperty="id">
 		insert into
-		Submit(state,createtime,lenderId,productId,lastmodifytime,amount)
-		values(#{state},#{createtime},#{lenderId},#{productId},#{lastmodifytime},#{amount})
+		Submit(state,createtime,lenderId,productId,lastmodifytime,amount,purchaseFlag,borrowerId,holdingstarttime)
+		values(#{state},#{createtime},#{lenderId},#{productId},#{lastmodifytime},#{amount},#{purchaseFlag},#{borrowerId},#{holdingstarttime})
 	</insert>
 	<select id="findAllByLender" parameterType="Integer" resultType="gpps.model.Submit">
 		select *
@@ -71,7 +71,9 @@
 	<select id="findAllPayedByLenderAndProductStates" resultType="gpps.model.Submit">
 		select a.*
 		from Submit a,Product b where a.productId=b.id and a.state=2
-		and a.lenderId=#{lenderId}
+		<if test="lenderId !=null">
+		 and a.lenderId=#{lenderId}
+		</if>
 		<if test="productStates != null">
 			and b.state in
 			<foreach item="item" index="index" collection="productStates"
@@ -84,8 +86,10 @@
 	</select>
 	<select id="countByLenderAndProductStates" resultType="int">
 		select count(*)
-		from Submit a,Product b where a.productId=b.id and a.state=2 and
-		a.lenderId=#{lenderId}
+		from Submit a,Product b where a.productId=b.id and a.state=2 
+		<if test="lenderId !=null">
+		 and a.lenderId=#{lenderId}
+		</if>
 		<if test="productStates != null">
 			and b.state in
 			<foreach item="item" index="index" collection="productStates"
@@ -94,9 +98,46 @@
 			</foreach>
 		</if>
 	</select>
+	<select id="countByStateAndProductStatesAndPurchaseFlag" resultType="int">
+		select count(*)
+		from Submit a,Product b where a.productId=b.id and a.state=#{state} and a.purchaseFlag=#{purchaseFlag} 
+		<if test="productStates != null">
+			and b.state in
+			<foreach item="item" index="index" collection="productStates"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+	
+	<select id="findAllByStateAndProductStatesAndPurchaseFlagWithPaged" resultType="gpps.model.Submit">
+		select *
+		from Submit a, Product b where a.productId=b.id and a.state=#{state} and a.purchaseFlag=#{purchaseFlag} 
+		<if test="productStates != null">
+			and b.state in
+			<foreach item="item" index="index" collection="productStates"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		LIMIT #{offset}, #{recnum}
+	</select>
+	
 	<update id="changeState">
 		update Submit set
 		state=#{state},lastmodifytime=#{lastmodifytime}
+		where
+		id=#{id}
+	</update>
+	<update id="purchaseBack">
+		update Submit set
+		state=2,purchaseFlag=1,borrowerId=#{borrowerId}, lenderId=#{lenderId}, holdingstarttime=0
+		where
+		id=#{id}
+	</update>
+	<update id="purchase">
+		update Submit set
+		state=2,purchaseFlag=0,borrowerId=null, lenderId=#{lenderId}, holdingstarttime=#{holdingstarttime}
 		where
 		id=#{id}
 	</update>
@@ -109,7 +150,7 @@
 	<select id="findAllByProductAndStateWithPaged" resultType="gpps.model.Submit">
 		select *
 		from Submit where productId=#{productId} and state=#{state} order by
-		createtime desc
+		lastmodifytime desc
 		LIMIT #{offset}, #{recnum}
 	</select>
 	<select id="countByProductAndStateWithPaged" resultType="int">

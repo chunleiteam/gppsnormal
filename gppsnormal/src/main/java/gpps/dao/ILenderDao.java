@@ -44,4 +44,10 @@ public interface ILenderDao {
 	public void updateName(@Param("id")Integer id,@Param("name")String name);
 	public void updateEmail(@Param("id")Integer id,@Param("email")String email);
 	public void updateAddress(@Param("id")Integer id,@Param("address")String address);
+	
+	/**
+	 * 更新用户的授权类型
+	 * 
+	 * */
+	public void updateAuthorizeTypeOpen(@Param("id")Integer id, @Param("authorizeTypeOpen")int authorizeTypeOpen);
 }

@@ -42,8 +42,8 @@
 	<insert id="create" parameterType="gpps.model.Lender"
 		useGeneratedKeys="true" keyProperty="id">
 		insert into
-		Lender(name,tel,email,loginId,password,identityCard,accountId,createtime,privilege,grade,level)
-		values(#{name},#{tel},#{email},#{loginId},#{password},#{identityCard},#{accountId},#{createtime},#{privilege},#{grade}, #{level})
+		Lender(name,tel,email,loginId,password,identityCard,accountId,createtime,privilege,grade,level, authorizeTypeOpen)
+		values(#{name},#{tel},#{email},#{loginId},#{password},#{identityCard},#{accountId},#{createtime},#{privilege},#{grade}, #{level}, #{authorizeTypeOpen})
 	</insert>
 	<update id="changePrivilege">
 		update Lender set
@@ -115,5 +115,8 @@
     </update>
     <update id="updateAddress">
     	update Lender set address=#{address} where id=#{id}
+    </update>
+    <update id="updateAuthorizeTypeOpen">
+    	update Lender set authorizeTypeOpen=#{authorizeTypeOpen} where id=#{id}
     </update>
 </mapper>

@@ -26,8 +26,21 @@ public interface ISubmitDao {
 	public Submit find(Integer id);
 	public void changeState(@Param("id")Integer id,@Param("state")int state,@Param("lastmodifytime")long lastmodifytime);
 	public void delete(Integer id);
+	
+	/**
+	 * 若lenderId==null,则不限lender
+	 * 
+	 * */
 	public List<Submit> findAllPayedByLenderAndProductStates(@Param("lenderId")Integer lenderId,@Param("productStates") List<Integer> productStates,@Param("offset")int offset,@Param("recnum")int recnum);
+	/**
+	 * 若lenderId==null,则不限lender
+	 * 
+	 * */
 	public int countByLenderAndProductStates(@Param("lenderId")Integer lenderId,@Param("productStates") List<Integer> productStates);
+	
+	public int countByStateAndProductStatesAndPurchaseFlag(@Param("state")int state,@Param("productStates") List<Integer> productStates, @Param("purchaseFlag")int purchaseFlag);
+	public List<Submit> findAllByStateAndProductStatesAndPurchaseFlagWithPaged(@Param("state")int state,@Param("productStates") List<Integer> productStates, @Param("purchaseFlag")int purchaseFlag,@Param("offset")int offset,@Param("recnum")int recnum);
+	
 	
 	public List<Submit> findAllByProductAndStateWithPaged(@Param("productId")Integer productId,@Param("state")int state,@Param("offset")int offset,@Param("recnum")int recnum);
 	public int countByProductAndStateWithPaged(@Param("productId")Integer productId,@Param("state")int state);
@@ -37,4 +50,22 @@ public interface ISubmitDao {
 	public int countByLenderAndState(@Param("lenderId")Integer lenderId,@Param("state")int state);
 	
 	public List<Submit> findAllByState(int state);
+	
+	
+	/**
+	 * 回购时对对应的submit的修改
+	 * @param borrowerId 回购企业的ID
+	 * @param lenderId   回购时代持用户的ID
+	 * @param id 		 回购的标的的ID
+	 * 
+	 * */
+	public void purchaseBack(@Param("borrowerId")Integer borrowerId, @Param("lenderId")Integer lenderId, @Param("id")Integer id);
+	
+	/**
+	 * 购买债权时对对应的submit的修改
+	 * @param lenderId   购买用户的ID
+	 * @param id 		 标的的ID
+	 * @param holdingstarttime   购买时间
+	 * */
+	public void purchase(@Param("lenderId")Integer lenderId, @Param("id")Integer id, @Param("holdingstarttime")long holdingstarttime);
 }

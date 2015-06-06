@@ -71,6 +71,9 @@ public interface ICashStreamDao {
 	
 	public void updateDescription(@Param("cashStreamId") Integer cashStreamId,@Param("description") String description);
 	public void updateLoanNo(@Param("cashStreamId") Integer cashStreamId,@Param("loanNo") String loanNo,@Param("fee")BigDecimal fee);
+	
+	public void updateBorrowerId(@Param("cashStreamId") Integer cashStreamId, @Param("borrowerAccountId")Integer borrowerAccountId);
+	
 	/**
 	 * 根据action及loanNo查找流水
 	 * @param action -1为不限
@@ -85,7 +88,7 @@ public interface ICashStreamDao {
 	public CashStreamSum sumProduct(@Param("productId")Integer productId,@Param("action")int action);
 	public CashStreamSum sumPayBackByAction(@Param("paybackId")Integer paybackId, @Param("action")int action);
 	
-	public CashStream findBySubmitAndState(@Param("submitId")Integer submitId,@Param("action")int action);
+	public CashStream findBySubmitAndAction(@Param("submitId")Integer submitId,@Param("action")int action);
 	
 	public List<CashStream> findBySubmitAndActionAndState(@Param("submitId")Integer submitId,@Param("action")int action,@Param("state")int state);
 }

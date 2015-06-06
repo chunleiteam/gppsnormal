@@ -36,6 +36,16 @@
 		total=total+#{incomeAmount},totalincome=totalincome+#{incomeAmount},used=used-#{principalAmount},usable=usable+#{principalAmount}+#{incomeAmount}
 		where id=#{accountId}
 	</update>
+	<update id="purchaseBack">
+		update LenderAccount set
+		total=total+#{fee},usable=usable+#{chiefAmount}+#{fee}, used=used-#{chiefAmount},totalincome=totalincome+#{fee} 
+		where id=#{accountId}
+	</update>
+	<update id="purchase">
+		update LenderAccount set
+		total=total+#{interest},usable=usable+#{chiefAmount}+#{interest}, used=used-#{chiefAmount},totalincome=totalincome+#{interest} 
+		where id=#{accountId}
+	</update>
 	<update id="cash">
 		update LenderAccount set
 		total=total-#{amount},usable=usable-#{amount}

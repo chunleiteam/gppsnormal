@@ -147,6 +147,10 @@
 		</if>
     	where id=#{cashStreamId}
     </update>
+    <update id="updateBorrowerId">
+    	update CashStream set borrowerAccountId=#{borrowerAccountId}
+    	where id=#{cashStreamId}
+    </update>
     <update id="updateDescription">
     	update CashStream set description=#{description} where id=#{cashStreamId}
     </update>
@@ -194,7 +198,7 @@
 		select sum(chiefamount) chiefAmount,sum(interest) interest from
 		CashStream where paybackId=#{paybackId} and action=#{action}  and state=2
 	</select>
-	<select id="findBySubmitAndState" resultType="gpps.model.CashStream">
+	<select id="findBySubmitAndAction" resultType="gpps.model.CashStream">
 	   select * from CashStream where action=#{action} and submitId=#{submitId}
 	</select>
 	<select id="findBySubmitAndActionAndState" resultType="gpps.model.CashStream">
