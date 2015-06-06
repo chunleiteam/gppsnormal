@@ -70,6 +70,8 @@
         src="/easyservice/gpps.service.IActivityRefService?json"></script>
     <script type="text/javascript"
         src="/easyservice/gpps.service.IContractService?json"></script>
+    <script type="text/javascript"
+        src="/easyservice/gpps.service.IPurchaseService?json"></script>
 	
 	<script src="js/getuser.js"></script>
 	<script src="js/myaccount.js"></script>
@@ -169,6 +171,8 @@ a.accordion-toggle {
 	</div>
 
 	<div id="buyformdiv" style="display:none;"></div>
+	<div id="purchaseformdiv" style="display:none;"></div>
+	
 	
 	<!-- Modal -->
 <div class="modal fade" id="repaydetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -186,6 +190,47 @@ a.accordion-toggle {
     </div>
   </div>
 </div>
+
+
+	<!-- Modal -->
+<div class="modal fade" id="purchasebackdetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">债权出售</h4>
+      </div>
+      <div class="modal-body" id="pbdetail">
+      			
+      </div>
+      <div class="modal-footer">
+      	<button class="confirm_purchaseback" style="background:green; color:white;" data-dismiss="modal">确定出售</button>
+        <button class="cancel_purchaseback" style="background:#999;" data-dismiss="modal">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+	<!-- Modal -->
+<div class="modal fade" id="purchasedetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">债权出售</h4>
+      </div>
+      <div class="modal-body" id="pdetail">
+      			
+      </div>
+      <div class="modal-footer">
+      	<button class="confirm_purchase" style="background:green; color:white;" data-dismiss="modal">确定出售</button>
+        <button class="cancel_purchase" style="background:#999;" data-dismiss="modal">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <!-- Modal -->
 <div class="modal fade" id="letterdetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -220,11 +265,12 @@ a.accordion-toggle {
 									'submit' : '投资查看',
 									'letter' : '站内信',
 									'payback' : '回款查看',
-									'cash' : '资金查看'
+									'cash' : '资金查看',
+									'purchase' : '债权购买/出售'
 							}
 							
 							
-												var content = createNavLevel2(fid);
+		var content = createNavLevel2(fid);
 							
 							
 								$('#bs-example-navbar-collapse-2').html('');
@@ -261,6 +307,52 @@ a.accordion-toggle {
 								$('#lclose').click(function(e){
 									window.location.href="myaccountdetail.html?fid=mycenter&sid=letter-unread-mycenter";
 								})
+								
+							$('.confirm_purchaseback').click(function(e){
+								var purchaseService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPurchaseService");
+								try{
+									purchaseService.applyPurchaseBack(parseInt($(this).attr('id')));
+									alert('申请回购成功，请等待审核！');
+									window.location.href="myaccountdetail.html?fid=purchase&sid=purchaseback";
+								}catch(e){
+									alert(e.message);
+								}
+							});
+								
+								
+								
+								$('.confirm_purchase').click(function(e){
+									var submitId = parseInt($(this).attr('id'));
+									
+									var purchaseService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPurchaseService");
+									
+									try{
+										var csID = purchaseService.purchase(submitId);
+							 	 		
+							 	 		var service = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.thirdpay.IThirdPaySupportService");
+							 	        var transfer=service.getTransferToPurchase(csID);
+							 	        var content="<form id='buyform' action='"+transfer.baseUrl+"'method='post'>";
+							 	        for(var o in transfer)
+							 	       	{
+							 	            if(o=="baseUrl")
+							 	           	{
+							 	            	continue;
+							 	           	}
+							 	            var len = o.length;
+							 	            var name=o.substring(0,1).toUpperCase() + o.substring(1,len); 
+							 	            content+="<input id='"+name+"' name='"+name+"' value='"+transfer[o]+"'/> ";
+							 	       	}
+							 	        content+="</form>";
+							 	        $('#purchaseformdiv').html(content);
+							 	        $('#buyform').submit();
+							 	 		
+							 	 		}catch(e){
+							 	 			alert(e.message);
+							 	 		}
+									
+									
+									
+								});
 						});
 	</script>
 </body>

@@ -391,9 +391,9 @@ a.accordion-toggle {
 					</div>
 					<div class="col-xs-12 col-md-4">
 						<div class="news-notice sidebar-panels"
-				style="margin-left: 15px; margin-right: 15px;">
+								style="margin-left: 15px; margin-right: 15px;">
 							<a href="myaccountdetail.html?fid=letter" target="_blank"
-					class="news-notice-head clearfix"> 
+												class="news-notice-head clearfix"> 
 							<span class="info">
 								站内信
 							<!--#
@@ -411,6 +411,34 @@ a.accordion-toggle {
 								<ul class="news-notice-list faq-list" id="cjquestion">
 									<li><b></b><a href="myaccountdetail.html?fid=letter&sid=letter-unread" target="_blank">未读<span style="color:red; font-size:18px;">+-message.get('letters_unread')-+</span>条</a></li>
 									<li><b></b><a href="myaccountdetail.html?fid=letter&sid=letter-readed" target="_blank">已读+-message.get('letters_readed')-+条</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+					
+					<div class="col-xs-12 col-md-4">
+						<div class="news-notice sidebar-panels"
+								style="margin-left: 15px; margin-right: 15px;">
+							<a href="myaccountdetail.html?fid=purchase" target="_blank"
+												class="news-notice-head clearfix" style="background:yellow;"> 
+							<span class="info">
+								债权出售/购买
+							<!--#
+							if(message.get('submit_paying')!='0' || message.get('can_purchase')!='0'){
+							#-->
+								<span style="color:red; font-size:18px;">*</span>
+							<!--#
+							}
+							#-->
+							</span>
+								<span class="more">&gt;</span>
+							</a>
+
+							<div class="news-notice-body">
+								<ul class="news-notice-list faq-list" id="cjquestion">
+									<li><b></b><a href="myaccountdetail.html?fid=purchase&sid=purchase" target="_blank">可购买<span style="color:red; font-size:18px;">+-message.get('can_purchase')-+</span>条</a></li>
+									<li><b></b><a href="myaccountdetail.html?fid=purchase&sid=purchaseback" target="_blank">可出售<span style="color:red; font-size:18px;">+-message.get('submit_paying')-+</span>条</a></li>
 								</ul>
 							</div>
 						</div>
