@@ -644,7 +644,41 @@ var createSingleProduct2 = function(order){
 
 
 
-
+var createPurchaserNavLevel2 = function(nav){
+	var ul = $('<ul class="nav nav-second navbar-nav navbar-right"></ul>');
+	if(nav=='mycenter'){
+		
+		var li2 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="my-score">积分等级</a></li>');
+		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="notice-view">系统公告</a></li>');
+		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="letter-unread-mycenter">站内信</a></li>');
+		var li6 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="question-view">我的问题</a></li>');
+		
+		ul.append(li2);
+		ul.append(li3);
+		ul.append(li5);
+		ul.append(li6);
+	}else if(nav=='cash'){
+		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="cash-all">全部</a></li>');
+		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="cash-recharge">充值</a></li>');
+		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="cash-withdraw">提现</a></li>');
+		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="cash-purchase">出售</a></li>');
+		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="cash-purchase-back">回购</a></li>');
+		var li6 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="cash-payback">还款</a></li>');
+		ul.append(li1);
+		ul.append(li2);
+		ul.append(li3);
+		ul.append(li4);
+		ul.append(li5);
+		ul.append(li6);
+	}else if(nav=='purchase'){
+		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="purchase">可出售债权</a></li>');
+		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchaseback">待回购债权</a></li>');
+		ul.append(li1);
+		ul.append(li2);
+	}
+	
+	return ul;
+}
 
 
 var createBorrowerNavLevel2 = function(nav){
@@ -715,6 +749,7 @@ var createBorrowerNavLevel2 = function(nav){
 }
 var createNavLevel2 = function(nav){
 	var ul = $('<ul class="nav nav-second navbar-nav navbar-right"></ul>');
+	
 	if(nav=='mycenter'){
 		//lettercount = letterDao.countByReceiver(0, 0, cuser.id);
 		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="my-material">个人资料</a></li>');
@@ -778,9 +813,15 @@ var createNavLevel2 = function(nav){
 		ul.append(li2);
 		ul.append(li3);
 		ul.append(li4);
-	}else if(nav='letter'){
+	}else if(nav=='letter'){
+		alert(nav+"=letter");
 		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="letter-unread">未读</a></li>');
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="letter-readed">已读</a></li>');
+		ul.append(li1);
+		ul.append(li2);
+	}else if(nav=='purchase'){
+		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="purchase">可购买</a></li>');
+		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchaseback">可出售</a></li>');
 		ul.append(li1);
 		ul.append(li2);
 	}
