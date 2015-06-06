@@ -332,6 +332,94 @@ public class AccountServlet {
 			log.error(e.getMessage(), e);
 		}
 	}
+	
+	
+	
+	@RequestMapping(value = { "/account/purchase/response" })
+	public void completePurchase(HttpServletRequest req, HttpServletResponse resp) {
+		Map<String,String> params=getAllParams(req);
+		String message=null;
+		try {
+			completePurchaseProcessor(req, resp);
+		} catch (SignatureException e) {
+			log.error(e.getMessage());
+			message=e.getMessage();
+		} catch (ResultCodeException e) {
+			log.error(e.getMessage());
+			message=e.getMessage();
+		} catch (Exception e){
+			log.error(e.getMessage());
+			message = e.getMessage();
+		}
+		if(!StringUtil.isEmpty(message)){
+			writeMsg(resp,message,"/myaccount.html");
+			return;
+		}
+		writeMsg(resp,message,"/myaccount.html?fid=submit&sid=submit-all");
+	}
+	
+	@RequestMapping(value = { "/account/purchase/response/bg" })
+	public void completePurchaseBg(HttpServletRequest req, HttpServletResponse resp) {
+		try {
+			try{
+				Thread.sleep(200);
+				}catch(InterruptedException e){
+					
+				}
+			completePurchaseProcessor(req, resp);
+		} catch (SignatureException e) {
+			log.error(e.getMessage());
+			return;
+		} catch (ResultCodeException e) {
+			log.error(e.getMessage());
+			return;
+		} catch (Exception e){
+			log.error(e.getMessage());
+			return;
+		}
+		writeSuccess(resp);
+	}
+	
+	
+	private void completePurchaseProcessor(HttpServletRequest req,HttpServletResponse resp) throws SignatureException, ResultCodeException, Exception
+	{
+		log.debug("购买债权回调:"+req.getRequestURI());
+		Map<String,String> params=getAllParams(req);
+		String[] signStrs={"LoanJsonList","PlatformMoneymoremore","Action","RandomTimeStamp","Remark1","Remark2","Remark3","ResultCode"};
+		String loanJsonList = null;
+		try {
+			loanJsonList=URLDecoder.decode(params.get("LoanJsonList"),"UTF-8");
+			params.put("LoanJsonList", loanJsonList);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		thirdPaySupportService.checkRollBack(params, signStrs);
+		List<Object> loanJsons=Common.JSONDecodeList(loanJsonList, LoanJson.class);
+		String pid = params.get("Remark1");
+		req.setAttribute("pid", pid);
+		LoanJson loanJson=(LoanJson)(loanJsons.get(0));
+		Integer cashStreamId = Integer.parseInt(StringUtil.checkNullAndTrim(CASHSTREAMID, loanJson.getOrderNo()));
+		String loanNo=loanJson.getLoanNo();
+		CashStream cashStream = cashStreamDao.find(cashStreamId);
+		if(cashStream.getState()==CashStream.STATE_SUCCESS)
+		{
+			log.debug("重复的回复");
+			return;
+		}
+		
+		try {
+			submitService.confirmPurchase(cashStream.getSubmitId());
+			cashStreamDao.updateLoanNo(cashStreamId, loanNo,null);
+			accountService.changeCashStreamState(cashStreamId, CashStream.STATE_SUCCESS);
+		} catch (IllegalConvertException e) {
+			log.error(e.getMessage());
+		}
+	}
+	
+	
+	
+	
+	
 
 	@RequestMapping(value = { "/account/buy/response" })
 	public void completeBuy(HttpServletRequest req, HttpServletResponse resp) {
@@ -665,6 +753,90 @@ public class AccountServlet {
 		}
 		writeSuccess(resp);
 	}
+	
+	
+	@RequestMapping(value = { "/account/lenderauthorize/response" })
+	public void completeLenderAuthorize(HttpServletRequest req,HttpServletResponse resp)
+	{
+		String message=null;
+		try {
+			completeLenderAuthorizeProcessor(req,resp);
+		} catch (SignatureException e) {
+			e.printStackTrace();
+			message=e.getMessage();
+		} catch (ResultCodeException e) {
+			e.printStackTrace();
+			message=e.getMessage();
+		}
+		writeMsg(resp,message,"/purchaseraccount.html");
+	}
+	
+	@RequestMapping(value = { "/account/lenderauthorize/response/bg" })
+	public void completeLenderAuthorizeBg(HttpServletRequest req,HttpServletResponse resp)
+	{
+		try {
+			completeLenderAuthorizeProcessor(req,resp);
+		} catch (SignatureException e) {
+			e.printStackTrace();
+			return;
+		} catch (ResultCodeException e) {
+			e.printStackTrace();
+			return;
+		}
+		writeSuccess(resp);
+	}
+	
+	/**
+	 * 回购企业代持账户授权回调操作流程
+	 * 
+	 * 
+	 * */
+	private void completeLenderAuthorizeProcessor(HttpServletRequest req,HttpServletResponse resp) throws SignatureException, ResultCodeException
+	{
+		log.debug("授权回调:"+req.getRequestURI());
+		Map<String,String> params=getAllParams(req);
+		String[] signStrs={"MoneymoremoreId","PlatformMoneymoremore","AuthorizeTypeOpen","AuthorizeTypeClose","AuthorizeType","RandomTimeStamp","Remark1","Remark2","Remark3","ResultCode"};
+		thirdPaySupportService.checkRollBack(params, signStrs);
+		String authorizeTypeOpen=params.get("AuthorizeTypeOpen");
+		String authorizeTypeClose=params.get("AuthorizeTypeClose");
+		String moneymoremoreId=params.get("MoneymoremoreId");
+		Lender lender=lenderDao.findByThirdPartyAccount(moneymoremoreId);
+		
+		int originalAuthorizeTypeOpen=lender.getAuthorizeTypeOpen();
+		if(!StringUtil.isEmpty(authorizeTypeOpen))
+		{
+			String[] strs=authorizeTypeOpen.split(",");
+			for(String str:strs)
+			{
+				if(str.equals("3"))
+					originalAuthorizeTypeOpen=originalAuthorizeTypeOpen|Borrower.AUTHORIZETYPEOPEN_SECORD;
+				else
+					originalAuthorizeTypeOpen=originalAuthorizeTypeOpen|Integer.parseInt(str);
+			}
+		}
+		if(!StringUtil.isEmpty(authorizeTypeClose))
+		{
+			String[] strs=authorizeTypeOpen.split(",");
+			for(String str:strs)
+			{
+				if(str.equals("3"))
+					originalAuthorizeTypeOpen=originalAuthorizeTypeOpen-(originalAuthorizeTypeOpen&Borrower.AUTHORIZETYPEOPEN_SECORD);
+				else
+					originalAuthorizeTypeOpen=originalAuthorizeTypeOpen-(originalAuthorizeTypeOpen&Integer.parseInt(str));
+			}
+		}
+		lenderDao.updateAuthorizeTypeOpen(lender.getId(), originalAuthorizeTypeOpen);
+		Borrower borrower=borrowerService.getCurrentUser();
+		if(borrower!=null)
+		{
+			lender.setAuthorizeTypeOpen(originalAuthorizeTypeOpen);
+			borrower.setLender(lender);
+		}
+	}
+	
+	
+	
+	
 	private void completeAuthorizeProcessor(HttpServletRequest req,HttpServletResponse resp) throws SignatureException, ResultCodeException
 	{
 		log.debug("授权回调:"+req.getRequestURI());
