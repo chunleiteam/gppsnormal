@@ -27,6 +27,18 @@ public class Lender implements Permit {
 	private String thirdPartyAccount;//用户的乾多多标识
 	private String accountNumber;//多多号
 	private Integer cardBindingId;
+	public static final int AUTHORIZETYPEOPEN_RECHARGE=1<<1;//还款授权
+	public static final int AUTHORIZETYPEOPEN_SECORD=1<<2;//二次分配授权
+	private int authorizeTypeOpen=0;
+	
+	
+	
+	public int getAuthorizeTypeOpen() {
+		return authorizeTypeOpen;
+	}
+	public void setAuthorizeTypeOpen(int authorizeTypeOpen) {
+		this.authorizeTypeOpen = authorizeTypeOpen;
+	}
 	public Integer getId() {
 		return id;
 	}

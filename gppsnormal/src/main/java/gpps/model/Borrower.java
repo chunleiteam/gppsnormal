@@ -20,6 +20,7 @@ public class Borrower implements Permit{
 	public static final int PRIVILEGE_APPLY=11;//申请融资权限的企业用户
 	public static final int PRIVILEGE_FINANCING=12;//有融资权限的企业用户
 	public static final int PRIVILEGE_REFUSE=14;//审核未通过
+	public static final int PRIVILEGE_PURCHASEBACK=15;//有债权回购权限的企业用户
 	private int privilege=PRIVILEGE_VIEW;//用户角色
 	private int creditValue=0;//信用值
 	private String license;// 企业营业执照
@@ -201,6 +202,17 @@ public class Borrower implements Permit{
 	}
 	public void setCardBinding(CardBinding cardBinding) {
 		this.cardBinding = cardBinding;
+	}
+	
+	//辅助对象，对于回购企业来说，有一个关联的lender用于持有债权
+	private Lender lender;
+	
+	
+	public Lender getLender() {
+		return lender;
+	}
+	public void setLender(Lender lender) {
+		this.lender = lender;
 	}
 	public static int creditValueToLevel(int creditValue)
 	{

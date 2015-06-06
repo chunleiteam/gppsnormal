@@ -26,12 +26,36 @@ public class Submit {
 	public static final int STATE_UNSUBSCRIBE=1<<2;//4
 	public static final int STATE_FAILBIDDING=1<<3;//8
 	public static final int STATE_SUBSCRIBE_WAITFORPAY=1<<4;//16
+	
+	public static final int STATE_WAITFORPURCHASEBACK=1<<5;//32,待回购
+	public static final int STATE_PURCHASEBACKDONE=1<<6;//64，已回购
+	
+	public static final int STATE_WAITFORPURCHASE=1<<7;//128，客户二手市场上购买标的时待支付
+	public static final int STATE_PURCHASEDONE=1<<8; //256,二手购买成功
+	
+	
+	public static final int PURCHASE_FLAG_UNPURCHASE = 0; //未被企业回购
+	public static final int PURCHASE_FLAG_PURCHASEBACK = 1;  //已被企业回购
+	
 	private int state=STATE_WAITFORPAY;
 	private long createtime = System.currentTimeMillis();
+	private long holdingstarttime = 0;        //每次用户在二手市场购买标的后，记录下用户持有该标的的起始时间
+
 	private Integer lenderId;
+	private Integer borrowerId;
+
 	private Integer productId;
 	private long lastmodifytime = System.currentTimeMillis();
 	private BigDecimal amount = BigDecimal.ZERO;
+	
+	private int purchaseFlag=PURCHASE_FLAG_UNPURCHASE;
+	
+	public int getPurchaseFlag() {
+		return purchaseFlag;
+	}
+	public void setPurchaseFlag(int purchaseFlag) {
+		this.purchaseFlag = purchaseFlag;
+	}
 	public Integer getId() {
 		return id;
 	}
@@ -73,6 +97,19 @@ public class Submit {
 	}
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
+	}
+	
+	public Integer getBorrowerId() {
+		return borrowerId;
+	}
+	public void setBorrowerId(Integer borrowerId) {
+		this.borrowerId = borrowerId;
+	}
+	public long getHoldingstarttime() {
+		return holdingstarttime;
+	}
+	public void setHoldingstarttime(long holdingstarttime) {
+		this.holdingstarttime = holdingstarttime;
 	}
 	
 	//辅助对象
