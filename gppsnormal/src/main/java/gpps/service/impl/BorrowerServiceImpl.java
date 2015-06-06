@@ -7,6 +7,7 @@ import gpps.dao.IBorrowerDao;
 import gpps.dao.ICardBindingDao;
 import gpps.dao.IFinancingRequestDao;
 import gpps.dao.IGovermentOrderDao;
+import gpps.dao.ILenderDao;
 import gpps.dao.IProductDao;
 import gpps.model.Borrower;
 import gpps.model.BorrowerAccount;
@@ -57,6 +58,8 @@ public class BorrowerServiceImpl extends AbstractLoginServiceImpl implements IBo
 	@Autowired
 	IBorrowerAccountDao borrowerAccountDao;
 	@Autowired
+	ILenderDao lenderDao;
+	@Autowired
 	IFinancingRequestDao financingRequestDao;
 	@Autowired
 	IGovermentOrderDao govermentOrderDao;
@@ -76,6 +79,25 @@ public class BorrowerServiceImpl extends AbstractLoginServiceImpl implements IBo
 		Borrower borrower = borrowerDao.findByLoginIdAndPassword(loginId, password);
 		if (borrower == null)
 			throw new LoginException("用户名或密码错误!!");
+		if(borrower.getCardBindingId()!=null)
+		{
+			borrower.setCardBinding(cardBindingDao.find(borrower.getCardBindingId()));
+		}
+		session.setAttribute(SESSION_ATTRIBUTENAME_USER, borrower);
+	}
+	
+	@Override
+	public void purchaserlogin(String loginId,String password,String graphValidateCode) throws LoginException,ValidateCodeException{
+		checkGraphValidateCode(graphValidateCode);
+		HttpSession session = getCurrentSession();
+		loginId = checkNullAndTrim("loginId", loginId);
+		password = getProcessedPassword(checkNullAndTrim("password", password) + PASSWORDSEED);
+		Borrower borrower = borrowerDao.findByLoginIdAndPassword(loginId, password);
+		if (borrower == null)
+			throw new LoginException("用户名或密码错误!!");
+		if(borrower.getPrivilege()!=Borrower.PRIVILEGE_PURCHASEBACK){
+			throw new LoginException("您登陆的企业没有债权回购权限！！");
+		}
 		if(borrower.getCardBindingId()!=null)
 		{
 			borrower.setCardBinding(cardBindingDao.find(borrower.getCardBindingId()));
@@ -208,6 +230,13 @@ public class BorrowerServiceImpl extends AbstractLoginServiceImpl implements IBo
 		if(borrower!=null && borrower.getCardBindingId()!=null)
 		{
 			borrower.setCardBinding(cardBindingDao.find(borrower.getCardBindingId()));
+		}
+		if(borrower!=null && borrower.getPrivilege()==Borrower.PRIVILEGE_PURCHASEBACK){
+			String loginId = borrower.getCorporationName();
+			Lender lender = lenderDao.findByLoginId(loginId);
+			if(lender!=null){
+				borrower.setLender(lender);
+			}
 		}
 		return borrower;
 	}

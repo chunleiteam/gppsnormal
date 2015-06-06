@@ -98,7 +98,9 @@ public class AuditBuyServiceImpl implements IAuditBuyService {
 	@Override
 	public void justAuditBuy(List<String> loanNos, int auditType) throws Exception{
 		if(loanNos==null||loanNos.size()==0)
+		{
 			throw new Exception("无效的审核列表！");
+		}
 		
 		
 		String baseUrl=innerThirdPayService.getBaseUrl(IInnerThirdPaySupportService.ACTION_CHECK);

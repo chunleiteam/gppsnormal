@@ -36,6 +36,7 @@ import gpps.service.thirdpay.IThirdPaySupportService;
 import gpps.service.thirdpay.Recharge;
 import gpps.service.thirdpay.RegistAccount;
 import gpps.service.thirdpay.ResultCodeException;
+import gpps.service.thirdpay.ThirdPartyState;
 import gpps.service.thirdpay.Transfer;
 import gpps.service.thirdpay.Transfer.LoanJson;
 import gpps.tools.Common;
@@ -261,6 +262,71 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 	}
 
 	@Override
+	public Transfer getTransferToPurchase(Integer cashstreamId) throws InsufficientBalanceException, LoginException, IllegalOperationException{
+		Transfer transfer=new Transfer();
+		transfer.setBaseUrl(innerThirdPaySupportService.getBaseUrl(innerThirdPaySupportService.ACTION_TRANSFER));
+		Lender lender=lenderService.getCurrentUser();
+		if(lender==null)
+			throw new LoginException("未找到用户信息，请重新登录");
+		
+		
+		CashStream cs = cashStreamDao.find(cashstreamId);
+		if(cs==null){
+			throw new IllegalOperationException("没有对应的现金流！");
+		}
+		
+		if(cs.getAction()!=CashStream.ACTION_PURCHASE){
+			throw new IllegalOperationException("现金流行为不对，不是购买债权！");
+		}
+		
+		if(cs.getLenderAccountId()!=lender.getAccountId()){
+			throw new IllegalOperationException("无权限处理不属于自己的现金流！");
+		}
+		
+		if(cs.getState()!=CashStream.STATE_INIT){
+			throw new IllegalOperationException("此操作已被处理过！");
+		}
+		
+		Borrower borrower = borrowerDao.findByAccountID(cs.getBorrowerAccountId());
+		
+		Submit submit = submitService.find(cs.getSubmitId());
+		
+		Product product = productService.find(submit.getProductId());
+		
+		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		transfer.setAction(ThirdPartyState.THIRD_ACTION_MANUAL); //操作类型：手动
+		transfer.setNeedAudit("1");//不需要审核
+		transfer.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/purchase/response");
+		transfer.setNotifyURL(transfer.getReturnURL()+"/bg");
+		transfer.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
+		transfer.setTransferAction(ThirdPartyState.THIRD_TRANSFERACTION_BUY);//投标
+		transfer.setTransferType(ThirdPartyState.THIRD_TRANSFERTYPE_DIRECT);//直连
+		
+		List<LoanJson> loanJsons=new ArrayList<LoanJson>();
+		LoanJson loanJson=new LoanJson();
+		loanJson.setLoanOutMoneymoremore(lender.getThirdPartyAccount());
+		loanJson.setLoanInMoneymoremore(borrower.getThirdPartyAccount());
+		loanJson.setOrderNo(cashstreamId.toString());
+		loanJson.setBatchNo(String.valueOf(product.getId()));
+//		loanJson.setExchangeBatchNo(null);
+//		loanJson.setAdvanceBatchNo(null);
+		loanJson.setAmount(cs.getChiefamount().negate().add(cs.getInterest().negate()).toString());
+		loanJson.setFullAmount("");
+		loanJson.setTransferName("投标");
+		loanJson.setRemark("");
+		loanJson.setSecondaryJsonList("");
+		loanJsons.add(loanJson);
+		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
+		transfer.setSignInfo(transfer.getSign(innerThirdPaySupportService.getPrivateKey()));
+		try {
+			transfer.setLoanJsonList(URLEncoder.encode(transfer.getLoanJsonList(),"UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return transfer;
+	}
+	
+	@Override
 	public Transfer getTransferToBuy(Integer submitId,String pid) throws InsufficientBalanceException, LoginException {
 		Transfer transfer=new Transfer();
 		transfer.setBaseUrl(innerThirdPaySupportService.getBaseUrl(innerThirdPaySupportService.ACTION_TRANSFER));
@@ -290,7 +356,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		List<LoanJson> loanJsons=new ArrayList<LoanJson>();
 		Integer cashStreamId =null;
 		//查看是否有存在的现金流 
-		CashStream cashStream=cashStreamDao.findBySubmitAndState(submitId, CashStream.ACTION_FREEZE);
+		CashStream cashStream=cashStreamDao.findBySubmitAndAction(submitId, CashStream.ACTION_FREEZE);
 		if(cashStream==null)
 			cashStreamId = accountService.freezeLenderAccount(lender.getAccountId(), submit.getAmount(), submitId, "购买");
 		else
@@ -667,6 +733,41 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		authorize.setSignInfo(authorize.getSign(innerThirdPaySupportService.getPrivateKey()));
 		return authorize;
 	}
+	
+	@Override
+	public Authorize getLenderAuthorize(String loginId) throws LoginException{
+		
+		Borrower borrower=borrowerService.getCurrentUser();
+		if(borrower==null)
+			throw new LoginException("当前企业用户失效，请重新登录");
+		
+		if(borrower.getPrivilege()!=Borrower.PRIVILEGE_PURCHASEBACK){
+			throw new LoginException("当前企业不具有回购权限，无权调用此函数");
+		}
+		
+		if(loginId==null || !loginId.equals(borrower.getCorporationName()))
+		{
+			throw new LoginException("代持账户登录名不匹配，您无权对此账户授权！");
+		}
+		
+		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		
+		Lender lender = lenderDao.findByLoginId(loginId);
+		
+		if(lender==null)
+			throw new LoginException("未找到对应的代持账户用户信息！");
+		Authorize authorize=new Authorize();
+		authorize.setBaseUrl(innerThirdPaySupportService.getBaseUrl(IInnerThirdPaySupportService.ACTION_AUTHORIZE));
+		
+		authorize.setMoneymoremoreId(lender.getThirdPartyAccount());
+		authorize.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
+		authorize.setAuthorizeTypeOpen("2");
+		authorize.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() +"/account/lenderauthorize/response");
+		authorize.setNotifyURL(authorize.getReturnURL()+"/bg");
+		authorize.setSignInfo(authorize.getSign(innerThirdPaySupportService.getPrivateKey()));
+		return authorize;
+	}
+	
 	@Override
 	public void submitForCheckRepay(List<LoanJson> loanJsons, PayBack payback){
 		if(loanJsons==null||loanJsons.size()==0)

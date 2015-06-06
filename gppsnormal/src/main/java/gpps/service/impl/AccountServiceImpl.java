@@ -138,6 +138,63 @@ public class AccountServiceImpl implements IAccountService {
 	}
 	
 	@Override
+	public Integer synchronizeAccount(Integer lenderId, Integer borrowerId, BigDecimal chiefAmount, BigDecimal interest, String description) throws Exception{
+		CashStream cs = new CashStream();
+		cs.setAction(CashStream.ACTION_SYNCHRONIZE);
+		cs.setState(CashStream.STATE_INIT);
+		cs.setBorrowerAccountId(borrowerId);
+		cs.setLenderAccountId(lenderId);
+		cs.setChiefamount(chiefAmount);
+		cs.setInterest(interest);
+		cs.setCreatetime(System.currentTimeMillis());
+		cs.setDescription(description);
+		cashStreamDao.create(cs);
+		recordStateLogWithCreate(cs);
+		return cs.getId();
+	}
+	
+	@Override
+	public Integer purchase(Integer lenderAccountId, Integer submitId, BigDecimal chiefAmount, BigDecimal interest, String description) throws Exception{
+		Submit submit = submitDao.find(submitId);
+		
+		CashStream cs = new CashStream();
+		cs.setAction(CashStream.ACTION_PURCHASE);
+		cs.setState(CashStream.STATE_INIT);
+		
+		Borrower borrower = borrowerService.find(submit.getBorrowerId());
+		
+		
+		cs.setBorrowerAccountId(borrower.getAccountId());
+		cs.setLenderAccountId(lenderAccountId);
+		cs.setChiefamount(chiefAmount);
+		cs.setInterest(interest);
+		cs.setSubmitId(submitId);
+		cs.setCreatetime(System.currentTimeMillis());
+		cs.setDescription(description);
+		cashStreamDao.create(cs);
+		recordStateLogWithCreate(cs);
+		return cs.getId();
+	}
+	
+	
+	@Override
+	public Integer applyPurchaseBack(Integer lenderId, Integer submitId, BigDecimal chiefAmount, BigDecimal interest, String description) throws Exception{
+		CashStream cs = new CashStream();
+		cs.setAction(CashStream.ACTION_PURCHASEBACK);
+		cs.setState(CashStream.STATE_INIT);
+		cs.setBorrowerAccountId(null);
+		cs.setLenderAccountId(lenderId);
+		cs.setChiefamount(chiefAmount);
+		cs.setInterest(interest);
+		cs.setSubmitId(submitId);
+		cs.setCreatetime(System.currentTimeMillis());
+		cs.setDescription(description);
+		cashStreamDao.create(cs);
+		recordStateLogWithCreate(cs);
+		return cs.getId();
+	}
+	
+	@Override
 	public Integer freezeBorrowerAccount(Integer borrowerAccountId, BigDecimal chiefAmount, BigDecimal interest, Integer submitId, Integer paybackId, String description) throws InsufficientBalanceException {
 		BorrowerAccount borrowerAccount=checkNullObject(BorrowerAccount.class, borrowerAccountDao.find(borrowerAccountId));
 		if(chiefAmount.add(interest).compareTo(borrowerAccount.getUsable())>0)
@@ -358,10 +415,23 @@ public class AccountServiceImpl implements IAccountService {
 					lenderAccountDao.pay(cashStream.getLenderAccountId(), cashStream.getChiefamount().negate());//该利息为期望利息
 					borrowerAccountDao.pay(cashStream.getBorrowerAccountId(), cashStream.getChiefamount().negate());
 					break;
+				case CashStream.ACTION_PURCHASE:
+					lenderAccountDao.purchase(cashStream.getLenderAccountId(), cashStream.getChiefamount(), cashStream.getInterest());
+					borrowerAccountDao.purchase(cashStream.getBorrowerAccountId(), cashStream.getChiefamount().negate(), cashStream.getInterest().negate());
+					break;
 				case CashStream.ACTION_REPAY:
 					//TODO 待确认期待的利益是否一定与实际利息一致
 					lenderAccountDao.repay(cashStream.getLenderAccountId(), cashStream.getChiefamount(), cashStream.getInterest());
+					
 					borrowerAccountDao.repay(cashStream.getBorrowerAccountId(), cashStream.getChiefamount().add(cashStream.getInterest()));
+					break;
+				case CashStream.ACTION_PURCHASEBACK:
+					lenderAccountDao.purchaseBack(cashStream.getLenderAccountId(), cashStream.getChiefamount(), cashStream.getInterest());
+					borrowerAccountDao.purchaseBack(cashStream.getBorrowerAccountId(), cashStream.getChiefamount().negate(), cashStream.getInterest().negate());
+					break;
+				case CashStream.ACTION_SYNCHRONIZE:
+					lenderAccountDao.repay(cashStream.getLenderAccountId(), cashStream.getChiefamount(), cashStream.getInterest());
+					borrowerAccountDao.purchaseBackRepay(cashStream.getBorrowerAccountId(), cashStream.getChiefamount().negate(), cashStream.getInterest().negate());
 					break;
 				case CashStream.ACTION_CASH:
 					if(cashStream.getLenderAccountId()!=null&&cashStream.getBorrowerAccountId()==null)

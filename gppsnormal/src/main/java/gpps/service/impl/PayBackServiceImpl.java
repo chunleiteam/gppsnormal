@@ -563,6 +563,12 @@ public class PayBackServiceImpl implements IPayBackService {
 		
 		//确定当前产品处于还款中状态
 		Product currentProduct = productService.find(payBack.getProductId());
+		
+		int count = submitDao.countByProductAndStateWithPaged(currentProduct.getId(), Submit.STATE_WAITFORPURCHASEBACK);
+		if(count>0){
+			throw new IllegalStateException("该产品存在待回购标的，请等回购完毕再申请还款！");
+		}
+		
 		if (currentProduct.getState() != Product.STATE_REPAYING) 
 			throw new IllegalStateException("该产品尚未进入还款阶段");
 		

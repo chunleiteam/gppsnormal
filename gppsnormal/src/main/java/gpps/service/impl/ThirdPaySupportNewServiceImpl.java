@@ -54,7 +54,7 @@ IBalanceWithTPService balanceWithTPService;
 	
 	@Override
 	public void justTransferApply(List<LoanJson> loanJsons) throws Exception{
-		transferApplyService.justTransferApply(loanJsons);
+		transferApplyService.justTransferApplyNeedAudit(loanJsons);
 	}
 	
 	

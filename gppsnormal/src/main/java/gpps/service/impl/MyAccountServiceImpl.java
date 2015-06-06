@@ -25,6 +25,7 @@ import gpps.model.LenderAccount;
 import gpps.model.Letter;
 import gpps.model.PayBack;
 import gpps.model.Product;
+import gpps.model.Submit;
 import gpps.service.IAccountService;
 import gpps.service.IBorrowerService;
 import gpps.service.IGovermentOrderService;
@@ -115,14 +116,17 @@ public class MyAccountServiceImpl implements IMyAccountService {
 	@Override
 	public Map<String, Object> getBAccountMessage() {
 		Map<String, Object> message = new HashMap<String, Object>();
-		Borrower borrower = borrowerService.getCurrentUser();
+		Borrower cborrower = borrowerService.getCurrentUser();
+		Borrower borrower = borrowerService.find(cborrower.getId());
 		BorrowerAccount account = borrowerAccountDao.find(borrower.getAccountId());
 		message.put("name", borrower.getLoginId());
 		message.put("companyname", borrower.getCompanyName());
 		message.put("license", borrower.getLicense());
 		message.put("total", account.getTotal());
-		message.put("freeze", account.getFreeze());
+		message.put("used", account.getUsed());
 		message.put("usable", account.getUsable());
+		message.put("totalFee", account.getTotalFee());
+		message.put("freeze", account.getFreeze());
 		
 		CardBinding cb = borrower.getCardBinding();
 		if(cb!=null)
@@ -184,8 +188,31 @@ public class MyAccountServiceImpl implements IMyAccountService {
 		message.put("cash_recharge", cashStreamDao.countByActionAndState(null, borrower.getAccountId(), CashStream.ACTION_RECHARGE, CashStream.STATE_SUCCESS));
 		message.put("cash_withdraw", cashStreamDao.countByActionAndState(null, borrower.getAccountId(), CashStream.ACTION_CASH, CashStream.STATE_SUCCESS));
 		message.put("cash_financing", cashStreamDao.countByActionAndState(null, borrower.getAccountId(), CashStream.ACTION_PAY, CashStream.STATE_SUCCESS));
-		message.put("cash_payback", cashStreamDao.countByActionAndState(null, borrower.getAccountId(), CashStream.ACTION_REPAY, CashStream.STATE_SUCCESS));
-
+		
+		if(borrower.getPrivilege()!=borrower.PRIVILEGE_PURCHASEBACK)
+		{
+			message.put("cash_payback", cashStreamDao.countByActionAndState(null, borrower.getAccountId(), CashStream.ACTION_REPAY, CashStream.STATE_SUCCESS));
+		}else{
+			Lender lender = lenderDao.findByLoginId(borrower.getCorporationName());
+			if(lender!=null)
+			{
+				message.put("cash_payback", cashStreamDao.countByActionAndState(lender.getAccountId(), null, CashStream.ACTION_REPAY, CashStream.STATE_SUCCESS));
+			}else{
+				message.put("cash_payback", 0);
+			}
+		}
+		message.put("cash_purchase", cashStreamDao.countByActionAndState(null, borrower.getAccountId(), CashStream.ACTION_PURCHASE, CashStream.STATE_SUCCESS));
+		message.put("cash_purchaseback", cashStreamDao.countByActionAndState(null, borrower.getAccountId(), CashStream.ACTION_PURCHASEBACK, CashStream.STATE_SUCCESS));
+		
+		
+		
+		List<Integer> stateList = new ArrayList<Integer>();
+		stateList.add(Product.STATE_REPAYING);
+		stateList.add(Product.STATE_POSTPONE);
+		message.put("to_purchase", submitDao.countByStateAndProductStatesAndPurchaseFlag(Submit.STATE_COMPLETEPAY, stateList, Submit.PURCHASE_FLAG_PURCHASEBACK));
+		
+		message.put("to_purchase_back", submitDao.countByStateAndProductStatesAndPurchaseFlag(Submit.STATE_WAITFORPURCHASEBACK, stateList, Submit.PURCHASE_FLAG_UNPURCHASE));
+		
 		return message;
 	}
 
@@ -261,6 +288,14 @@ public class MyAccountServiceImpl implements IMyAccountService {
 		stateList.add(Product.STATE_CLOSE);
 		stateList.add(Product.STATE_FINISHREPAY);
 		message.put("submit_retreat", submitService.findMyAllRetreatSubmits().size());
+		
+		stateList.clear();
+		stateList.add(Product.STATE_REPAYING);
+		stateList.add(Product.STATE_POSTPONE);
+		message.put("can_purchase", submitDao.countByStateAndProductStatesAndPurchaseFlag(Submit.STATE_COMPLETEPAY, stateList, Submit.PURCHASE_FLAG_PURCHASEBACK));
+		
+		
+		
 		
 		return message;
 	}

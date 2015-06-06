@@ -103,7 +103,7 @@ public class RewardServiceImpl implements IRewardService {
 		
 		//还款转账申请
 		try{
-			List<LoanFromTP> lftps = transferApplyService.justTransferApply(loanJsons);
+			List<LoanFromTP> lftps = transferApplyService.justTransferApplyNeedAudit(loanJsons);
 			for(LoanFromTP lftp : lftps){
 				String orderNo = lftp.getOrderNo();
 				

@@ -93,7 +93,63 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 	
 	
 	@Override
-	public List<LoanFromTP> justTransferApply(List<LoanJson> loanJsons)
+	public List<LoanFromTP> justTransferApplyNoNeedAudit(List<LoanJson> loanJsons) throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException{
+		if(loanJsons==null || loanJsons.isEmpty()){
+			throw new CheckException("无效的转账列表！");
+		}
+		
+		Transfer transfer = new Transfer();
+		transfer.setPlatformMoneymoremore(innerThirdPayService.getPlatformMoneymoremore());
+		transfer.setTransferAction(ThirdPartyState.THIRD_TRANSFERACTION_REPAY);
+		transfer.setAction(ThirdPartyState.THIRD_ACTION_AUTO);
+		transfer.setTransferType(ThirdPartyState.THIRD_TRANSFERTYPE_DIRECT);
+		
+		//转账设置为不需要审核
+		transfer.setNeedAudit("1");
+		
+		//非手动转账，不需要returnURL,只需要提供后台处理页面
+//		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
+		transfer.setNotifyURL("http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repay/response/bg");
+		
+		//签名
+		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
+		transfer.setSignInfo(transfer.getSign(innerThirdPayService.getPrivateKey()));
+		
+		//将转账列表编码
+		try {
+			transfer.setLoanJsonList(URLEncoder.encode(transfer.getLoanJsonList(),"UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+		Map<String,String> params=transfer.getParams();
+		
+		
+		String baseUrl = innerThirdPayService.getBaseUrl(IInnerThirdPaySupportService.ACTION_TRANSFER);
+		
+		//将处理好的参数post到第三方，并接受其马上返回的参数
+		String body=httpClientService.post(baseUrl, params);
+
+		
+		Gson gson = new Gson();
+		Map returnParams=null;
+		try{
+			//自动、无需审核转账(Action=2  NeedAudit=1)，只包含两个json，一个代表转账完成，一个代表审核通过，随便一个都记录了具体的转账信息
+			List returnParamList=gson.fromJson(body, List.class);
+			returnParams=	(Map)returnParamList.get(0);
+		}catch(Exception e){
+			//如果返回结果不是List，说明无审核转账有异常，则返回结果是一个Map
+			returnParams = gson.fromJson(body, Map.class);
+		}
+		
+		
+		
+		List<LoanFromTP> res = handleReturnParams(returnParams);
+		return res;
+	}
+	
+	@Override
+	public List<LoanFromTP> justTransferApplyNeedAudit(List<LoanJson> loanJsons)
 			throws AlreadyDoneException, ResultCodeException, SignatureException, CheckException{
 		if(loanJsons==null || loanJsons.isEmpty()){
 			throw new CheckException("无效的转账列表！");

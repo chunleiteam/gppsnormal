@@ -234,10 +234,13 @@ public class SubmitServiceImpl implements ISubmitService {
 		{Submit.STATE_WAITFORPAY,Submit.STATE_COMPLETEPAY},
 		{Submit.STATE_COMPLETEPAY,Submit.STATE_FAILBIDDING},
 		{Submit.STATE_SUBSCRIBE_WAITFORPAY,Submit.STATE_UNSUBSCRIBE},
-		{Submit.STATE_SUBSCRIBE_WAITFORPAY,Submit.STATE_COMPLETEPAY}
+		{Submit.STATE_SUBSCRIBE_WAITFORPAY,Submit.STATE_COMPLETEPAY},
+		{Submit.STATE_COMPLETEPAY,Submit.STATE_WAITFORPURCHASEBACK},
+		{Submit.STATE_WAITFORPURCHASEBACK,Submit.STATE_COMPLETEPAY},
+		{Submit.STATE_COMPLETEPAY,Submit.STATE_WAITFORPURCHASE},
+		{Submit.STATE_WAITFORPURCHASE,Submit.STATE_COMPLETEPAY}
 		};
-	private void changeState(Integer submitId, int state)
-			throws IllegalConvertException {
+	public void changeState(Integer submitId, int state) throws IllegalConvertException {
 		Submit submit = submitDao.find(submitId);
 		if (submit == null)
 			throw new RuntimeException("submit is not existed");
@@ -365,6 +368,51 @@ public class SubmitServiceImpl implements ISubmitService {
 	}
 
 	@Override
+	public Map<String, Object> findAllSubmitsByStateAndProductStatesAndPurchaseFlag(int state,int productStates, int purchaseFlag,int offset,int recnum){
+		List<Integer> stateList=null;
+		if(productStates!=-1)
+		{
+			stateList=new ArrayList<Integer>();
+			for(int productState:IProductService.productStates)
+			{
+				if((productState&productStates)>0)
+					stateList.add(productState);
+			}
+		}
+		int count=submitDao.countByStateAndProductStatesAndPurchaseFlag(state, stateList, purchaseFlag);
+		if(count==0)
+			return Pagination.buildResult(null, count, offset, recnum);
+		List<Submit> submits=submitDao.findAllByStateAndProductStatesAndPurchaseFlagWithPaged(state, stateList, purchaseFlag, offset, recnum);
+		for(Submit submit:submits)
+		{
+			submit.setProduct(productService.find(submit.getProductId()));
+			submit.getProduct().setGovermentOrder(govermentOrderDao.find(submit.getProduct().getGovermentorderId()));
+			//计算已还款
+			if(submit.getState()!=Submit.STATE_COMPLETEPAY)
+				continue;
+			List<CashStream> cashStreams=findSubmitCashStream(submit.getId());
+			if(cashStreams==null||cashStreams.size()==0)
+				continue;
+			for(CashStream cashStream:cashStreams)
+			{
+				if(cashStream.getAction()==CashStream.ACTION_REPAY&&cashStream.getState()==CashStream.STATE_SUCCESS)
+				{
+					submit.setRepayedAmount(submit.getRepayedAmount().add(cashStream.getChiefamount()).add(cashStream.getInterest()));
+				}
+			}
+			//计算待回款
+			List<PayBack> payBacks=payBackService.generatePayBacksBySubmit(submit.getId());
+			for(PayBack payBack:payBacks)
+			{
+				if(payBack.getState()!=PayBack.STATE_WAITFORREPAY)
+					continue;
+				submit.setWaitforRepayAmount(submit.getWaitforRepayAmount().add(payBack.getChiefAmount()).add(payBack.getInterest()));
+			}
+		}
+		return Pagination.buildResult(submits,count,offset, recnum);
+	}
+	
+	@Override
 	public Map<String, Object> findMyAllSubmitsByProductStates(int productStates,int offset,int recnum) {
 		Lender lender=lenderService.getCurrentUser();
 		List<Integer> stateList=null;
@@ -441,6 +489,55 @@ public class SubmitServiceImpl implements ISubmitService {
 			lender.setLevel(level);
 		}
 	}
+	
+	@Override
+	@Transactional
+	public void confirmPurchase(Integer submitId) throws IllegalConvertException{
+		
+		Submit submit=submitDao.find(submitId);
+		Lender lender=lenderService.getCurrentUser();
+		lender = lenderService.find(lender.getId());
+		
+		
+		//为代持账户增加一个购买成功的标的记录
+		Submit sub = new Submit();
+		sub.setAmount(submit.getAmount());
+		sub.setCreatetime(submit.getCreatetime());
+		sub.setLastmodifytime(System.currentTimeMillis());
+		sub.setLenderId(submit.getLenderId());
+		sub.setProductId(submit.getProductId());
+		sub.setState(Submit.STATE_PURCHASEDONE);
+		submitDao.create(sub);
+		
+		StateLog stateLog2=new StateLog();
+		stateLog2.setCreatetime(System.currentTimeMillis());
+		stateLog2.setRefid(sub.getId());
+		stateLog2.setTarget(sub.getState());
+		stateLog2.setType(StateLog.TYPE_SUBMIT);
+		stateLogDao.create(stateLog2);
+		
+		
+		
+		//统一修改状态，记录状态转换日志
+		changeState(submitId, Submit.STATE_COMPLETEPAY);
+		//将purchaseFlag变回0（未被回购）
+		submitDao.purchase(lender.getId(), submitId, System.currentTimeMillis());
+		
+		
+		//购买成功，修改购买用户的信用值与级别
+		int grade=calculateGrade(lender.getGrade(),submit.getAmount().intValue(), lender.getId());
+		int level=Lender.gradeToLevel(grade);
+		lenderDao.changeGradeAndLevel(lender.getId(), grade, level);
+		lender=lenderService.getCurrentUser();
+		if(lender!=null)
+		{
+			lender.setGrade(grade);
+			lender.setLevel(level);
+		}
+	}
+	
+	
+	
 
 	@Override
 	public Map<String, Object> findPayedSubmitsByProduct(Integer productId, int offset,
