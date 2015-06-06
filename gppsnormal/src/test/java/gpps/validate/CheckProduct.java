@@ -14,6 +14,7 @@ import gpps.service.CashStreamSum;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
@@ -29,6 +30,9 @@ public class CheckProduct {
 	protected static IProductSeriesDao productSeriesDao = context.getBean(IProductSeriesDao.class);
 	public static void main(String args[]){
 		
+		HashSet<Integer> black = new HashSet<Integer>();
+		black.add(2);
+		black.add(1);
 		
 		int total = 0;
 		int success = 0;
@@ -49,13 +53,20 @@ public class CheckProduct {
 		if(nps!=null){
 			products.addAll(nps);
 		}
-		
+		List<Integer> bl = new ArrayList<Integer>();
 		for(Product product : products){
+			if(black.contains(product.getId())){
+				System.out.println("产品【"+product.getId()+"】前面检查时已关闭，无需再次检查");
+				continue;
+			}
 			total++;
 			try{
 				boolean flag = checkSingleProduct(product);
 				if(flag==true){
 					success++;
+					if(product.getState()==Product.STATE_FINISHREPAY){
+						bl.add(product.getId());
+					}
 				}else{
 					error++;
 				}
@@ -66,6 +77,7 @@ public class CheckProduct {
 		}
 		log.append("产品校验    total:"+total+", success:"+success+", error:"+error);
 		System.out.println(log.toString());
+		System.out.println(bl);
 		System.exit(0);
 	}
 	

@@ -33,8 +33,8 @@ public class CheckSingleAccount {
 	private static final String NEWLINE="\r\n";
 	public static void main(String args[]) throws Exception{
 		
-		Integer[] lenderIds = {12298,12299};
-		Integer[] borrowerIds = {12300};
+		Integer[] lenderIds = {102, 100, 2, 33, 39, 97, 8, 9, 46, 132, 44, 15, 16, 19, 117, 155, 57, 26, 30};
+		Integer[] borrowerIds = {1,2};
 		
 		
 		StringBuilder sBuilder = new StringBuilder();
@@ -55,6 +55,137 @@ public class CheckSingleAccount {
 	
 	public static void checkSingleBorrower(StringBuilder sBuilder, Integer id){
 		Borrower borrower = borrowerDao.find(id);
+		if(borrower.getPrivilege()!=15){
+			checkSingleNormalBorrower(borrower, sBuilder, id);
+		}else{
+			checkSinglePurchaseBackBorrower(borrower, sBuilder, id);
+		}
+		
+	}
+	
+	
+	public static void checkSinglePurchaseBackBorrower(Borrower borrower, StringBuilder sBuilder, Integer id){
+		boolean flag = true;
+		BorrowerAccount account = borrowerAccountDao.find(borrower.getAccountId());
+		
+		
+		Lender lender = lenderDao.findByLoginId(borrower.getCorporationName());
+		if(lender==null){
+			appendMsg(sBuilder, Borrower.class, borrower.getId(), borrower.getThirdPartyAccount(), "回购企业基本信息错误,未找到代持债权的用户【"+borrower.getCorporationName()+"】");
+			return;
+		}
+		
+		
+		
+		//验证：总金额=可用金额+冻结金额+已投金额
+		if(account.getUsed().add(account.getFreeze()).add(account.getUsable()).compareTo(account.getTotal())!=0)
+		{
+			flag = false;
+			appendMsg(sBuilder, Borrower.class, borrower.getId(), borrower.getThirdPartyAccount(), "账户金额错误,总金额不等于可用金额+已投金额+冻结金额");
+		}
+		//可用金额=(充值、取现、冻结、解冻)现金流之和+同步现金流之和取反+（支付、还款、回购、购买、存零）现金流之和取反
+		List<Integer> actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_FREEZE);
+		actions.add(CashStream.ACTION_UNFREEZE);
+		actions.add(CashStream.ACTION_CASH);
+		actions.add(CashStream.ACTION_RECHARGE);
+		CashStreamSum sum=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum=(sum==null)?new CashStreamSum():sum;
+		
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_SYNCHRONIZE);
+		CashStreamSum sum3=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum3=(sum3==null)?new CashStreamSum():sum3;
+		
+		
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_PAY);
+		actions.add(CashStream.ACTION_REPAY);
+		actions.add(CashStream.ACTION_PURCHASEBACK);
+		actions.add(CashStream.ACTION_PURCHASE);
+		actions.add(CashStream.ACTION_STORECHANGE);
+		CashStreamSum sum2=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum2=(sum2==null)?new CashStreamSum():sum2;
+		sum.setChiefAmount(sum.getChiefAmount().add(sum3.getChiefAmount().negate()).add(sum2.getChiefAmount().negate()));
+		sum.setInterest(sum.getInterest().add(sum3.getInterest().negate()).add(sum2.getInterest().negate()));
+		if(account.getUsable().compareTo(sum.getChiefAmount().add(sum.getInterest()))!=0)
+		{
+			flag = false;
+			appendMsg(sBuilder, Borrower.class, borrower.getId(), borrower.getThirdPartyAccount(), "可用金额与现金流验证错误,可用金额:"+account.getUsable().toString()+",现金流:"+sum);
+		}
+		
+		
+		//已获得利息=回购手续费取反+同步现金流的利息取反+购买新进刘利息取反
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_PURCHASEBACK);
+		sum=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum=(sum==null)?new CashStreamSum():sum;
+		
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_SYNCHRONIZE);
+		sum2=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum2=(sum2==null)?new CashStreamSum():sum2;
+		
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_PURCHASE);
+		sum3=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum3=(sum3==null)?new CashStreamSum():sum3;
+		
+		if(account.getTotalFee().compareTo(sum2.getInterest().negate().add(sum.getInterest().negate()).add(sum3.getInterest().negate()))!=0)
+		{
+			flag = false;
+			appendMsg(sBuilder, Borrower.class, borrower.getId(), borrower.getThirdPartyAccount(), "已获利息不等于回购手续费加上同步现金流的利息,已获利息:"+account.getTotalFee().toString()+",回购手续费:"+sum.getInterest().negate().toString()+", 同步现金流利息:"+sum2.getInterest().negate().toString());
+		}
+		
+		
+		
+		//已投金额=回购本金-同步现金流本金取反-购买现金流本金取反
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_PURCHASEBACK);
+		sum=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum=(sum==null)?new CashStreamSum():sum;
+		
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_SYNCHRONIZE);
+		sum2=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum2=(sum2==null)?new CashStreamSum():sum2;
+		
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_PURCHASE);
+		sum3=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum3=(sum3==null)?new CashStreamSum():sum3;
+		
+		if(account.getUsed().compareTo(sum.getChiefAmount().subtract(sum2.getChiefAmount().negate()).subtract(sum3.getChiefAmount().negate()))!=0)
+		{
+			flag = false;
+			appendMsg(sBuilder, Borrower.class, borrower.getId(), borrower.getThirdPartyAccount(), "已投金额不等于回购本金减去同步现金流本金取反,已投金额:"+account.getUsed().toString()+",回购本金:"+sum.getChiefAmount().toString()+", 同步现金流本金:"+sum2.getChiefAmount().negate().toString());
+		}
+		
+		
+		//冻结金额=冻结+解冻
+		actions=new ArrayList<Integer>();
+		actions.add(CashStream.ACTION_FREEZE);
+		actions.add(CashStream.ACTION_UNFREEZE);
+		sum=cashStreamDao.sumCashStream(null, borrower.getAccountId(), actions);
+		sum=(sum==null)?new CashStreamSum():sum;
+		if(account.getFreeze().negate().compareTo(sum.getChiefAmount().add(sum.getInterest()))!=0)
+		{
+			flag = false;
+			appendMsg(sBuilder, Borrower.class, borrower.getId(), borrower.getThirdPartyAccount(), "冻结金额与现金流验证错误,冻结金额:"+account.getFreeze().toString()+",现金流:"+sum);
+		}
+		
+		if(flag==true){
+			appendMsg(sBuilder, Borrower.class, borrower.getId(), borrower.getThirdPartyAccount(), "企业账户"+id+"没问题");
+		}
+		
+		//验证平台账户金额与第三方账户金额一致
+				flag = checkBorrowerWithTP(sBuilder, borrower, account);
+				if(flag==false){
+					return;
+				}
+	}
+	
+	public static void checkSingleNormalBorrower(Borrower borrower, StringBuilder sBuilder, Integer id){
 		boolean flag = true;
 		BorrowerAccount account = borrowerAccountDao.find(borrower.getAccountId());
 		//验证平台账户金额与第三方账户金额一致
@@ -107,8 +238,13 @@ public class CheckSingleAccount {
 		if(flag==true){
 			appendMsg(sBuilder, Borrower.class, borrower.getId(), borrower.getThirdPartyAccount(), "企业账户"+id+"没问题");
 		}
-		
 	}
+	
+	
+	
+	
+	
+	
 	
 	public static void checkSingleLender(StringBuilder sBuilder, Integer id){
 		Lender lender = lenderDao.find(id);
@@ -153,10 +289,13 @@ public class CheckSingleAccount {
 			flag=false;
 			appendMsg(sBuilder, Lender.class, lender.getId(), lender.getThirdPartyAccount(), "冻结金额与现金流验证错误,冻结金额:"+account.getFreeze().toString()+",现金流:"+sum);
 		}
-		//已投资金额=购买+回款（本金）
+		//已投资金额=支付+购买+回款（本金）+回购（本金）+同步（本金）
 		actions=new ArrayList<Integer>();
 		actions.add(CashStream.ACTION_PAY);
+		actions.add(CashStream.ACTION_PURCHASE);
 		actions.add(CashStream.ACTION_REPAY);
+		actions.add(CashStream.ACTION_PURCHASEBACK);
+		actions.add(CashStream.ACTION_SYNCHRONIZE);
 		sum=cashStreamDao.sumCashStream(lender.getAccountId(), null, actions);
 		sum=(sum==null)?new CashStreamSum():sum;
 		if(account.getUsed().negate().compareTo(sum.getChiefAmount())!=0)
@@ -164,9 +303,12 @@ public class CheckSingleAccount {
 			flag=false;
 			appendMsg(sBuilder, Lender.class, lender.getId(), lender.getThirdPartyAccount(), "已用金额与现金流验证错误,已用金额:"+account.getFreeze().toString()+",现金流:"+sum.getChiefAmount());
 		}
-		//利息=回款（利息）
+		//利息=回款（利息）+回购（利息）+同步（利息）+购买（利息）
 		actions=new ArrayList<Integer>();
 		actions.add(CashStream.ACTION_REPAY);
+		actions.add(CashStream.ACTION_PURCHASEBACK);
+		actions.add(CashStream.ACTION_PURCHASE);
+		actions.add(CashStream.ACTION_SYNCHRONIZE);
 		sum=cashStreamDao.sumCashStream(lender.getAccountId(), null, actions);
 		sum=(sum==null)?new CashStreamSum():sum;
 		if(account.getTotalincome().compareTo(sum.getInterest())!=0)
@@ -175,9 +317,12 @@ public class CheckSingleAccount {
 			appendMsg(sBuilder, Lender.class, lender.getId(), lender.getThirdPartyAccount(), "已收益金额与现金流验证错误,已收益金额:"+account.getTotalincome().toString()+",现金流:"+sum.getInterest());
 		}
 		
-		//总金额=充值+回款（利息）+奖励-提现
+		//总金额=充值+回款（利息）+回购（利息）+购买（利息）+同步（利息）+奖励-提现
 		actions = new ArrayList<Integer>();
 		actions.add(CashStream.ACTION_REPAY);
+		actions.add(CashStream.ACTION_PURCHASEBACK);
+		actions.add(CashStream.ACTION_PURCHASE);
+		actions.add(CashStream.ACTION_SYNCHRONIZE);
 		CashStreamSum repaysum=cashStreamDao.sumCashStream(lender.getAccountId(), null, actions);
 		repaysum=(repaysum==null)?new CashStreamSum():repaysum;
 		

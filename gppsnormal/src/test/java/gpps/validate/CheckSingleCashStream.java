@@ -28,41 +28,9 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import com.google.gson.Gson;
 
 public class CheckSingleCashStream {
-	
-	public static final String ACTION_REGISTACCOUNT="0";
-	public static final String ACTION_RECHARGE="1";
-	public static final String ACTION_TRANSFER="2";
-	public static final String ACTION_CHECK="3";
-	public static final String ACTION_CARDBINDING="4";
-	public static final String ACTION_CASH="5";
-	public static final String ACTION_AUTHORIZE="6";
-	public static final String ACTION_ORDERQUERY="7";
-	public static final String ACTION_BALANCEQUERY="8";
-	private static Map<String, String> urls=new HashMap<String, String>();
-	static {
-		urls.put(ACTION_REGISTACCOUNT, "/loan/toloanregisterbind.action");
-		urls.put(ACTION_RECHARGE, "/loan/toloanrecharge.action");
-		urls.put(ACTION_TRANSFER, "/loan/loan.action");
-		urls.put(ACTION_CHECK, "/loan/toloantransferaudit.action");
-		urls.put(ACTION_CARDBINDING, "/loan/toloanfastpay.action");
-		urls.put(ACTION_CASH, "/loan/toloanwithdraws.action");
-		urls.put(ACTION_AUTHORIZE, "/loan/toloanauthorize.action");
-		urls.put(ACTION_ORDERQUERY, "/loan/loanorderquery.action");
-		urls.put(ACTION_BALANCEQUERY, "/loan/balancequery.action");
-	}
-//	private static String url="http://218.4.234.150:88/main";
-//	private static String platformMoneymoremore="p401";
-//	private static String privateKey="MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAIQffWLA9OLXsb6tnVGpvxFRNLy/umRaUfnKS4DI6To44fDHLOXs/HMSfK4tExe4uBIrRM5LaQxUwyjnP2xeZp3+mQ3GYsWWAkXm/L6FuIUk6Ndjzb4UTBoLskznRinIp0MJyndia6Mgubyn8Kse7YbxxfsQTWo5f5CfPqHlSqU/AgMBAAECgYBAJjnu1NkRusBmYE1d9Rj8A32jl0Ocre3XZk06flIfHrc0/L/j8yivhm5a8y+t+NYGnFOQBjU+83i+R2kX6M3RfcLHu0tXVfxmDSERzJJP0OmNfogXXJnLyVUGpVifqFfcvgVWMpG5Hy4KZZD+i73H+cYTVTOsuqRvUI88EInqoQJBALyMBcsDGCeCR3B4tteQWB9fp+e6a2pLfLR+v6mNuFDVaybn6pMtp4haucr8KzFYh2rCH6AKu62wO+z6vPTGSHsCQQCzY+hthvtEUBN/Pm5bUnVnKX3w+fLzwIHEvTCrXfls0VHWUVC6dC2Y5Iy60N/aj3cdmxEfTQ+NooTlQGnpzrUNAkAmdBBCZTEp7aIQSC5SLHgsfd/KnPSHSzn1vdvtAqBSrBQcbTQkLC1827QEuAU/HSURGuJES6wXMlgmbsTWzxG9AkBpPncRMvzdIiGeKFF0UFdCk8wogWuw58L6WohgMXzxA4kAtKopCZnqtkN+IqcCQeL/Qod0FrDGRo+zM+wvWK9NAkEAkINUcB2aNnPsW3VuTTtNdehFjmPGs1CWMRWvV7Bsp8G0cZcyodv1bkd+PyneWv5EpG+n0UD/tv2JDk8u7qRX4w==";
-//	private static String publicKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCEH31iwPTi17G+rZ1Rqb8RUTS8v7pkWlH5ykuAyOk6OOHwxyzl7PxzEnyuLRMXuLgSK0TOS2kMVMMo5z9sXmad/pkNxmLFlgJF5vy+hbiFJOjXY82+FEwaC7JM50YpyKdDCcp3YmujILm8p/CrHu2G8cX7EE1qOX+Qnz6h5UqlPwIDAQAB";
-//	private static String serverHost="218.4.234.150";
-//	private static String serverPort="88";
-	
-	
-	private static String url="http://moneymoremore.com";
-	private static String privateKey="MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAL+4GgqVtvbEYewHKCBzXFEvQJ+YT8z7wtTupV2wb4EuvLl/k9HcEqqWznb4emmJXDCBXmw3XgBMNSfvMjYq4/0Mjfx3aEXCvrhFvKzdKXLd6nvzutO8OrcHMVY4WuMoD0TTk86i4LUtdAUm8S2PUagX4QuVJniG7bLYs8pW3J1XAgMBAAECgYEAuQUj5JkttKI7Wjxh5kdOjW7Lr/me8dT55uLUpkESqxn+ugo8DuiS/xyA7mHISTdtx8Xh6Q/Z4PGqzvpRe+MSl8RmzkoSmk8I4amQZRSdsOiZXdLbcp7+WWAlwldThOb/PVpPodGo+sYPKiJsdFhGXKBs3Rfckfkqivnj5UtVd1ECQQDmkOSEyZG5WtG9xomD6bX4KkwJq1bm3eEBelE+FTxkoqrE9ldU857bK28lIkpFXc5FXIX7fSBC15ZcMNPVduV/AkEA1N4v6P/JurdAGWFUI31HpQ50T2RCVNSblKsW0K3kmdJ6ohcd50NWE0twUkGeYAmdhpgrxb/kBfpBRPh6D3QkKQJBAMQu/YLPUKN614S27kPEFQX4V4LSu7rtiIsNXRuKTj0C/HNjeKPcN4sdxhC+wJuNWfpC4+49Zbn6XwJKubSk2lkCQB3npQVvwfBoRCoMoVxnAkSu9iodJLB0OfM14fupIl910WKqKrpNnG8TfxEfRNerIiVBhYy/e5JXaQn+em9nWpkCQEVEILXBWjr3KsNFhlmYr5+tDSaNjIddngnXdmX+7jPWN6jlcCQlWiKMmSAoIwJK1/gsP7Cm7pyToROf+MxQhug=";
-	private static String publicKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC/uBoKlbb2xGHsByggc1xRL0CfmE/M+8LU7qVdsG+BLry5f5PR3BKqls52+HppiVwwgV5sN14ATDUn7zI2KuP9DI38d2hFwr64Rbys3Sly3ep787rTvDq3BzFWOFrjKA9E05POouC1LXQFJvEtj1GoF+ELlSZ4hu2y2LPKVtydVwIDAQAB";
-	private static String platformMoneymoremore="p241";
-	
+//	private static String privateKey="MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAL+4GgqVtvbEYewHKCBzXFEvQJ+YT8z7wtTupV2wb4EuvLl/k9HcEqqWznb4emmJXDCBXmw3XgBMNSfvMjYq4/0Mjfx3aEXCvrhFvKzdKXLd6nvzutO8OrcHMVY4WuMoD0TTk86i4LUtdAUm8S2PUagX4QuVJniG7bLYs8pW3J1XAgMBAAECgYEAuQUj5JkttKI7Wjxh5kdOjW7Lr/me8dT55uLUpkESqxn+ugo8DuiS/xyA7mHISTdtx8Xh6Q/Z4PGqzvpRe+MSl8RmzkoSmk8I4amQZRSdsOiZXdLbcp7+WWAlwldThOb/PVpPodGo+sYPKiJsdFhGXKBs3Rfckfkqivnj5UtVd1ECQQDmkOSEyZG5WtG9xomD6bX4KkwJq1bm3eEBelE+FTxkoqrE9ldU857bK28lIkpFXc5FXIX7fSBC15ZcMNPVduV/AkEA1N4v6P/JurdAGWFUI31HpQ50T2RCVNSblKsW0K3kmdJ6ohcd50NWE0twUkGeYAmdhpgrxb/kBfpBRPh6D3QkKQJBAMQu/YLPUKN614S27kPEFQX4V4LSu7rtiIsNXRuKTj0C/HNjeKPcN4sdxhC+wJuNWfpC4+49Zbn6XwJKubSk2lkCQB3npQVvwfBoRCoMoVxnAkSu9iodJLB0OfM14fupIl910WKqKrpNnG8TfxEfRNerIiVBhYy/e5JXaQn+em9nWpkCQEVEILXBWjr3KsNFhlmYr5+tDSaNjIddngnXdmX+7jPWN6jlcCQlWiKMmSAoIwJK1/gsP7Cm7pyToROf+MxQhug=";
+//	private static String publicKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC/uBoKlbb2xGHsByggc1xRL0CfmE/M+8LU7qVdsG+BLry5f5PR3BKqls52+HppiVwwgV5sN14ATDUn7zI2KuP9DI38d2hFwr64Rbys3Sly3ep787rTvDq3BzFWOFrjKA9E05POouC1LXQFJvEtj1GoF+ELlSZ4hu2y2LPKVtydVwIDAQAB";
+//	private static String platformMoneymoremore="p241";
 	
 	static String SPRINGCONFIGPATH="/src/main/webapp/WEB-INF/spring/root-context.xml";
 	
@@ -78,11 +46,15 @@ public class CheckSingleCashStream {
 	
 	protected static IInnerThirdPaySupportService innerService = context.getBean(IInnerThirdPaySupportService.class);
 	
+	
+	private static String privateKey = innerService.getPrivateKey();
+	private static String platformMoneymoremore = innerService.getPlatformMoneymoremore();
+	
 	public static void main(String args[]) throws Exception{
 //		withdrawSingleCashStream("LN19029242014122113491557888");
 		
-		Date datestart = new Date(2015-1900,5-1,18,8,0,0);
-		Date dateend = new Date(2015-1900,5-1,22,8,0,0);
+		Date datestart = new Date(2015-1900,6-1,5,8,0,0);
+		Date dateend = new Date(2015-1900,6-1,7,8,0,0);
 		
 		long start = DateCalculateUtils.getStartTime(datestart.getTime());
 		long end = DateCalculateUtils.getEndTime(dateend.getTime())+1000;
@@ -136,9 +108,9 @@ public class CheckSingleCashStream {
 		System.exit(0);
 	}
 	
-	public static String getBaseUrl(String action) {
-		return url+urls.get(action);
-	}
+//	public static String getBaseUrl(String action) {
+//		return url+urls.get(action);
+//	}
 	
 	public static boolean checkSingleCashStream(Integer cashStreamId) throws Exception{
 		CashStream cashStream=cashStreamDao.find(cashStreamId);
@@ -150,7 +122,7 @@ public class CheckSingleCashStream {
 			return true;
 		}
 		
-		String baseUrl=getBaseUrl(ACTION_ORDERQUERY);
+		String baseUrl=innerService.getBaseUrl(IInnerThirdPaySupportService.ACTION_ORDERQUERY);
 		Map<String,String> params=new HashMap<String,String>();
 		params.put("PlatformMoneymoremore", platformMoneymoremore);
 		if(cashStream.getAction()==CashStream.ACTION_CASH || (cashStream.getAction()==CashStream.ACTION_RECHARGE && "提现退回".equals(cashStream.getDescription())))
@@ -182,18 +154,6 @@ public class CheckSingleCashStream {
 				body=httpClientService.post(baseUrl, params);
 			}
 			
-			
-			
-//		}else{
-//			params.put("OrderNo", String.valueOf(cashStream.getId()));
-//			sBuilder.append(StringUtil.strFormat(params.get("OrderNo")));
-//			RsaHelper rsa = RsaHelper.getInstance();
-//			params.put("SignInfo", rsa.signData(sBuilder.toString(), privateKey));
-//			body=httpClientService.post(baseUrl, params);
-//		}
-		
-		
-		
 		
 		try{
 		boolean flag = false;
@@ -206,9 +166,12 @@ public class CheckSingleCashStream {
 		}
 		else if(cashStream.getAction()==CashStream.ACTION_CASH){
 			flag = checkWithDrawResult(cashStream, body);
-		}else if(cashStream.getAction()==CashStream.ACTION_REPAY){
+		}else if(cashStream.getAction()==CashStream.ACTION_REPAY || cashStream.getAction()==CashStream.ACTION_PURCHASEBACK){
 			flag = checkPayBackResult(cashStream, body);
-		}else if(cashStream.getAction()==CashStream.ACTION_PAY){
+		}else if(cashStream.getAction()==CashStream.ACTION_SYNCHRONIZE){
+			flag = checkSynchronizeResult(cashStream, body);
+		}
+		else if(cashStream.getAction()==CashStream.ACTION_PAY || cashStream.getAction()==CashStream.ACTION_PURCHASE){
 			flag = checkPayResult(cashStream, body);
 		}else if(cashStream.getAction()==CashStream.ACTION_FREEZE){
 			flag = checkFreezeResult(cashStream, body);
@@ -485,7 +448,7 @@ public class CheckSingleCashStream {
 		}else if(ActState.equals("3")&&TransferState.equals("1")&&cashStream.getState()==2){
 			stateflag=true;
 		}
-		boolean totalflag = cashStream.getChiefamount().negate().compareTo(new BigDecimal(Amount))==0;
+		boolean totalflag = cashStream.getChiefamount().negate().add(cashStream.getInterest().negate()).compareTo(new BigDecimal(Amount))==0;
 		
 		flag = flag && loanflag && stateflag && totalflag && accountflag && actionflag;
 		
@@ -614,7 +577,109 @@ public class CheckSingleCashStream {
 		
 		return flag;
 	}
-	
+	public static boolean checkSynchronizeResult(CashStream cashStream, String body) throws Exception{
+
+		boolean flag = true;
+		Gson gson = new Gson();
+		List<Map<String, String>> res = (List<Map<String,String>>)gson.fromJson(body, List.class);
+		
+		if( (res==null || res.isEmpty()) && cashStream.getState() == cashStream.STATE_INIT){
+			return true;
+		}else if((res==null || res.isEmpty())){
+			throw new Exception("现金流[ID:"+cashStream.getId()+"]有问题: 找不到第三方上对应的记录！");
+		}
+		
+		
+		String out = "";
+		String in = "";
+		
+			Lender lender = lenderDao.findByAccountID(cashStream.getLenderAccountId());
+			if(lender!=null){
+				out = lender.getThirdPartyAccount();
+			}
+			Borrower borrower = borrowerDao.findByAccountID(cashStream.getBorrowerAccountId());
+			if(borrower!=null){
+				in = borrower.getThirdPartyAccount();
+			}
+		
+		
+		
+		
+		Map<String, String> result = res.get(0);
+		
+		//付款人乾多多标识
+		String LoanOutMoneymoremore = result.get("LoanOutMoneymoremore");
+		
+		//收款人乾多多标识
+		String LoanInMoneymoremore = result.get("LoanInMoneymoremore");
+		
+		//额度
+		String Amount = result.get("Amount");
+		//乾多多流水号
+		String LoanNo = result.get("LoanNo");
+		
+		//转账类型
+		String TransferAction = result.get("TransferAction");
+		
+		//转账状态
+		String TransferState = result.get("TransferState");
+		
+		//操作状态
+		String ActState = result.get("ActState");
+		
+		
+		
+		//还款
+		boolean actionflag = TransferAction.equals("2");
+		
+		
+		boolean accountflag = out.equals(LoanOutMoneymoremore) && in.equals(LoanInMoneymoremore);
+		
+		boolean loanflag = cashStream.getLoanNo()==null? false : cashStream.getLoanNo().equals(LoanNo);
+		
+		boolean stateflag = false;
+		if(ActState.equals("0")&&TransferState.equals("0")&&cashStream.getState()==1)
+		{
+			stateflag=true;
+		}else if(ActState.equals("1")&&TransferState.equals("1")&&cashStream.getState()==2){
+			stateflag=true;
+		}else if(ActState.equals("2")&&TransferState.equals("1")&&cashStream.getState()==4){
+			stateflag=true;
+		}else if(ActState.equals("3")&&TransferState.equals("1")&&cashStream.getState()==2){
+			stateflag=true;
+		}
+		boolean totalflag = cashStream.getChiefamount().add(cashStream.getInterest()).negate().compareTo(new BigDecimal(Amount))==0;
+		
+		flag = flag && loanflag && stateflag && totalflag && accountflag && actionflag;
+		
+		StringBuilder message = new StringBuilder();
+		
+			message.append("现金流[ID:"+cashStream.getId()+"]: ");
+		if(loanflag==false){
+			message.append(" 乾多多流水号不一致:[平台"+cashStream.getLoanNo()+"][钱多多"+LoanNo+"] ");
+		}
+		if(stateflag==false){
+			message.append(" 操作状态不一致:[平台"+cashStream.getState()+"][钱多多"+ActState+"] ");
+		}
+		if(totalflag==false){
+			message.append(" 金额不一致:[平台"+cashStream.getChiefamount().add(cashStream.getInterest()).negate().toString()+"][钱多多"+Amount+"] ");
+		}
+		
+		if(accountflag==false){
+			message.append(" 账户不一致:[平台 borrower:"+out+" lender:+"+in+"][钱多多 borrower:"+LoanOutMoneymoremore+" lender:"+LoanInMoneymoremore+"] ");
+		}
+		
+		if(actionflag==false){
+			message.append(" 行为不一致:[平台 回购][钱多多 投标] ");
+		}
+		
+		if(!flag){
+			throw new Exception(message.toString());
+		}
+		
+		return flag;
+		
+	}
 	public static boolean checkPayBackResult(CashStream cashStream, String body) throws Exception{
 
 		boolean flag = true;
