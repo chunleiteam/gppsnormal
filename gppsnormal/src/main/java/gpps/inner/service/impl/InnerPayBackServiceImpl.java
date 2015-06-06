@@ -374,7 +374,9 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 				
 				//统计针对某一次还款的所有执行成功的还款现金流的本金与利息总和
 				CashStreamSum sum=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_REPAY);
-				
+				if(sum==null){
+					sum = new CashStreamSum();
+				}
 				//存零的金额
 				CashStreamSum sum2=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_STORECHANGE);
 				if(sum2==null)
@@ -468,10 +470,14 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 				
 				//统计针对某一次还款的所有执行成功的还款现金流的本金与利息总和
 				CashStreamSum sum=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_REPAY);
-				
+				if(sum==null){
+					sum = new CashStreamSum();
+				}
 				//存零的金额
 				CashStreamSum sum2=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_STORECHANGE);
-				
+				if(sum2==null){
+					sum2 = new CashStreamSum();
+				}
 				//实际执行的还款的本金与利息总和与payback的本金与利息总额应该一致
 				if(sum.getChiefAmount().add(sum2.getChiefAmount()).compareTo(pb.getChiefAmount())!=0||sum.getInterest().add(sum2.getInterest()).compareTo(pb.getInterest())!=0)
 				{
@@ -550,10 +556,10 @@ public class InnerPayBackServiceImpl implements IInnerPayBackService {
 				
 				//统计针对某一次还款的所有执行成功的还款现金流的本金与利息总和
 				CashStreamSum sum=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_REPAY);
-				
+				sum = sum==null?new CashStreamSum():sum;
 				//存零的金额
 				CashStreamSum sum2=cashStreamDao.sumPayBackByAction(pb.getId(), CashStream.ACTION_STORECHANGE);
-				
+				sum2 = sum2==null?new CashStreamSum():sum2;
 				//实际执行的还款的本金与利息总和与payback的本金与利息总额应该一致
 				if(sum.getChiefAmount().add(sum2.getChiefAmount()).compareTo(pb.getChiefAmount())!=0||sum.getInterest().add(sum2.getInterest()).compareTo(pb.getInterest())!=0)
 				{
