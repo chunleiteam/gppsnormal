@@ -23,6 +23,11 @@ public class ViewInvite {
 		
 		Map<Integer, Statistic> res = new HashMap<Integer, Statistic>();
 		
+		int totalInviteNum = 0;
+		int totalRegisterNum = 0;
+		int totalBuyNum = 0;
+		int totalMoney = 0;
+		
 		for(Invite invite : invites){
 			Statistic sta = null;
 			if(res.containsKey(invite.getAttributeTo())){
@@ -32,8 +37,18 @@ public class ViewInvite {
 				res.put(invite.getAttributeTo(), sta);
 			}
 			sta.total++;
+			totalInviteNum++;
 			if(invite.getState()==Invite.STATE_REGISTERED && invite.getRegisterBy()!=null){
+				totalRegisterNum++;
 				Lender lender = lenderDao.find(invite.getRegisterBy());
+				
+				if(lender.getGrade()>10000){
+					totalBuyNum++;
+					totalMoney+=100;
+				}else{
+					totalMoney+=20;
+				}
+				
 				sta.lenders.add(lender);
 			}else{
 				sta.unRegister++;
@@ -57,6 +72,13 @@ public class ViewInvite {
 			System.out.println("应给的奖励金额为"+money+"元");
 			System.out.println("-------------------------------------------------------------------------------");
 		}
+		
+		System.out.println("共发送邀请码"+totalInviteNum+"个");
+		System.out.println("共注册用户"+totalRegisterNum+"个");
+		System.out.println("参与购买用户"+totalBuyNum+"个");
+		System.out.println("共支付推广费用"+totalMoney+"元");
+		
+		System.exit(0);
 	}
 }
 class Statistic{

@@ -22,15 +22,15 @@ public class RewardApply {
 		r1.setAmount(30);
 		rewards.add(r1);
 		
-		Reward r2 = new Reward();
-		r2.setLenderId(12299);
-		r2.setAmount(140);
-		rewards.add(r2);
-		
-		Reward r3 = new Reward();
-		r3.setLenderId(12298);
-		r3.setAmount(230);
-		rewards.add(r3);
+//		Reward r2 = new Reward();
+//		r2.setLenderId(12299);
+//		r2.setAmount(140);
+//		rewards.add(r2);
+//		
+//		Reward r3 = new Reward();
+//		r3.setLenderId(12298);
+//		r3.setAmount(230);
+//		rewards.add(r3);
 		
 		List<String> res = rewardService.reward(rewards, 2);
 		for(String re:res){
