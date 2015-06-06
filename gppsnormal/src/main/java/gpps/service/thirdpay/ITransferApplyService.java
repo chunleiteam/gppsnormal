@@ -23,9 +23,19 @@ public interface ITransferApplyService {
 	 * 
 	 * @Param loanJsons 转账信息列表
 	 * 
+	 * 
 	 * */
-	public List<LoanFromTP> justTransferApply(List<LoanJson> loanJsons) throws Exception;
+	public List<LoanFromTP> justTransferApplyNeedAudit(List<LoanJson> loanJsons) throws Exception;
 	
+	/**
+	 * 将转账申请冻结的现金流组织成第三方模式LoanJson发送至第三方进行处理【无需审核直接转账】
+	 * 
+	 * @Param loanJsons 转账信息列表
+	 * 
+	 * 
+	 * 
+	 * */
+	public List<LoanFromTP> justTransferApplyNoNeedAudit(List<LoanJson> loanJsons) throws Exception;
 	
 	/**
 	 * 处理对于申请还款的返回信息，修改平台上相应的实体状体与账户额度，维护与第三方的一致性

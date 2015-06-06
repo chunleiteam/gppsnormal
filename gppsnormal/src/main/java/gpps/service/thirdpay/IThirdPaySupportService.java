@@ -48,11 +48,22 @@ public interface IThirdPaySupportService {
 	 * 返回购买表单提交信息
 	 * @param submitId
 	 * @param pid
-	 * @return
+	 * @return Transfer
 	 * @throws InsufficientBalanceException
 	 * @throws LoginException
 	 */
 	public Transfer getTransferToBuy(Integer submitId,String pid) throws InsufficientBalanceException, LoginException;
+	
+	/**
+	 * 返回购买二手债权表单提交信息
+	 * @param cashstreamId
+	 * @return Transfer
+	 * @throws InsufficientBalanceException
+	 * @throws LoginException
+	 * 
+	 * */
+	public Transfer getTransferToPurchase(Integer cashstreamId) throws InsufficientBalanceException, LoginException, IllegalOperationException;
+	
 	
 	/**
 	 * 后台审核服务
@@ -86,6 +97,15 @@ public interface IThirdPaySupportService {
 	 * @throws LoginException
 	 */
 	public Authorize getAuthorize() throws LoginException;
+	
+	/**
+	 * 返回普通用户授权表提交信息（主要用于回购企业为代持账户开通授权服务）
+	 * @param lenderId 代持账户的ID
+	 * 
+	 * */
+	public Authorize getLenderAuthorize(String loginId) throws LoginException;
+	
+	
 	
 	/**
 	 * 将还款流水组织成第三方模式LoanJson进行处理
