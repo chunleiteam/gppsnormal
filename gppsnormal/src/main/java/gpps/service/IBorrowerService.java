@@ -32,6 +32,16 @@ public interface IBorrowerService extends ILoginService {
 	
 	public Borrower register(Borrower borrower, String messageValidateCode) throws ValidateCodeException, IllegalArgumentException, LoginException;
 
+	
+	/**
+	 * 回购企业登录
+	 * @param loginId 登录名
+	 * @param password 密码
+	 * @param graphValidateCode 图形验证码
+	 * @throws Exception
+	 */
+	public void purchaserlogin(String loginId,String password,String graphValidateCode) throws LoginException,ValidateCodeException;
+	
 	/**
 	 * 更新用户 待讨论哪些字段能够更新
 	 * 

@@ -61,6 +61,40 @@ public interface IAccountService {
 	public Integer freezeAdminAccount(Integer lenderId, BigDecimal chiefAmount, Integer paybackId, String description) throws Exception;
 	
 	/**
+	 * 申请债权回购
+	 * @param lenderId 申请人的ID
+	 * @param submitId 债权对应的标的ID
+	 * @param chiefAmount 债权标的对应的本金
+	 * @param interest 债权回购手续费
+	 * @param description 债权回购说明
+	 * */
+	public Integer applyPurchaseBack(Integer lenderId, Integer submitId, BigDecimal chiefAmount, BigDecimal interest, String description) throws Exception;
+	
+	/**
+	 * 购买债权
+	 * @param lenderId 申请人的ID
+	 * @param submitId 债权对应的标的ID
+	 * @param chiefAmount 债权剩余的本金
+	 * @param interest 债权当期应付的利息
+	 * @param description 债权购买说明
+	 * 
+	 * */
+	public Integer purchase(Integer lenderAccountId, Integer submitId, BigDecimal chiefAmount, BigDecimal interest, String description) throws Exception;
+	
+	
+	/**
+	 * 同步回购企业及其代持账户之间的金额
+	 *  @param lenderId 代持账户的用户ID
+	 * @param borrowerId 回购企业的ID
+	 * @param chiefAmount 同步对应的本金
+	 * @param interest 同步对应的利息
+	 * @param description 同步说明
+	 * 
+	 * */
+	public Integer synchronizeAccount(Integer lenderId, Integer borrowerId, BigDecimal chiefAmount, BigDecimal interest, String description) throws Exception;
+	
+	
+	/**
 	 * 借款人账户解冻
 	 * @param borrowerAccountId
 	 * @param amount

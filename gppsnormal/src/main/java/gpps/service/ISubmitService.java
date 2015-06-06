@@ -33,12 +33,23 @@ public interface ISubmitService {
 	 * @return 返回订单号
 	 */
 	public Integer buy(Integer productId, int amount) throws InsufficientBalanceException, ProductSoldOutException, InsufficientProductException, UnreachBuyLevelException;
+	
+	
 	/**
 	 * 购买完成后确认提交已购买
 	 * @param submitId
 	 * @throws IllegalConvertException
 	 */
 	public void confirmBuy(Integer submitId) throws IllegalConvertException;
+	
+	/**
+	 * 购买债权完成后确认
+	 * @param submitId
+	 * @throws IllegalConvertException
+	 * */
+	public void confirmPurchase(Integer submitId) throws IllegalConvertException;
+	
+	
 	/**
 	 * 管理员购买,不受融资时间限制
 	 * @param productId
@@ -97,6 +108,16 @@ public interface ISubmitService {
 	public Map<String, Object> findMyAllSubmitsByProductStates(int productStates,int offset,int recnum);
 
 	/**
+	 * 根据产品状态返回所有的提交
+	 * @param productStates
+	 * @param offset
+	 * @param recnum
+	 * @return
+	 */
+	public Map<String, Object> findAllSubmitsByStateAndProductStatesAndPurchaseFlag(int state,int productStates, int purchaseFlag,int offset,int recnum);
+	
+	
+	/**
 	 * 找到该订单的资金流,倒序排列返回
 	 * 
 	 * @param submit
@@ -116,4 +137,12 @@ public interface ISubmitService {
 	// public void passApply(Integer submitId)throws
 	// IllegalConvertException;//通过申请进行待支付
 
+	/**
+	 * 对外提供submit的状态改变接口，校验状态改变是否合法，并写入状态转换日志
+	 * @param submitId
+	 * @param state
+	 * 
+	 * @throws IllegalConvertException
+	 * */
+	public void changeState(Integer submitId, int state)throws IllegalConvertException;
 }
