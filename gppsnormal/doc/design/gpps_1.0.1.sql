@@ -685,9 +685,34 @@ alter table Invite add(batchCode integer);
 alter table payback modify borrowerAccountId integer null;
 alter table payback modify productId integer null;
 
-      
-      
-      
+/*======================20150524修改========================================*/
+/*==============================================================*/
+/* Table: submit                                              */
+/*==============================================================*/   
+alter table submit add(purchaseFlag integer not null default 0);
+alter table borroweraccount add(used decimal(12,2) not null default 0);
+alter table borroweraccount add(totalincome decimal(12,2) not null default 0);
+alter table borroweraccount add(totalFee decimal(12,2) not null default 0);
+
+alter table submit add(borrowerId integer);
+
+/*======================20150601修改========================================*/
+/*==============================================================*/
+/* Table: lender                                              */
+/*==============================================================*/   
+
+alter table lender add(authorizeTypeOpen int not null default 0);
+
+
+/*======================20150604修改========================================*/
+/*==============================================================*/
+/* Table: submit                                              */
+/*==============================================================*/   
+
+alter table submit add(holdingstarttime bigint default 0 not null);
+
+
+
       
  /* 产品线初始化
   * 
@@ -695,5 +720,7 @@ alter table payback modify productId integer null;
 INSERT INTO `productseries` VALUES (1,'稳健型','<?xml version=\"1.0\" encoding=\"UTF-8\"?><TagCol><items><Item description=\"较低风险\" title=\"较低风险\"/><Item description=\"收益稳定\" title=\"收益稳定\"/></items></TagCol>','本类型产品具有低风险，高回款流动性的特点，并由专业担保机构进行本金担保，适合稳健型用户的参与。',0,'固定期限，按月还本付息');
 INSERT INTO `productseries` VALUES (2,'均衡型','<?xml version=\"1.0\" encoding=\"UTF-8\"?><TagCol><items><Item description=\"风险适中\" title=\"风险适中\"/><Item description=\"较高收益\" title=\"较高收益\"/></items></TagCol>','本类型产品具有中等偏上的收益，按月回款的特点，收益流动性和风险都适中，适合平衡型的的客户参与。',1,'按日计息，按月还息，到期还本，可提前还款');
 INSERT INTO `productseries` VALUES (3,'进取型','<?xml version=\"1.0\" encoding=\"UTF-8\"?><TagCol><items><Item description=\"超高收益\" title=\"超高收益\"/></items></TagCol>','本类型产品具有高收益低流动性，到期还本付息的特点，适合追求高收益并能承担一定风险的客户参与。',2,'按日计息，按月还息，到期还本。可提前还款。');
+
+INSERT INTO admin values(1, '超级管理员', '13811111111', 'admin@11.com', 'admin', '2442481cad20eb7877983ba5598d6705', 0, 21);
 
 insert into invite values(1, 1, 0, null, 1, null);
