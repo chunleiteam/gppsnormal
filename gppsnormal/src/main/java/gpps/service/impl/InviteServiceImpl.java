@@ -127,5 +127,14 @@ IMessageSupportService messageService;
 		}
 		inviteDao.update(code, null, Invite.STATE_INIT);
 	}
+	
+	@Override
+	public List<Invite> queryByAttriToAndBatchCode(Integer lenderId, Integer batchCode){
+		List<Invite> res = inviteDao.queryByAttriToAndBatchCode(lenderId, batchCode);
+		if(res==null){
+			res= new ArrayList<Invite>();
+		}
+		return res;
+	}
 
 }
