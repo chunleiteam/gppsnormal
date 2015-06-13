@@ -15,4 +15,5 @@ public interface IInviteService {
 	public void check(String code) throws InviteException;
 	public void register(String code, Integer lenderId) throws InviteException;
 	public void release(String code) throws InviteException;
+	public List<Invite> queryByAttriToAndBatchCode(Integer lenderId, Integer batchCode);
 }
