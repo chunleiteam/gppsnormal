@@ -109,12 +109,13 @@ public interface ISubmitService {
 
 	/**
 	 * 根据产品状态返回所有的提交
+	 * @param lenderId 若为null则代表全部
 	 * @param productStates
 	 * @param offset
 	 * @param recnum
 	 * @return
 	 */
-	public Map<String, Object> findAllSubmitsByStateAndProductStatesAndPurchaseFlag(int state,int productStates, int purchaseFlag,int offset,int recnum);
+	public Map<String, Object> findAllSubmitsByLenderAndStateAndProductStatesAndPurchaseFlag(Integer lenderId, int state,int productStates, int purchaseFlag,int offset,int recnum);
 	
 	
 	/**
