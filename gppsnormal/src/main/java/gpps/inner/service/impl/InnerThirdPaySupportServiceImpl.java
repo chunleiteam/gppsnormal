@@ -35,7 +35,10 @@ public class InnerThirdPaySupportServiceImpl implements IInnerThirdPaySupportSer
 	private String publicKey;
 	private String serverHost;
 	private String serverPort;
-	
+	private String returnUrl;
+	private String notifyUrl;
+	private String appendFlag;
+
 	private String urlregister;
 	private String urlrecharge;
 	private String urltransfer;
@@ -84,6 +87,33 @@ public class InnerThirdPaySupportServiceImpl implements IInnerThirdPaySupportSer
 	public void setPlatformMoneymoremore(String platformMoneymoremore) {
 		this.platformMoneymoremore = platformMoneymoremore;
 	}
+	
+	@Override
+	public String getNotifyUrl() {
+		return notifyUrl;
+	}
+
+	public void setNotifyUrl(String notifyUrl) {
+		this.notifyUrl = notifyUrl;
+	}
+	
+	@Override
+	public String getReturnUrl() {
+		return returnUrl;
+	}
+
+	public void setReturnUrl(String returnUrl) {
+		this.returnUrl = returnUrl;
+	}
+	@Override
+	public String getAppendFlag() {
+		return appendFlag;
+	}
+
+	public void setAppendFlag(String appendFlag) {
+		this.appendFlag = appendFlag;
+	}
+	
 	@Override
 	public String getServerHost() {
 		return serverHost;

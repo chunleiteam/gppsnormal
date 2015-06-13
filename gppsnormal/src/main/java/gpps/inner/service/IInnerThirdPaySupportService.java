@@ -42,6 +42,12 @@ public interface IInnerThirdPaySupportService {
 	
 	public String getPublicKey();
 	
+	public String getReturnUrl();
+	
+	public String getNotifyUrl();
+	
+	public String getAppendFlag();
+	
 	/**
 	 * 审核操作参数签名
 	 * 
