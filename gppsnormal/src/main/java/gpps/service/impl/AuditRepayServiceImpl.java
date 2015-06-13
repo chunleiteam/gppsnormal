@@ -78,8 +78,13 @@ public class AuditRepayServiceImpl implements IAuditRepayService {
 		params.put("PlatformMoneymoremore", innerThirdPayService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
 //		params.put("ReturnURL", req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repayaudit/response/bg");
-		params.put("ReturnURL", "http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repayaudit/response/bg");
-		params.put("NotifyURL", params.get("ReturnURL"));
+		
+		params.put("ReturnURL",innerThirdPayService.getReturnUrl() + "/account/repayaudit/response/bg");
+
+		if("1".equals(innerThirdPayService.getAppendFlag()))
+			params.put("NotifyURL", innerThirdPayService.getNotifyUrl() + "/account/repayaudit/response/bg");
+		else
+			params.put("NotifyURL", innerThirdPayService.getNotifyUrl());
 		for(int i=0;i<loanNos.size();i++)
 		{
 			if(loanNoSBuilder.length()!=0)

@@ -66,7 +66,10 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		
 		//非手动转账，不需要returnURL,只需要提供后台处理页面
 //		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
-		transfer.setNotifyURL("http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repay/response/bg");
+		if("1".equals(innerThirdPayService.getAppendFlag()))
+			transfer.setNotifyURL(innerThirdPayService.getNotifyUrl() + "/account/repay/response/bg");
+		else
+			transfer.setNotifyURL(innerThirdPayService.getNotifyUrl());
 		
 		//签名
 		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
@@ -109,7 +112,10 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		
 		//非手动转账，不需要returnURL,只需要提供后台处理页面
 //		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
-		transfer.setNotifyURL("http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repay/response/bg");
+		if("1".equals(innerThirdPayService.getAppendFlag()))
+			transfer.setNotifyURL(innerThirdPayService.getNotifyUrl() + "/account/repay/response/bg");
+		else
+			transfer.setNotifyURL(innerThirdPayService.getNotifyUrl());
 		
 		//签名
 		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
@@ -166,8 +172,10 @@ public class TransferApplyServiceImpl implements ITransferApplyService {
 		
 		//非手动转账，不需要returnURL,只需要提供后台处理页面
 //		transfer.setNotifyURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/repay/response/bg");
-		transfer.setNotifyURL("http://" + innerThirdPayService.getServerHost() + ":" + innerThirdPayService.getServerPort() + "/account/repay/response/bg");
-		
+		if("1".equals(innerThirdPayService.getAppendFlag()))
+			transfer.setNotifyURL(innerThirdPayService.getNotifyUrl() + "/account/repay/response/bg");
+		else
+			transfer.setNotifyURL(innerThirdPayService.getNotifyUrl());
 		//签名
 		transfer.setLoanJsonList(Common.JSONEncode(loanJsons));
 		transfer.setSignInfo(transfer.getSign(innerThirdPayService.getPrivateKey()));

@@ -112,7 +112,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		{
 			registAccount.setAccountType(null);
 			Lender lender=(Lender)currentUser;
-			registAccount.setEmail(lender.getEmail());
+//			registAccount.setEmail(lender.getEmail());
 			registAccount.setIdentificationNo(lender.getIdentityCard());
 			registAccount.setLoanPlatformAccount("L"+lender.getId());
 			registAccount.setMobile(lender.getTel());
@@ -120,7 +120,7 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		}else if(currentUser instanceof Borrower){
 			registAccount.setAccountType(1);
 			Borrower borrower=(Borrower)currentUser;
-			registAccount.setEmail(borrower.getEmail());
+//			registAccount.setEmail(borrower.getEmail());
 			registAccount.setIdentificationNo(borrower.getLicense());
 			registAccount.setLoanPlatformAccount("B"+borrower.getId());
 			registAccount.setMobile(borrower.getTel());
@@ -129,8 +129,8 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		else {
 			throw new RuntimeException("不支持该用户开户");
 		}
-		registAccount.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/thirdPartyRegist/response");
-		registAccount.setNotifyURL(registAccount.getReturnURL()+"/bg");
+		registAccount.setReturnURL(innerThirdPaySupportService.getReturnUrl() + "/account/thirdPartyRegist/response");
+		registAccount.setNotifyURL(innerThirdPaySupportService.getReturnUrl() + "/account/thirdPartyRegist/response"+"/bg");
 		registAccount.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		registAccount.setSignInfo(registAccount.getSign(innerThirdPaySupportService.getPrivateKey()));
 		return registAccount;
@@ -152,8 +152,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		if(currentUser==null)
 			throw new LoginException("未找到用户信息，请重新登录");
 		recharge.setAmount(amount);
-		recharge.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/recharge/response");
-		recharge.setNotifyURL(recharge.getReturnURL()+"/bg");
+		recharge.setReturnURL(innerThirdPaySupportService.getReturnUrl() + "/account/recharge/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			recharge.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() + "/account/recharge/response"+"/bg");
+		else
+			recharge.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
 		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		
 		recharge.setRechargeType("4");  //RechargeType==4代表充值类型为“企业网银充值”
@@ -192,8 +195,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		if(currentUser==null)
 			throw new LoginException("未找到用户信息，请重新登录");
 		recharge.setAmount(amount);
-		recharge.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/recharge/response");
-		recharge.setNotifyURL(recharge.getReturnURL()+"/bg");
+		recharge.setReturnURL(innerThirdPaySupportService.getReturnUrl() + "/account/recharge/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			recharge.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() + "/account/recharge/response"+"/bg");
+		else
+			recharge.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
 		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		
 		recharge.setRechargeType("2");  //RechargeType==2代表充值类型为“快捷支付”
@@ -229,8 +235,13 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		if(currentUser==null)
 			throw new LoginException("未找到用户信息，请重新登录");
 		recharge.setAmount(amount);
-		recharge.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/recharge/response");
-		recharge.setNotifyURL(recharge.getReturnURL()+"/bg");
+		recharge.setReturnURL(innerThirdPaySupportService.getReturnUrl() + "/account/recharge/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			recharge.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() + "/account/recharge/response"+"/bg");
+		else
+			recharge.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
+		
+		
 		recharge.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		
 //		recharge.setRechargeType("4");
@@ -296,8 +307,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		transfer.setAction(ThirdPartyState.THIRD_ACTION_MANUAL); //操作类型：手动
 		transfer.setNeedAudit("1");//不需要审核
-		transfer.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/purchase/response");
-		transfer.setNotifyURL(transfer.getReturnURL()+"/bg");
+		transfer.setReturnURL(innerThirdPaySupportService.getReturnUrl() + "/account/purchase/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			transfer.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() + "/account/purchase/response"+"/bg");
+		else
+			transfer.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
 		transfer.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		transfer.setTransferAction(ThirdPartyState.THIRD_TRANSFERACTION_BUY);//投标
 		transfer.setTransferType(ThirdPartyState.THIRD_TRANSFERTYPE_DIRECT);//直连
@@ -346,8 +360,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		HttpServletRequest req=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		transfer.setAction("1");
 		transfer.setNeedAudit(null);//空.需要审核
-		transfer.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/account/buy/response");
-		transfer.setNotifyURL(transfer.getReturnURL()+"/bg");
+		transfer.setReturnURL(innerThirdPaySupportService.getReturnUrl() + "/account/buy/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			transfer.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() + "/account/buy/response"+"/bg");
+		else
+			transfer.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
 		transfer.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		transfer.setRemark1(pid);
 		transfer.setTransferAction("1");//投标
@@ -395,8 +412,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		Map<String,String> params=new HashMap<String, String>();
 		params.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
-		params.put("ReturnURL", "http://" + innerThirdPaySupportService.getServerHost() + ":" + innerThirdPaySupportService.getServerPort() + "/account/repay/response/bg");
-		params.put("NotifyURL", params.get("ReturnURL"));
+		params.put("ReturnURL", innerThirdPaySupportService.getReturnUrl() + "/account/repay/response/bg");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			params.put("NotifyURL", innerThirdPaySupportService.getNotifyUrl() + "/account/repay/response/bg");
+		else
+			params.put("NotifyURL", innerThirdPaySupportService.getNotifyUrl());
 		for(int i=0;i<loanNos.size();i++)
 		{
 			if(loanNoSBuilder.length()!=0)
@@ -554,8 +574,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		Map<String,String> params=new HashMap<String, String>();
 		params.put("PlatformMoneymoremore", innerThirdPaySupportService.getPlatformMoneymoremore());
 		params.put("AuditType", String.valueOf(auditType));
-		params.put("ReturnURL", "http://" + innerThirdPaySupportService.getServerHost() + ":" + innerThirdPaySupportService.getServerPort() + "/account/checkBuy/response/bg");
-		params.put("NotifyURL", params.get("ReturnURL"));
+		params.put("ReturnURL", innerThirdPaySupportService.getReturnUrl() + "/account/checkBuy/response/bg");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			params.put("NotifyURL", innerThirdPaySupportService.getNotifyUrl() + "/account/checkBuy/response/bg");
+		else
+			params.put("NotifyURL", innerThirdPaySupportService.getNotifyUrl());
 		for(int i=0;i<loanNos.size();i++)
 		{
 			if(loanNoSBuilder.length()!=0)
@@ -638,8 +661,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		cardBinding.setAction("2");
 //		RsaHelper rsa = RsaHelper.getInstance();
 //		cardBinding.setCardNo(cardNo);
-		cardBinding.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() +"/account/cardBinding/response");
-		cardBinding.setNotifyURL(cardBinding.getReturnURL()+"/bg");
+		cardBinding.setReturnURL(innerThirdPaySupportService.getReturnUrl() +"/account/cardBinding/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			cardBinding.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() +"/account/cardBinding/response"+"/bg");
+		else
+			cardBinding.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
 		if(currentUser instanceof Lender)
 		{
 			Lender lender=(Lender)currentUser;
@@ -708,8 +734,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		cash.setProvince(cardBinding.getProvince());
 		cash.setCity(cardBinding.getCity());
 		cash.setOrderNo(String.valueOf(cashStreamId));
-		cash.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() +"/account/cash/response");
-		cash.setNotifyURL(cash.getReturnURL()+"/bg");
+		cash.setReturnURL(innerThirdPaySupportService.getReturnUrl() +"/account/cash/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			cash.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() +"/account/cash/response"+"/bg");
+		else
+			cash.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
 		cash.setSignInfo(cash.getSign(innerThirdPaySupportService.getPrivateKey()));
 		RsaHelper rsa = RsaHelper.getInstance();
 		cash.setCardNo(rsa.encryptData(cardNo, innerThirdPaySupportService.getPublicKey()));
@@ -728,8 +757,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		authorize.setMoneymoremoreId(borrower.getThirdPartyAccount());
 		authorize.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		authorize.setAuthorizeTypeOpen("2");
-		authorize.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() +"/account/authorize/response");
-		authorize.setNotifyURL(authorize.getReturnURL()+"/bg");
+		authorize.setReturnURL(innerThirdPaySupportService.getReturnUrl() +"/account/authorize/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			authorize.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() +"/account/authorize/response"+"/bg");
+		else
+			authorize.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
 		authorize.setSignInfo(authorize.getSign(innerThirdPaySupportService.getPrivateKey()));
 		return authorize;
 	}
@@ -762,8 +794,11 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		authorize.setMoneymoremoreId(lender.getThirdPartyAccount());
 		authorize.setPlatformMoneymoremore(innerThirdPaySupportService.getPlatformMoneymoremore());
 		authorize.setAuthorizeTypeOpen("2");
-		authorize.setReturnURL(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() +"/account/lenderauthorize/response");
-		authorize.setNotifyURL(authorize.getReturnURL()+"/bg");
+		authorize.setReturnURL(innerThirdPaySupportService.getReturnUrl() +"/account/lenderauthorize/response");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			authorize.setNotifyURL(innerThirdPaySupportService.getNotifyUrl() +"/account/lenderauthorize/response"+"/bg");
+		else
+			authorize.setNotifyURL(innerThirdPaySupportService.getNotifyUrl());
 		authorize.setSignInfo(authorize.getSign(innerThirdPaySupportService.getPrivateKey()));
 		return authorize;
 	}
@@ -785,7 +820,10 @@ public class ThirdPaySupportServiceImpl implements IThirdPaySupportService{
 		//将还款改为需要审核
 		params.put("NeedAudit", null);
 		
-		params.put("NotifyURL", "http://"+innerThirdPaySupportService.getServerHost()+":"+innerThirdPaySupportService.getServerPort()+"/account/repay/response/bg");
+		if("1".equals(innerThirdPaySupportService.getAppendFlag()))
+			params.put("NotifyURL", innerThirdPaySupportService.getNotifyUrl()+"/account/repay/response/bg");
+		else
+			params.put("NotifyURL", innerThirdPaySupportService.getNotifyUrl());
 		List<LoanJson> temp=new ArrayList<LoanJson>();
 		
 		Product product = productService.find(payback.getProductId());

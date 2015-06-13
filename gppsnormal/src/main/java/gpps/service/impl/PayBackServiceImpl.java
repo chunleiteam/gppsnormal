@@ -403,7 +403,7 @@ public class PayBackServiceImpl implements IPayBackService {
 		List<PayBack> canBeRepayedPayBacks=new ArrayList<PayBack>();
 		for(PayBack payBack:payBacks)
 		{
-			if(canRepay(payBack.getId()))
+			if(canSeeRepay(payBack.getId()))
 			{
 				Product product=productDao.find(payBack.getProductId());
 				payBack.setProduct(product);
@@ -434,6 +434,68 @@ public class PayBackServiceImpl implements IPayBackService {
 		}
 		return canBeRepayedInAdvancePayBacks;
 	}
+	
+	private boolean canSeeRepay(Integer payBackId){
+		PayBack payBack=find(payBackId);
+		if(payBack.getState()!=PayBack.STATE_WAITFORREPAY)
+			return false;
+		//本产品是否为最后一次还款,只校验各自产品是否是最近一次还款，对于结构化来说，不关系其余产品线的还款状况
+		List<PayBack> payBacks=innerPayBackService.findAll(payBack.getProductId());
+		for(PayBack pb:payBacks)
+		{
+			if(pb.getId()==(int)(payBack.getId()))
+				continue;
+			if(pb.getState()==PayBack.STATE_FINISHREPAY||pb.getState()==PayBack.STATE_REPAYING)
+				continue;
+			if(pb.getState()==PayBack.STATE_DELAY||pb.getDeadline()<payBack.getDeadline())
+				return false;
+		}
+		
+		return true;
+		
+	}
+	
+	@Override
+	public boolean canApplyRepay(Integer payBackId){
+		PayBack payBack=find(payBackId);
+		if(payBack.getState()!=PayBack.STATE_WAITFORREPAY)
+			return false;
+		//本产品是否为最后一次还款
+		List<PayBack> payBacks=innerPayBackService.findAll(payBack.getProductId());
+		for(PayBack pb:payBacks)
+		{
+			if(pb.getId()==(int)(payBack.getId()))
+				continue;
+			if(pb.getState()==PayBack.STATE_FINISHREPAY||pb.getState()==PayBack.STATE_REPAYING)
+				continue;
+			if(pb.getState()==PayBack.STATE_DELAY||pb.getDeadline()<payBack.getDeadline())
+				return false;
+		}
+		Product product=productDao.find(payBack.getProductId());
+		ProductSeries productSeries=productSeriesDao.find(product.getProductseriesId());
+		if(productSeries.getType()==ProductSeries.TYPE_AVERAGECAPITALPLUSINTEREST)
+			return true;
+		List<Product> products=productDao.findByGovermentOrder(product.getGovermentorderId());
+		for(Product pro:products)
+		{
+			if((int)(pro.getId())==(int)(product.getId()))
+				continue;
+			ProductSeries proSeries=productSeriesDao.find(pro.getProductseriesId());
+			if(proSeries.getType()>=productSeries.getType())
+				continue;
+			payBacks=innerPayBackService.findAll(pro.getId());
+			for(PayBack pb:payBacks)
+			{
+				if(pb.getState()==PayBack.STATE_FINISHREPAY||pb.getState()==PayBack.STATE_REPAYING||pb.getState()==PayBack.STATE_WAITFORCHECK)
+					continue;
+				if(pb.getState()==PayBack.STATE_DELAY||pb.getDeadline()<=payBack.getDeadline())
+					return false;
+			}
+		}
+		return true;
+		
+	}
+	
 	@Override
 	public boolean canRepay(Integer payBackId) {
 		PayBack payBack=find(payBackId);
@@ -572,13 +634,18 @@ public class PayBackServiceImpl implements IPayBackService {
 		if (currentProduct.getState() != Product.STATE_REPAYING) 
 			throw new IllegalStateException("该产品尚未进入还款阶段");
 		
+		if(!canApplyRepay(payBackId)){
+			throw new IllegalStateException("请先申请稳健/均衡型产品还款！");
+		}
+		
+		
 		BorrowerAccount baccount = borrowerAccountDao.find(borrower.getAccountId());
 		if(payBack.getChiefAmount().add(payBack.getInterest()).compareTo(baccount.getUsable())>0){
 			throw new IllegalStateException("账户余额不足！");
 		}
 		
-		// 验证还款顺序
-		innerPayBackService.validatePayBackSequence(payBackId);
+//		// 验证还款顺序,【无需这个严格顺序校验】
+//		innerPayBackService.validatePayBackSequence(payBackId);
 		
 		List<SinglePayBack> spbs = null;
 		
