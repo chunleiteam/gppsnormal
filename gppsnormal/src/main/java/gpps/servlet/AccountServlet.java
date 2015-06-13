@@ -338,7 +338,7 @@ public class AccountServlet {
 	@RequestMapping(value = { "/account/purchase/response" })
 	public void completePurchase(HttpServletRequest req, HttpServletResponse resp) {
 		Map<String,String> params=getAllParams(req);
-		String message=null;
+		String message="债权购买成功";
 		try {
 			completePurchaseProcessor(req, resp);
 		} catch (SignatureException e) {
@@ -351,11 +351,7 @@ public class AccountServlet {
 			log.error(e.getMessage());
 			message = e.getMessage();
 		}
-		if(!StringUtil.isEmpty(message)){
-			writeMsg(resp,message,"/myaccount.html");
-			return;
-		}
-		writeMsg(resp,message,"/myaccount.html?fid=submit&sid=submit-all");
+		writeMsg(resp,message,"/myaccount.html?fid=purchase&sid=purchase");
 	}
 	
 	@RequestMapping(value = { "/account/purchase/response/bg" })
