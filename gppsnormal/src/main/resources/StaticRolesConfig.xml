@@ -58,13 +58,19 @@
         	<PermissionRule  entityLimitType="gpps.dao.ILenderAccountDao" operations="find"/>
         	<PermissionRule  entityLimitType="gpps.service.IContractService" operations="submitContract"/>
         	<PermissionRule  entityLimitType="gpps.service.IPurchaseService" operations="preCalPurchaseBack;applyPurchaseBack;canApplyPurchaseBack;canApplyPurchase;preCalPurchase;purchase"/>
+        	<PermissionRule  entityLimitType="gpps.service.IInviteService" operations="queryByAttriToAndBatchCode"/>
         </permissionRules>
     </Role>
-<!--     <Role privilege = "1" limitedType="0"> -->
-<!--         <permissionRules> -->
+    
+    
+    
+     <!-- <Role privilege = "1" limitedType="0"> 
+         <permissionRules> 
         	
-<!--         </permissionRules> -->
-<!--     </Role> -->
+         </permissionRules> 
+     </Role>  -->
+     
+     
 	<!-- ******************************Borrower********************************* -->
 	<Role id="borrowerView" privilege = "10|11|14" limitedType="0" extendsRoleIds="anonymous">
 		<permissionRules>
@@ -89,7 +95,7 @@
     
     <Role privilege = "15" limitedType="0" extendsRoleIds="borrowerFinance">
     	<permissionRules>
-    	<PermissionRule  entityLimitType="gpps.service.ISubmitService" operations="findAllSubmitsByStateAndProductStatesAndPurchaseFlag"/>
+    	<PermissionRule  entityLimitType="gpps.service.ISubmitService" operations="findAllSubmitsByLenderAndStateAndProductStatesAndPurchaseFlag"/>
     	<PermissionRule  entityLimitType="gpps.service.IPurchaseService" operations="preCalPurchaseBack;purchaseBack;synchronizeAccount;canApplyPurchaseBack"/>
     	<PermissionRule  entityLimitType="gpps.service.thirdpay.IThirdPaySupportService" operations="getLenderAuthorize"/>
     	</permissionRules>
