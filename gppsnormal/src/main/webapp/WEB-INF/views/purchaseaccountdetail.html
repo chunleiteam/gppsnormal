@@ -419,7 +419,6 @@ a.accordion-toggle {
 								$('.confirm_purchaseback').click(function(e){
 									var purchaseService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPurchaseService");
 									try{
-										alert(user.id);
 										purchaseService.purchaseBack(parseInt($(this).attr('id')), user.id);
 										alert('回购执行成功！');
 										window.location.href="purchaseaccountdetail.html?fid=purchase&sid=purchaseback";
