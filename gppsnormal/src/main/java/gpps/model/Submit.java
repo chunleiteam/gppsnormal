@@ -6,6 +6,10 @@ public class Submit {
 	//抢占的额度有效时间为10分钟，10分钟内未支付成功，则将额度回退
 	public static final long PAYEXPIREDTIME=10L*60*1000;
 	
+	//用户购买债权有效支付时间为30分钟，30分钟内未支付成功，则将状态回滚
+	public static final long PURCHASEEXPIREDTIME=30L*60*1000;
+	
+	
 	//预约审核通过的额度有效时间为12小时，12小时内未支付成功，则将额度回退
 	public static final long SUBSCRIBE_PAYEXPIREDTIME = 12L*3600*1000;
 	
@@ -36,6 +40,11 @@ public class Submit {
 	
 	public static final int PURCHASE_FLAG_UNPURCHASE = 0; //未被企业回购
 	public static final int PURCHASE_FLAG_PURCHASEBACK = 1;  //已被企业回购
+	
+	
+	public static final int HANDLE_FLAG_NONE = 0; //既不可以被买入又不可以被回购
+	public static final int HANDLE_FLAG_PURCHASE = 1;  //可以被买入
+	public static final int HANDLE_FLAG_PURCHASEBACK = 2; //可以被回购
 	
 	private int state=STATE_WAITFORPAY;
 	private long createtime = System.currentTimeMillis();
@@ -118,6 +127,15 @@ public class Submit {
 	private BigDecimal waitforRepayAmount=new BigDecimal(0);//待回款
 	private long payExpiredTime;
 	private String lenderName;
+	
+	private int handleFlag=HANDLE_FLAG_NONE; //是否可以执行回购
+	
+	public int getHandleFlag() {
+		return handleFlag;
+	}
+	public void setHandleFlag(int handleFlag) {
+		this.handleFlag = handleFlag;
+	}
 	public Product getProduct() {
 		return product;
 	}
