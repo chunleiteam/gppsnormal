@@ -209,9 +209,9 @@ public class MyAccountServiceImpl implements IMyAccountService {
 		List<Integer> stateList = new ArrayList<Integer>();
 		stateList.add(Product.STATE_REPAYING);
 		stateList.add(Product.STATE_POSTPONE);
-		message.put("to_purchase", submitDao.countByStateAndProductStatesAndPurchaseFlag(Submit.STATE_COMPLETEPAY, stateList, Submit.PURCHASE_FLAG_PURCHASEBACK));
+		message.put("to_purchase", submitDao.countByLenderAndStateAndProductStatesAndPurchaseFlag(null, Submit.STATE_COMPLETEPAY, stateList, Submit.PURCHASE_FLAG_PURCHASEBACK));
 		
-		message.put("to_purchase_back", submitDao.countByStateAndProductStatesAndPurchaseFlag(Submit.STATE_WAITFORPURCHASEBACK, stateList, Submit.PURCHASE_FLAG_UNPURCHASE));
+		message.put("to_purchase_back", submitDao.countByLenderAndStateAndProductStatesAndPurchaseFlag(null, Submit.STATE_WAITFORPURCHASEBACK, stateList, Submit.PURCHASE_FLAG_UNPURCHASE));
 		
 		return message;
 	}
@@ -292,7 +292,7 @@ public class MyAccountServiceImpl implements IMyAccountService {
 		stateList.clear();
 		stateList.add(Product.STATE_REPAYING);
 		stateList.add(Product.STATE_POSTPONE);
-		message.put("can_purchase", submitDao.countByStateAndProductStatesAndPurchaseFlag(Submit.STATE_COMPLETEPAY, stateList, Submit.PURCHASE_FLAG_PURCHASEBACK));
+		message.put("can_purchase", submitDao.countByLenderAndStateAndProductStatesAndPurchaseFlag(null, Submit.STATE_COMPLETEPAY, stateList, Submit.PURCHASE_FLAG_PURCHASEBACK));
 		
 		
 		

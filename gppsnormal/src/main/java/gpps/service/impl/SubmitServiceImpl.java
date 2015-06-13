@@ -25,6 +25,7 @@ import gpps.service.IGovermentOrderService;
 import gpps.service.ILenderService;
 import gpps.service.IPayBackService;
 import gpps.service.IProductService;
+import gpps.service.IPurchaseService;
 import gpps.service.ISubmitService;
 import gpps.service.exception.IllegalConvertException;
 import gpps.service.exception.InsufficientBalanceException;
@@ -111,6 +112,17 @@ public class SubmitServiceImpl implements ISubmitService {
 								logger.info("预约Submit[id:"+submit.getId()+"]12小时内未支付，过期退订");
 							}
 						}
+						List<Submit> purchase_submits = submitDao.findAllByState(Submit.STATE_WAITFORPURCHASE);
+						if(purchase_submits!=null&&!purchase_submits.isEmpty()){
+							for(Submit submit:purchase_submits){
+								if((submit.getLastmodifytime()+Submit.PURCHASEEXPIREDTIME)>System.currentTimeMillis())
+								{
+									continue;
+								}
+								processPurchase_UnPayedSubmit(submit);
+								logger.info("债权购买Submit[id:"+submit.getId()+"]30分钟内未支付，过期失效");
+							}
+						}
 					
 					} catch (Throwable e) {
 						logger.error(e.getMessage(),e);
@@ -148,6 +160,12 @@ public class SubmitServiceImpl implements ISubmitService {
 		// 金额回滚
 		productDao.buy(submit.getProductId(), submit.getAmount().negate());
 	}
+	
+	@Transactional
+	private void processPurchase_UnPayedSubmit(Submit submit) throws IllegalConvertException{
+		changeState(submit.getId(), Submit.STATE_COMPLETEPAY);
+	}
+	
 	@Override
 	@Transactional
 	public Integer buy(Integer productId, int num)
@@ -368,7 +386,7 @@ public class SubmitServiceImpl implements ISubmitService {
 	}
 
 	@Override
-	public Map<String, Object> findAllSubmitsByStateAndProductStatesAndPurchaseFlag(int state,int productStates, int purchaseFlag,int offset,int recnum){
+	public Map<String, Object> findAllSubmitsByLenderAndStateAndProductStatesAndPurchaseFlag(Integer lenderId, int state,int productStates, int purchaseFlag,int offset,int recnum){
 		List<Integer> stateList=null;
 		if(productStates!=-1)
 		{
@@ -379,10 +397,12 @@ public class SubmitServiceImpl implements ISubmitService {
 					stateList.add(productState);
 			}
 		}
-		int count=submitDao.countByStateAndProductStatesAndPurchaseFlag(state, stateList, purchaseFlag);
+		
+		
+		int count=submitDao.countByLenderAndStateAndProductStatesAndPurchaseFlag(lenderId, state, stateList, purchaseFlag);
 		if(count==0)
 			return Pagination.buildResult(null, count, offset, recnum);
-		List<Submit> submits=submitDao.findAllByStateAndProductStatesAndPurchaseFlagWithPaged(state, stateList, purchaseFlag, offset, recnum);
+		List<Submit> submits=submitDao.findAllByLenderAndStateAndProductStatesAndPurchaseFlagWithPaged(lenderId, state, stateList, purchaseFlag, offset, recnum);
 		for(Submit submit:submits)
 		{
 			submit.setProduct(productService.find(submit.getProductId()));
@@ -431,8 +451,21 @@ public class SubmitServiceImpl implements ISubmitService {
 		List<Submit> submits=submitDao.findAllPayedByLenderAndProductStates(lender.getId(), stateList, offset, recnum);
 		for(Submit submit:submits)
 		{
-			submit.setProduct(productService.find(submit.getProductId()));
-			submit.getProduct().setGovermentOrder(govermentOrderDao.find(submit.getProduct().getGovermentorderId()));
+			
+			Product product = productService.find(submit.getProductId());
+			GovermentOrder order = product.getGovermentOrder();
+			
+			if(submit.getHoldingstarttime()==0){
+				submit.setHoldingstarttime(order.getIncomeStarttime());
+			}
+			
+			//如果持有时间大于等于最小持有时间，则可以出售
+			if(DateCalculateUtils.getDays(submit.getHoldingstarttime(), System.currentTimeMillis())>=IPurchaseService.MIN_HOLDING_DAYS){
+				submit.setHandleFlag(Submit.HANDLE_FLAG_PURCHASEBACK);
+			}
+			
+			
+			submit.setProduct(product);
 			//计算已还款
 			if(submit.getState()!=Submit.STATE_COMPLETEPAY)
 				continue;

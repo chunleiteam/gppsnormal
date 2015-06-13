@@ -33,6 +33,7 @@ import gpps.tools.DateCalculateUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -255,6 +256,20 @@ public class PurchaseServiceImpl implements IPurchaseService {
 	
 	@Override
 	public void canApplyPurchase(Integer submitId, long date) throws Exception{
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(date);
+		
+		Calendar start = Calendar.getInstance();
+		start.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), TRANSACTION_PERIOD_START, 0, 0);
+		
+		Calendar end = Calendar.getInstance();
+		end.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), TRANSACTION_PERIOD_END, 0, 0);
+		
+		if(date<start.getTimeInMillis() || date>end.getTimeInMillis()){
+			throw new Exception("当前不在交易时段【"+TRANSACTION_PERIOD_START+":00-"+TRANSACTION_PERIOD_END+":00】");
+		}
+		
 		Submit submit = submitDao.find(submitId);
 		if(submit==null){
 			throw new Exception("系统中未找到对应的投标！");
@@ -266,10 +281,47 @@ public class PurchaseServiceImpl implements IPurchaseService {
 		if(product==null || product.getState()!=Product.STATE_REPAYING){
 			throw new Exception("投标对应的产品状态不是还款中，无法申请回购！");
 		}
+		
+		List<PayBack> pbs = paybackDao.findAllByProduct(product.getId());
+		for(PayBack pb : pbs){
+			
+			if(pb.getState()==PayBack.STATE_FINISHREPAY || pb.getState()==PayBack.STATE_INVALID){
+				continue;
+			}
+			
+			if(pb.getState()==PayBack.STATE_WAITFORCHECK || pb.getState()==PayBack.STATE_APPLYREPAYINADVANCE){
+				throw new Exception("本产品正处于申请还款/申请提前还款期，不允许购买！");
+			}
+			
+			
+			if(DateCalculateUtils.getDays(date, pb.getDeadline())<=PAYBACK_PERIOD_BEFORE && DateCalculateUtils.getDays(pb.getDeadline(),date)<=PAYBACK_PERIOD_AFTER)
+			{
+				throw new Exception("已进入还款周期,不允许购买！");
+			}else if(DateCalculateUtils.getDays(pb.getDeadline(),date)>PAYBACK_PERIOD_AFTER){
+				throw new Exception("本产品已逾期超过两天，暂停购买！");
+			}else{
+				return;   //没有问题，可以购买
+			}
+		}
 	}
 	
 	@Override
 	public void canApplyPurchaseBack(Integer submitId, long date) throws Exception{
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(date);
+		
+		Calendar start = Calendar.getInstance();
+		start.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), TRANSACTION_PERIOD_START, 0, 0);
+		
+		Calendar end = Calendar.getInstance();
+		end.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), TRANSACTION_PERIOD_END, 0, 0);
+		
+		if(date<start.getTimeInMillis() || date>end.getTimeInMillis()){
+			throw new Exception("当前不在交易时段【"+TRANSACTION_PERIOD_START+":00-"+TRANSACTION_PERIOD_END+":00】");
+		}
+		
+		
 		Submit submit = submitDao.find(submitId);
 		if(submit==null){
 			throw new Exception("系统中未找到对应的投标！");
@@ -288,13 +340,14 @@ public class PurchaseServiceImpl implements IPurchaseService {
 		
 		List<PayBack> pbs = paybackDao.findAllByProduct(product.getId());
 		
-		if(date<=holdingstarttime+15L*24*3600*1000){
-			throw new Exception("持有不足15天，无法申请回购！");
+		//小于MIN_HOLDING_DAYS天不允许出售
+		if(DateCalculateUtils.getDays(holdingstarttime, date)<MIN_HOLDING_DAYS){
+			throw new Exception("持有不足"+MIN_HOLDING_DAYS+"天，无法申请回购！");
 		}
 		
 		for(PayBack pb : pbs){
 			
-			if(pb.getState()==PayBack.STATE_FINISHREPAY){
+			if(pb.getState()==PayBack.STATE_FINISHREPAY || pb.getState()==PayBack.STATE_INVALID){
 				continue;
 			}
 			
@@ -303,10 +356,11 @@ public class PurchaseServiceImpl implements IPurchaseService {
 			}
 			
 			
-			if(date>=(pb.getDeadline()+2L*24*3600*1000)){
+			if(DateCalculateUtils.getDays(date, pb.getDeadline())<=PAYBACK_PERIOD_BEFORE && DateCalculateUtils.getDays(pb.getDeadline(),date)<=PAYBACK_PERIOD_AFTER)
+			{
+				throw new Exception("已进入还款周期,不允许申请回购！");
+			}else if(DateCalculateUtils.getDays(pb.getDeadline(),date)>PAYBACK_PERIOD_AFTER){
 				throw new Exception("本产品已逾期超过两天，暂停回购！");
-			}else if((pb.getDeadline()-date)<=3L*24*3600*1000){
-				throw new Exception("已进入还款周期【还款日三天内】不允许申请回购！");
 			}else{
 				return;   //没有问题，可以申请回购
 			}
