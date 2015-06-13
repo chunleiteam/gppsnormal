@@ -36,11 +36,23 @@
     </bean>
     <bean id="chinanprSupportService" class="gpps.inner.service.impl.InnerThirdPaySupportServiceImpl">
         <property name="url" value="${pay.url}"></property>
+        <property name="returnUrl" value="${returnUrl}"></property>
+        <property name="notifyUrl" value="${notifyUrl}"></property>
+        <property name="appendFlag" value="${appendFlag}"></property>
         <property name="privateKey" value="${privateKey}"></property>
         <property name="publicKey" value="${publicKey}"></property>
         <property name="serverHost" value="${serverHost}"></property>
         <property name="serverPort" value="${serverPort}"></property>
         <property name="platformMoneymoremore" value="${platformMoneymoremore}"></property>
+        <property name="urlregister" value="${url.register}"></property>
+        <property name="urlrecharge" value="${url.recharge}"></property>
+        <property name="urltransfer" value="${url.transfer}"></property>
+        <property name="urlcheck" value="${url.check}"></property>
+        <property name="urlcardbinding" value="${url.cardbinding}"></property>
+        <property name="urlcash" value="${url.cash}"></property>
+        <property name="urlauthorize" value="${url.authorize}"></property>
+        <property name="urlorderquery" value="${url.orderquery}"></property>
+        <property name="urlbalancequery" value="${url.balancequery}"></property>
     </bean>
     <bean id="messageSupportService" class="gpps.service.impl.MessageSupportServiceImpl">
         <property name="baseUrl" value="${msg.url}"></property>
