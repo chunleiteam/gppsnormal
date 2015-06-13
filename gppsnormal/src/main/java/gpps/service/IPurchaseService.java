@@ -12,6 +12,15 @@ public interface IPurchaseService {
 	public static final BigDecimal AFTER_PURCHASE_BACK_RATE_JQ = new BigDecimal("0.10");
 	
 	
+	public static final int MIN_HOLDING_DAYS = 15;  //最小持有15天才可以出售
+	
+	public static final int PAYBACK_PERIOD_BEFORE = 3; //还款周期为还款日前3天
+	public static final int PAYBACK_PERIOD_AFTER = 1;  //还款周期为还款日后1天
+	
+	
+	public static final int TRANSACTION_PERIOD_START = 0; //交易时段上午9点
+	public static final int TRANSACTION_PERIOD_END = 23; //交易时段下午17点
+	
 	/**
 	 * 判断该笔投资是否可申请回购
 	 * @param submitId
