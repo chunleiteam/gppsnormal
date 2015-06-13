@@ -673,8 +673,13 @@ var createPurchaserNavLevel2 = function(nav){
 	}else if(nav=='purchase'){
 		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="purchase">可出售债权</a></li>');
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchaseback">待回购债权</a></li>');
+		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchasetopay">售出支付中</a></li>');
+		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchasedone">已售出债权</a></li>');
+		
 		ul.append(li1);
 		ul.append(li2);
+		ul.append(li3);
+		ul.append(li4);
 	}
 	
 	return ul;
@@ -756,7 +761,7 @@ var createNavLevel2 = function(nav){
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="my-score">积分等级</a></li>');
 		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="my-activity">我的活动</a></li>');
 		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="letter-unread-mycenter">站内信('+lettercount+')</a></li>');
-		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="notice-view">系统公告</a></li>');
+		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="invite-view">我的邀请码</a></li>');
 		var li6 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="question-view">我的问题</a></li>');
 		
 		
@@ -822,8 +827,14 @@ var createNavLevel2 = function(nav){
 	}else if(nav=='purchase'){
 		var li1 = $('<li role="presentation" class="active"><a href="javascript:void(0)" data-sk="purchase">可购买</a></li>');
 		var li2 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchaseback">可出售</a></li>');
+		var li3 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchasetopay">购买中待支付</a></li>');
+		var li4 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchasebacktoaudit">出售中待审核</a></li>');
+		var li5 = $('<li role="presentation"><a href="javascript:void(0)" data-sk="purchasebackdone">已出售</a></li>');
 		ul.append(li1);
 		ul.append(li2);
+		ul.append(li3);
+		ul.append(li4);
+		ul.append(li5);
 	}
 	
 	return ul;

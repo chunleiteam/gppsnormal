@@ -535,6 +535,54 @@ var submitsubscribetoafford = function(container){
 	});
 	
 }
+
+var inviteview = function(container){
+	var inviteState={1: '未注册', 2 : '正在注册', 4: '已注册'};
+	var inviteService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IInviteService");
+	var datas = null;
+	datas = inviteService.queryByAttriToAndBatchCode(user.id, null);
+	var aaData = new Array();
+	for(var i=0; i<datas.size(); i++){
+		var data=datas.get(i);
+		aaData.push([ data.code,
+		                    inviteState[data.state],
+		                    data.registerBy==null?"无":data.registerBy,
+		                    data.batchCode==null?"":data.batchCode]);
+	}
+	
+	var notice = $('<div style="border: #eee solid 1px; padding: 5px 10px 5px 10px; margin-bottom:15px; BACKGROUND-COLOR: #fef9f1;"></div>');
+	notice.html("当前第2批邀请码正在邀请中，系统会自动发放100个邀请码至近期活跃程度排名前十的用户，<br>"+
+				"截止6月30日晚23点59分59秒，任何一个本批次发放的邀请码成功邀请一个用户注册奖励20元，成功邀请一个用户完成投标奖励100元，<br>"+
+				"奖励将于7月1日以现金形式发放到邀请码所有人的账户里，欢迎踊跃参与！");
+	
+	
+	var table = $('<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="99%" cellspacing="0"></table>');
+	
+	var thead = $('<thead></thead>');
+	var tr = $('<tr role="row"></tr>');
+	tr.append('<th style="width: 135px;">邀请码</th>');
+	tr.append('<th style="width: 102px;">状态</th>');
+	tr.append('<th style="width: 60px;">注册人ID</th>');
+	tr.append('<th style="width: 60px;">批号</th>');
+	
+	thead.append(tr);
+	table.append(thead)
+	
+	
+	table.append('<tbody></tbody>');
+	container.append(notice);
+	container.append(table);
+	
+	table.addClass( 'nowrap' )
+	.dataTable( {
+		responsive: true,
+		bFilter : false, //是否使用搜索 
+		aaData : aaData,
+		oLanguage : _defaultDataTableOLanguage,
+		pagingType: "full"
+	} );
+}
+
 var submittoafford = function(container){
 	var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
 	var datas = null;
@@ -618,15 +666,24 @@ var submitpayback = function(container){
 				var ff = contractService.submitContract(item.product.id, item.id);
 				var con = ff==true?"<a href='/download/contract/"+item.product.id+"/"+item.id+"' target='_blank'>查看合同</a>":"尚未上传";
 				
+				var pbbutton = "";
+				if(item.handleFlag==2)
+				{
+					pbbutton = "<button class='purchaseback' id="+item.id+">出售</button>";
+				}else{
+					pbbutton = "<button disabled='disabled'>不可出售</button>";
+				}
 				result.aaData.push(["<a href='productdetail.html?pid="+item.product.id+"' >"+item.product.govermentOrder.title+"("+item.product.productSeries.title+")</a>",
 				                    formatDateToDay(item.product.govermentOrder.financingEndtime),
+				                    formatDateToDay(item.holdingstarttime),
 				                    formatDateToDay(item.product.incomeEndtime),
 				                    item.amount.value,
 				                    item.repayedAmount.value,
 				                    item.waitforRepayAmount.value,
 				                    "<button class='repaydetail' id="+item.id+">查看</button>",
-				                    "<button class='purchaseback' id="+item.id+">出售</button>",
+				                    pbbutton,
 				                    con]);
+				
 			}
 		}
 		result.sEcho = sEcho;
@@ -648,7 +705,7 @@ var submitpayback = function(container){
 			str+="<tr><td>已回款利息</td><td>"+result.interestAlready.value+"</td></tr>";
 			str+="<tr><td>回购手续费</td><td>-"+result.purchaseBackFee.value+"</td></tr>";
 			str+="<tr><td>出售金额</td><td><span class='orange'>"+result.purchaseAmount.value+"</span></td></tr>";
-			str+="<tr><td colspan=2>持有期获得本息总计：<span class='orange'>"+result.totalAmount.value+"</span>元,共持有"+result.holdingDays+" 天，持有期年华利率<span class='orange'>"+result.rateAfterPB.value+"</span></td></tr>";
+			str+="<tr><td colspan=2>持有期获得本息总计：<span class='orange'>"+result.totalAmount.value+"</span>元,共持有"+result.holdingDays+" 天，持有期年化利率<span class='orange'>"+result.rateAfterPB.value+"</span></td></tr>";
 			
 			str+="</table>";
 			
@@ -689,6 +746,7 @@ var submitpayback = function(container){
 	var tr = $('<tr role="row"></tr>');
 	tr.append('<th style="width: 150px;">项目信息</th>');
 	tr.append('<th style="width: 100px;">投标完成时间</th>');
+	tr.append('<th style="width: 100px;">持有起始时间</th>');
 	tr.append('<th style="width: 100px;">到期时间</th>');
 	tr.append('<th style="width: 42px;">金额</th>');
 	tr.append('<th style="width: 42px;">已回款</th>');
@@ -1614,6 +1672,270 @@ var questionview = function(container){
 	} );
 }
 
+var purchasebacktoaudit = function(container){
+	var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
+	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
+	var purchaseService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPurchaseService");
+	
+	var paybackState={0: '待还款', 1 : '正在还款', 2: '已还款', 3: '延期' , 5: '待审核'};
+	
+	var fnServerData = function(sSource, aoData, fnCallback, oSettings) {
+		var sEcho = "";
+		var iDisplayStart = 0;
+		var iDisplayLength = 0;
+		for ( var i = 0; i < aoData.length; i++) {
+			var data = aoData[i];
+			if (data.name == "sEcho")
+				sEcho = data.value;
+			if (data.name == "start")
+				iDisplayStart = data.value;
+			if (data.name == "length")
+				iDisplayLength = data.value;
+		}
+		var res = null;
+		res = submitService.findAllSubmitsByLenderAndStateAndProductStatesAndPurchaseFlag(user.id, 32, (2+16), 0,iDisplayStart, iDisplayLength);
+		var result = {};
+		result.iTotalRecords = res.get('total');
+		result.iTotalDisplayRecords = res.get('total');
+		result.aaData = new Array();
+		var items = res.get('result');
+		if(items)
+		{
+			for(var i=0; i<items.size(); i++){
+				var item=items.get(i);
+				result.aaData.push(["<a href='productdetail.html?pid="+item.product.id+"' >"+item.product.govermentOrder.title+"("+item.product.productSeries.title+")</a>",
+				                    formatDateToDay(item.product.govermentOrder.financingEndtime),
+				                    formatDateToDay(item.product.incomeEndtime),
+				                    item.amount.value,
+				                    formatDateToDay(item.lastmodifytime),
+				                    "三天",
+				                    "<button class='repaydetail' id="+item.id+">查看</button>"]);
+			}
+		}
+		result.sEcho = sEcho;
+		fnCallback(result);
+		$('button.repaydetail').click(function(e){
+			var itemid = $(this).attr('id');
+			var submititem = submitService.find(parseInt(itemid));
+			var pays = paybackService.generatePayBacksBySubmit(submititem.id);
+			var str = "<table class='table' style='width:95%;'>";
+			str+="<tr><td colspan=5>本笔投资总金额为："+submititem.amount.value+"元, 预期还款明细如下：</td></tr>";
+			str+="<tr><td>序号</td><td>还款日期</td><td>总额</td><td>本金</td><td>利息</td><td>状态</td></tr>";
+			for(var i=0; i<pays.size(); i++){
+				var pay = pays.get(i);
+				str+="<tr><td>"+(i+1)+"</td><td>"+formatDateToDay(pay.deadline)+"</td><td>"+(parseFloat(pay.chiefAmount.value)+parseFloat(pay.interest.value)).toFixed(2)+"</td><td>"+pay.chiefAmount.value+"</td><td>"+pay.interest.value+"</td><td>"+paybackState[pay.state]+"</td></tr>";
+			}
+			str+="</table>";
+			$('#rdetail').html(str);
+			$('#repaydetail').modal({
+				  keyboard: false,
+				  backdrop: true
+			});
+		})
+
+		return res;
+	}
+	
+	
+	var table = $('<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="99%" cellspacing="0"></table>');
+	
+	var thead = $('<thead></thead>');
+	var tr = $('<tr role="row"></tr>');
+	tr.append('<th style="width: 150px;">项目信息</th>');
+	tr.append('<th style="width: 100px;">投标完成时间</th>');
+	tr.append('<th style="width: 100px;">到期时间</th>');
+	tr.append('<th style="width: 42px;">金额</th>');
+	tr.append('<th style="width: 100px;">申请回购时间</th>');
+	tr.append('<th style="width: 42px;">处理期</th>');
+	tr.append('<th style="width: 42px;">回款明细</th>');
+	
+	thead.append(tr);
+	table.append(thead)
+	
+	
+	table.append('<tbody></tbody>');
+	
+	container.append(table);
+	
+	
+	table.addClass( 'nowrap' )
+	.dataTable( {
+		bServerSide : true,
+		responsive: true,
+		fnServerData : fnServerData,
+		oLanguage : _defaultDataTableOLanguage,
+		pagingType: "full"
+	} );
+}
+
+var purchasebackdone = function(container){
+	var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
+	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
+	var purchaseService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPurchaseService");
+	
+	var paybackState={0: '待还款', 1 : '正在还款', 2: '已还款', 3: '延期' , 5: '待审核'};
+	
+	var fnServerData = function(sSource, aoData, fnCallback, oSettings) {
+		var sEcho = "";
+		var iDisplayStart = 0;
+		var iDisplayLength = 0;
+		for ( var i = 0; i < aoData.length; i++) {
+			var data = aoData[i];
+			if (data.name == "sEcho")
+				sEcho = data.value;
+			if (data.name == "start")
+				iDisplayStart = data.value;
+			if (data.name == "length")
+				iDisplayLength = data.value;
+		}
+		var res = null;
+		res = submitService.findAllSubmitsByLenderAndStateAndProductStatesAndPurchaseFlag(user.id, 64, -1, 0,iDisplayStart, iDisplayLength);
+		var result = {};
+		result.iTotalRecords = res.get('total');
+		result.iTotalDisplayRecords = res.get('total');
+		result.aaData = new Array();
+		var items = res.get('result');
+		if(items)
+		{
+			for(var i=0; i<items.size(); i++){
+				var item=items.get(i);
+				result.aaData.push(["<a href='productdetail.html?pid="+item.product.id+"' >"+item.product.govermentOrder.title+"("+item.product.productSeries.title+")</a>",
+				                    item.amount.value,
+				                    formatDate(item.lastmodifytime)]);
+			}
+		}
+		result.sEcho = sEcho;
+		fnCallback(result);
+		return res;
+	}
+	
+	
+	var table = $('<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="99%" cellspacing="0"></table>');
+	
+	var thead = $('<thead></thead>');
+	var tr = $('<tr role="row"></tr>');
+	tr.append('<th style="width: 150px;">项目信息</th>');
+	tr.append('<th style="width: 42px;">金额</th>');
+	tr.append('<th style="width: 100px;">完成回购时间</th>');
+	
+	thead.append(tr);
+	table.append(thead)
+	
+	
+	table.append('<tbody></tbody>');
+	
+	container.append(table);
+	
+	
+	table.addClass( 'nowrap' )
+	.dataTable( {
+		bServerSide : true,
+		responsive: true,
+		fnServerData : fnServerData,
+		oLanguage : _defaultDataTableOLanguage,
+		pagingType: "full"
+	} );
+	
+	
+}
+
+var purchasetopay = function(container){
+	var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
+	var paybackService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPayBackService");
+	var purchaseService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.IPurchaseService");
+	
+	var paybackState={0: '待还款', 1 : '正在还款', 2: '已还款', 3: '延期' , 5: '待审核'};
+	
+	var fnServerData = function(sSource, aoData, fnCallback, oSettings) {
+		var sEcho = "";
+		var iDisplayStart = 0;
+		var iDisplayLength = 0;
+		for ( var i = 0; i < aoData.length; i++) {
+			var data = aoData[i];
+			if (data.name == "sEcho")
+				sEcho = data.value;
+			if (data.name == "start")
+				iDisplayStart = data.value;
+			if (data.name == "length")
+				iDisplayLength = data.value;
+		}
+		var res = null;
+		res = submitService.findAllSubmitsByLenderAndStateAndProductStatesAndPurchaseFlag(null, 128, (2+16), 1,iDisplayStart, iDisplayLength);
+		var result = {};
+		result.iTotalRecords = res.get('total');
+		result.iTotalDisplayRecords = res.get('total');
+		result.aaData = new Array();
+		var items = res.get('result');
+		if(items)
+		{
+			for(var i=0; i<items.size(); i++){
+				var item=items.get(i);
+				result.aaData.push(["<a href='productdetail.html?pid="+item.product.id+"' >"+item.product.govermentOrder.title+"("+item.product.productSeries.title+")</a>",
+				                    formatDateToDay(item.product.govermentOrder.financingEndtime),
+				                    formatDateToDay(item.product.incomeEndtime),
+				                    item.amount.value,
+				                    formatDate(item.lastmodifytime),
+				                    "30分钟",
+				                    "<button class='repaydetail' id="+item.id+">查看</button>"]);
+			}
+		}
+		result.sEcho = sEcho;
+		fnCallback(result);
+		$('button.repaydetail').click(function(e){
+			var itemid = $(this).attr('id');
+			var submititem = submitService.find(parseInt(itemid));
+			var pays = paybackService.generatePayBacksBySubmit(submititem.id);
+			var str = "<table class='table' style='width:95%;'>";
+			str+="<tr><td colspan=5>本笔投资总金额为："+submititem.amount.value+"元, 预期还款明细如下：</td></tr>";
+			str+="<tr><td>序号</td><td>还款日期</td><td>总额</td><td>本金</td><td>利息</td><td>状态</td></tr>";
+			for(var i=0; i<pays.size(); i++){
+				var pay = pays.get(i);
+				str+="<tr><td>"+(i+1)+"</td><td>"+formatDateToDay(pay.deadline)+"</td><td>"+(parseFloat(pay.chiefAmount.value)+parseFloat(pay.interest.value)).toFixed(2)+"</td><td>"+pay.chiefAmount.value+"</td><td>"+pay.interest.value+"</td><td>"+paybackState[pay.state]+"</td></tr>";
+			}
+			str+="</table>";
+			$('#rdetail').html(str);
+			$('#repaydetail').modal({
+				  keyboard: false,
+				  backdrop: true
+			});
+		})
+
+		return res;
+	}
+	
+	
+	var table = $('<table role="grid" id="example" class="display nowrap dataTable dtr-inline" width="99%" cellspacing="0"></table>');
+	
+	var thead = $('<thead></thead>');
+	var tr = $('<tr role="row"></tr>');
+	tr.append('<th style="width: 150px;">项目信息</th>');
+	tr.append('<th style="width: 100px;">投标完成时间</th>');
+	tr.append('<th style="width: 100px;">到期时间</th>');
+	tr.append('<th style="width: 42px;">金额</th>');
+	tr.append('<th style="width: 100px;">申请支付时间</th>');
+	tr.append('<th style="width: 42px;">有效期</th>');
+	tr.append('<th style="width: 42px;">回款明细</th>');
+	
+	thead.append(tr);
+	table.append(thead)
+	
+	
+	table.append('<tbody></tbody>');
+	
+	container.append(table);
+	
+	
+	table.addClass( 'nowrap' )
+	.dataTable( {
+		bServerSide : true,
+		responsive: true,
+		fnServerData : fnServerData,
+		oLanguage : _defaultDataTableOLanguage,
+		pagingType: "full"
+	} );
+	
+	
+}
 
 var submittobepurchase = function(container){
 	var submitService = EasyServiceClient.getRemoteProxy("/easyservice/gpps.service.ISubmitService");
@@ -1636,7 +1958,7 @@ var submittobepurchase = function(container){
 				iDisplayLength = data.value;
 		}
 		var res = null;
-		res = submitService.findAllSubmitsByStateAndProductStatesAndPurchaseFlag(2, (2+16), 1,iDisplayStart, iDisplayLength);
+		res = submitService.findAllSubmitsByLenderAndStateAndProductStatesAndPurchaseFlag(null, 2, (2+16), 1,iDisplayStart, iDisplayLength);
 		var result = {};
 		result.iTotalRecords = res.get('total');
 		result.iTotalDisplayRecords = res.get('total');
@@ -1771,9 +2093,12 @@ var nav2funtion = {
 		"letter-unread-mycenter" : letterunread_center,
 		"letter-unread" : letterunread,
 		"letter-readed" : letterreaded,
-		"notice-view" : noticeview,
+		"invite-view" : inviteview,
 		"question-view" : questionview,
 		
 		"purchase" : submittobepurchase,
-		"purchaseback" : submitpayback
+		"purchaseback" : submitpayback,
+		"purchasetopay" : purchasetopay,
+		"purchasebacktoaudit" : purchasebacktoaudit,
+		"purchasebackdone" : purchasebackdone
 }
