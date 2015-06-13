@@ -80,11 +80,17 @@ public interface IPayBackService {
 	 */
 	public List<PayBack> findBorrowerWaitForRepayed();
 	/**
-	 * 该payback是否可还
+	 * 该payback是否可执行还款
 	 * @param payBackId
 	 * @return
 	 */
 	public boolean canRepay(Integer payBackId);
+	/**
+	 * 该payback是否到还款周期，可被借款方申请还款（针对结构化，同一天多个还款的情况，可以都申请还款）
+	 * @param payBackId
+	 * @return
+	 * */
+	public boolean canApplyRepay(Integer payBackId);
 	/**
 	 * 该payback是否可提前还
 	 * @param payBackId
