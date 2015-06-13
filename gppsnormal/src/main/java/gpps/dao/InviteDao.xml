@@ -16,6 +16,7 @@
 		<if test="batchCode != null">
             and batchCode=#{batchCode}
         </if>
+         order by id desc;
 	</select>
 	
 	<select id="queryByBatchCode" resultType="gpps.model.Invite">

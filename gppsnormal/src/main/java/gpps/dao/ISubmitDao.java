@@ -38,8 +38,8 @@ public interface ISubmitDao {
 	 * */
 	public int countByLenderAndProductStates(@Param("lenderId")Integer lenderId,@Param("productStates") List<Integer> productStates);
 	
-	public int countByStateAndProductStatesAndPurchaseFlag(@Param("state")int state,@Param("productStates") List<Integer> productStates, @Param("purchaseFlag")int purchaseFlag);
-	public List<Submit> findAllByStateAndProductStatesAndPurchaseFlagWithPaged(@Param("state")int state,@Param("productStates") List<Integer> productStates, @Param("purchaseFlag")int purchaseFlag,@Param("offset")int offset,@Param("recnum")int recnum);
+	public int countByLenderAndStateAndProductStatesAndPurchaseFlag(@Param("lenderId")Integer lenderId, @Param("state")int state,@Param("productStates") List<Integer> productStates, @Param("purchaseFlag")int purchaseFlag);
+	public List<Submit> findAllByLenderAndStateAndProductStatesAndPurchaseFlagWithPaged(@Param("lenderId")Integer lenderId, @Param("state")int state,@Param("productStates") List<Integer> productStates, @Param("purchaseFlag")int purchaseFlag,@Param("offset")int offset,@Param("recnum")int recnum);
 	
 	
 	public List<Submit> findAllByProductAndStateWithPaged(@Param("productId")Integer productId,@Param("state")int state,@Param("offset")int offset,@Param("recnum")int recnum);

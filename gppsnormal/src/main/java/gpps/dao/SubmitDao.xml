@@ -98,9 +98,12 @@
 			</foreach>
 		</if>
 	</select>
-	<select id="countByStateAndProductStatesAndPurchaseFlag" resultType="int">
+	<select id="countByLenderAndStateAndProductStatesAndPurchaseFlag" resultType="int">
 		select count(*)
 		from Submit a,Product b where a.productId=b.id and a.state=#{state} and a.purchaseFlag=#{purchaseFlag} 
+		<if test="lenderId != null">
+		 and a.lenderId = #{lenderId} 
+		</if>
 		<if test="productStates != null">
 			and b.state in
 			<foreach item="item" index="index" collection="productStates"
@@ -110,9 +113,12 @@
 		</if>
 	</select>
 	
-	<select id="findAllByStateAndProductStatesAndPurchaseFlagWithPaged" resultType="gpps.model.Submit">
+	<select id="findAllByLenderAndStateAndProductStatesAndPurchaseFlagWithPaged" resultType="gpps.model.Submit">
 		select *
 		from Submit a, Product b where a.productId=b.id and a.state=#{state} and a.purchaseFlag=#{purchaseFlag} 
+		<if test="lenderId != null">
+		 and a.lenderId = #{lenderId} 
+		</if>
 		<if test="productStates != null">
 			and b.state in
 			<foreach item="item" index="index" collection="productStates"
